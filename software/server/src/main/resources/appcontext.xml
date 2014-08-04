@@ -29,9 +29,8 @@
 
   <!-- SESSION FACTORY -->
   <bean id="sessionFactory"
-        class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean"
+        class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
         destroy-method="destroy">
-    <property name="configurationClass" value="org.hibernate.cfg.AnnotationConfiguration" />
     <property name="annotatedClasses">
       <list>
         <value>com.ect.domainobject.MeetingRoom</value>       
@@ -52,11 +51,11 @@
   </bean>
 
   <!-- TRANSACTION MANAGER -->
-  <bean id="transactionManager"
-        class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="sessionFactory" />
-  </bean>
-
+<bean id="transactionManager"
+        class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+        <property name="sessionFactory" ref="sessionFactory" />
+</bean>
   <!-- ANNOTATION DRIVEN TRANSACTIONS -->
   <tx:annotation-driven transaction-manager="transactionManager" />
 
