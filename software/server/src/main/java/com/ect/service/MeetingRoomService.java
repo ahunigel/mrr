@@ -32,4 +32,26 @@ public class MeetingRoomService {
 		
 	}
 	
+	public MeetingRoomVO getMeetingRoom(Integer id){
+		MeetingRoom meetingRoom=new MeetingRoom();
+		dao.get(meetingRoom, id);
+		MeetingRoomVO vo=new MeetingRoomVO();
+		BeanUtils.copyProperties(meetingRoom, vo);
+		return vo;
+	}
+	
+	public void deleteMeetingRoom(Integer id){
+		MeetingRoom mr=new MeetingRoom();
+		mr.setId(id);
+		dao.delete(mr);
+	}
+
+	public MeetingRoomVO saveOrUpdateMeetingRoom(MeetingRoomVO meetingRoom) {
+		MeetingRoom mr=new MeetingRoom();
+		BeanUtils.copyProperties(meetingRoom, mr);
+		dao.saveOrUpdate(mr);
+		meetingRoom.setId(mr.getId());
+		return meetingRoom;
+	}
+	
 }
