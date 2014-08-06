@@ -17,6 +17,7 @@ public class MeetingRoom {
 	private String location;
 	
 	private int floor;
+	private int seats;
 	
 	private MeetingRoomStatus status;
 	
@@ -69,6 +70,15 @@ public class MeetingRoom {
 
 	public void setStatus(MeetingRoomStatus status) {
 		this.status = status;
+	}	
+	
+
+	public int getSeats() {
+		return seats;
+	}
+
+	public void setSeats(int seats) {
+		this.seats = seats;
 	}
 
 	public boolean isProjectorExist() {
@@ -85,6 +95,14 @@ public class MeetingRoom {
 
 	public void setPhoneExist(boolean phoneExist) {
 		this.phoneExist = phoneExist;
+	}
+
+	@Override
+	public String toString() {
+		return "MeetingRoom [id=" + id + ", name=" + name + ", location="
+				+ location + ", floor=" + floor + ", seats=" + seats
+				+ ", status=" + status + ", projectorExist=" + projectorExist
+				+ ", phoneExist=" + phoneExist + "]";
 	}
 
 

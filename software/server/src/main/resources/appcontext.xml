@@ -31,9 +31,9 @@
   <bean id="sessionFactory"
         class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
         destroy-method="destroy">
-    <property name="annotatedClasses">
+    <property name="packagesToScan">
       <list>
-        <value>com.ect.domainobject.MeetingRoom</value>       
+        <value>com.ect.domainobject</value>       
       </list>
     </property>
     <property name="dataSource" ref="dataSource" />

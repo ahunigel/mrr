@@ -11,6 +11,8 @@ public class MeetingRoomVO {
 	
 	private int floor;
 	
+	private int seats;
+	
 	private MeetingRoomStatus status;
 	
 	private boolean projectorExist;
@@ -48,6 +50,16 @@ public class MeetingRoomVO {
 
 	public void setFloor(int floor) {
 		this.floor = floor;
+	}
+	
+	
+
+	public int getSeats() {
+		return seats;
+	}
+
+	public void setSeats(int seats) {
+		this.seats = seats;
 	}
 
 	public MeetingRoomStatus getStatus() {

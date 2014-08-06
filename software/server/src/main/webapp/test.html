@@ -4,7 +4,7 @@
 <body>
 	Meeting room List
 	<div id="mrList">
-		<table id="mrTab" bolder="1px">
+		<table id="mrTab" border="1">
 		</table>
 	</div>
 	
@@ -13,6 +13,7 @@
 	<form id="addForm" action="ws/meetingrooms" method="PUT">
 		<label>Name:</label><input name="name"/></br>
 		<label>Location:</label><input name="location"/></br>
+		<label>Seats:</label><input name="seats"/></br>
 		<label>Floor:</label><select name="floor">
 			<option value="3">3</option>
 			<option value="4">4</option>
@@ -32,6 +33,7 @@
 		<input name="id" type="hidden"/>
 		<label>Name:</label><input name="name"/></br>
 		<label>Location:</label><input name="location"/></br>
+		<label>Seats:</label><input name="seats"/></br>
 		<label>Floor:</label><select name="floor">
 			<option value="3">3</option>
 			<option value="4">4</option>
@@ -60,19 +62,22 @@
 			var header=mrTab.insertRow(0);
 				header.insertCell(0).innerHTML='Name';
 				header.insertCell(1).innerHTML='Location';
-				header.insertCell(2).innerHTML='Has Phone';
-				header.insertCell(3).innerHTML='Has Projector';
-				header.insertCell(4).innerHTML='Available';
-				header.insertCell(5).innerHTML='Operation';
+				header.insertCell(2).innerHTML='Seats';
+				header.insertCell(3).innerHTML='Has Phone';
+				header.insertCell(4).innerHTML='Has Projector';
+				header.insertCell(5).innerHTML='Available';
+				header.insertCell(6).innerHTML='Operation';
 			for(var i=0;i<mrData.length;i++){
 				var row=mrTab.insertRow(i+1);
 				row.insertCell(0).innerHTML=mrData[i].name;
-				row.insertCell(1).innerHTML=mrData[i].floor+' floor '+mrData[i].location;
-				row.insertCell(2).innerHTML='<input type="checkbox" '+(mrData[i].phoneExist==true?'checked':'')+' disabled/>';
-				row.insertCell(3).innerHTML='<input type="checkbox" '+(mrData[i].projectorExist?'checked':'')+' disabled/>';
-				row.insertCell(4).innerHTML='<input type="checkbox" disabled/>';
+				row.insertCell(1).innerHTML=mrData[i].floor+'F '+mrData[i].location;
+				row.insertCell(2).innerHTML=mrData[i].seats;
 				
-				row.insertCell(5).innerHTML='<input type="button" value="edit" onclick="editMR('+i+')"/><input type="button" value="delete" onclick="deleteMR('+mrData[i].id+')"/>';
+				row.insertCell(3).innerHTML='<input type="checkbox" '+(mrData[i].phoneExist==true?'checked':'')+' disabled/>';
+				row.insertCell(4).innerHTML='<input type="checkbox" '+(mrData[i].projectorExist?'checked':'')+' disabled/>';
+				row.insertCell(5).innerHTML='<input type="checkbox" disabled/>';
+				
+				row.insertCell(6).innerHTML='<input type="button" value="edit" onclick="editMR('+i+')"/><input type="button" value="delete" onclick="deleteMR('+mrData[i].id+')"/>';
 			}
 		  };
 	}
