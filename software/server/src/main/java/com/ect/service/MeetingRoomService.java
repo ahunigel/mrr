@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ect.dao.MeetingRoomDao;
+import com.ect.dao.ReservationMeetingRoomDao;
 import com.ect.domainobject.MeetingRoom;
+import com.ect.domainobject.MeetingRoomReservation;
+import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
 
 @Transactional
@@ -18,6 +21,8 @@ public class MeetingRoomService {
 	
 	@Autowired
 	private MeetingRoomDao dao;
+	@Autowired
+	private ReservationMeetingRoomDao reservationDao;
 	
 	public List<MeetingRoomVO> getAllMeetingRoom(){
 		List<MeetingRoom>mrList=dao.findAll();
@@ -52,6 +57,54 @@ public class MeetingRoomService {
 		dao.saveOrUpdate(mr);
 		meetingRoom.setId(mr.getId());
 		return meetingRoom;
+	}
+	
+	public List<MeetingRoomReservationVO> getAllMeetingRoomReservation()
+	{
+		List<MeetingRoomReservation> rem = reservationDao.findAll();
+		
+		List<MeetingRoomReservationVO> result=new ArrayList<MeetingRoomReservationVO>();
+		for(MeetingRoomReservation mr:rem){
+			MeetingRoomReservationVO vo=new MeetingRoomReservationVO();
+			BeanUtils.copyProperties(mr, vo);
+			result.add(vo);
+		}
+		
+		return result;
+	}
+	
+	public List<MeetingRoomReservationVO> getReservationByMeetingRoom(Integer id)
+	{
+		List<MeetingRoomReservation> rem = reservationDao.findAll();
+		
+		List<MeetingRoomReservationVO> result=new ArrayList<MeetingRoomReservationVO>();
+		for(MeetingRoomReservation mr:rem){
+			MeetingRoomReservationVO vo=new MeetingRoomReservationVO();
+			BeanUtils.copyProperties(mr, vo);
+			result.add(vo);
+		}
+		
+		return result;
+	}
+	
+	public MeetingRoomReservationVO saveOrUpdateMeetingRoomReservation(MeetingRoomReservationVO mrr) {
+		MeetingRoomReservation mr=new MeetingRoomReservation();
+		BeanUtils.copyProperties(mrr, mr);
+		reservationDao.saveOrUpdate(mr);
+		mrr.setId(mr.getId());
+		return mrr;
+	}
+	
+	public void deleteMeetingRoomReservation(Integer id)
+	{
+		MeetingRoomReservation mr=new MeetingRoomReservation();
+		mr.setId(id);
+		reservationDao.delete(mr);
+	}
+		
+	public void deleteReservationByMeetingRoom(Integer id)
+	{
+		reservationDao.deleteReservationByMeetingRoom(id);
 	}
 	
 }

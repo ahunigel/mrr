@@ -15,6 +15,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ect.service.MeetingRoomService;
+import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
 
 @RequestScoped
@@ -55,5 +56,46 @@ public class MeetingRoomResource {
 	@Path("/{id}")
 	public void deleteMeetingRoom(@PathParam("id") Integer id){
 		service.deleteMeetingRoom(id);
+	}
+	
+	@GET
+	@Produces({ "application/json;charset=UTF-8" })
+	public List<MeetingRoomReservationVO> getAllMeetingRoomReservations()
+	{
+		return service.getAllMeetingRoomReservation();
+	}
+	
+	@GET
+	@Path("/{id}")
+	@Produces({ "application/json;charset=UTF-8" })
+	public List<MeetingRoomReservationVO> getReservationsByMeetingRoom(@PathParam("id") Integer id)
+	{
+		return service.getReservationByMeetingRoom(id);
+	}
+	
+	@PUT
+	@Produces({ "application/json;charset=UTF-8" })
+	@Consumes({ "application/json;charset=UTF-8"})
+	public MeetingRoomReservationVO createMeetingRoomReservation (MeetingRoomReservationVO mrr){
+		return service.saveOrUpdateMeetingRoomReservation(mrr);
+	}
+	
+	@POST
+	@Produces({ "application/json;charset=UTF-8" })
+	@Consumes({ "application/json;charset=UTF-8"})
+	public MeetingRoomReservationVO updateMeetingRoom(MeetingRoomReservationVO mrr){
+		return service.saveOrUpdateMeetingRoomReservation(mrr);
+	}
+	
+	@DELETE
+	@Path("/{id}")
+	public void deleteReservationByMeetingRoom(@PathParam("id") Integer id){
+		service.deleteReservationByMeetingRoom(id);
+	}
+	
+	@DELETE
+	@Path("/{id}")
+	public void deleteMeetingRoomReservation(@PathParam("id") Integer id){
+		service.deleteMeetingRoomReservation(id);
 	}
 }

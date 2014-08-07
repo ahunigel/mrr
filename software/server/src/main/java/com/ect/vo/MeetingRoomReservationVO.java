@@ -1,27 +1,14 @@
-package com.ect.domainobject;
+package com.ect.vo;
 
 import java.util.Date;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import com.ect.domainobject.MeetingRoom;
+import com.ect.domainobject.RecurrentType;
+import com.ect.domainobject.ReservationType;
+import com.ect.domainobject.User;
 
-/**
- * 
- * @hibernate.query name="deleteReservationByRoom"
- *  query="delete from MeetingRoomReservation m where m.meetingRoom.id =: roomId"
- *  
- * @hibernate.query name="getReservationByRoom"
- *  query="select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id =: roomId"
- */
 
-@Entity
-@Table(name = "meeting_room_reservation")
-public class MeetingRoomReservation {
+public class MeetingRoomReservationVO {
 	
 	private Integer id;
 	
@@ -56,14 +43,13 @@ public class MeetingRoomReservation {
 	 * 
 	 */
 	private RecurrentType recurrentType;
-	//format Hour*60+Minute
+
 	private Integer recurrentStartTime;
-	//format Hour*60+Minute
+
 	private Integer recurrentEndTime;
 	
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+
 	public Integer getId() {
 		return id;
 	}
@@ -113,8 +99,7 @@ public class MeetingRoomReservation {
 	public void setMeetingSubject(String meetingSubject) {
 		this.meetingSubject = meetingSubject;
 	}
-	@ManyToOne
-	@JoinColumn(name = "meeting_room_id")
+
 	public MeetingRoom getMeetingRoom() {
 		return meetingRoom;
 	}
@@ -122,23 +107,11 @@ public class MeetingRoomReservation {
 		this.meetingRoom = meetingRoom;
 	}
 	
-	@ManyToOne
-	@JoinColumn(name = "user_id")
 	public User getReservedPerson() {
 		return reservedPerson;
 	}
 	public void setReservedPerson(User reservedPerson) {
 		this.reservedPerson = reservedPerson;
 	}
-	@Override
-	public String toString() {
-		return "MeetingRoomReservation [id=" + id + ", reservationType="
-				+ reservationType + ", startTime=" + startTime + ", endTime="
-				+ endTime + ", meetingSubject=" + meetingSubject
-				+ ", meetingRoom=" + meetingRoom + ", reservedPerson="
-				+ reservedPerson + ", recurrentType=" + recurrentType
-				+ ", recurrentStartTime=" + recurrentStartTime
-				+ ", recurrentEndTime=" + recurrentEndTime + "]";
-	}	
-	
+		
 }
