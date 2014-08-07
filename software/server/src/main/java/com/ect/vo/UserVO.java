@@ -1,23 +1,16 @@
-package com.ect.domainobject;
+package com.ect.vo;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import com.ect.domainobject.Role;
 
-@Entity
-@Table(name = "user")
-public class User {
+public class UserVO {
 	private Integer id;
 	private String name;
 	private Integer location;
 	private String email;
 	private String bu;
 	private Role role;
+	private String password;
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public Integer getId() {
 		return id;
 	}
@@ -47,19 +40,24 @@ public class User {
 	}
 	public void setBu(String bu) {
 		this.bu = bu;
-	}	
-	
-	
+	}
 	public Role getRole() {
 		return role;
 	}
 	public void setRole(Role role) {
 		this.role = role;
 	}
+	
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", name=" + name + ", location=" + location
-				+ ", email=" + email + ", bu=" + bu + ", role="+ role +"]";
+		return "UserVO [id=" + id + ", name=" + name + ", location=" + location
+				+ ", email=" + email + ", bu=" + bu + ", role=" + role + ", password=********]";
 	}
 	
 	
