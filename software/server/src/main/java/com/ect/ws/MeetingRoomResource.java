@@ -59,6 +59,7 @@ public class MeetingRoomResource {
 	}
 	
 	@GET
+	@Path("/reservation")
 	@Produces({ "application/json;charset=UTF-8" })
 	public List<MeetingRoomReservationVO> getAllMeetingRoomReservations()
 	{
@@ -66,7 +67,7 @@ public class MeetingRoomResource {
 	}
 	
 	@GET
-	@Path("/{id}")
+	@Path("/{id}/reservation")
 	@Produces({ "application/json;charset=UTF-8" })
 	public List<MeetingRoomReservationVO> getReservationsByMeetingRoom(@PathParam("id") Integer id)
 	{
@@ -76,6 +77,7 @@ public class MeetingRoomResource {
 	@PUT
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8"})
+	@Path("/reservation")
 	public MeetingRoomReservationVO createMeetingRoomReservation (MeetingRoomReservationVO mrr){
 		return service.saveOrUpdateMeetingRoomReservation(mrr);
 	}
@@ -83,18 +85,19 @@ public class MeetingRoomResource {
 	@POST
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8"})
+	@Path("/reservation")
 	public MeetingRoomReservationVO updateMeetingRoom(MeetingRoomReservationVO mrr){
 		return service.saveOrUpdateMeetingRoomReservation(mrr);
 	}
 	
 	@DELETE
-	@Path("/{id}")
+	@Path("/{id}/reservation")
 	public void deleteReservationByMeetingRoom(@PathParam("id") Integer id){
 		service.deleteReservationByMeetingRoom(id);
 	}
 	
 	@DELETE
-	@Path("/{id}")
+	@Path("/reservation/{id}")
 	public void deleteMeetingRoomReservation(@PathParam("id") Integer id){
 		service.deleteMeetingRoomReservation(id);
 	}

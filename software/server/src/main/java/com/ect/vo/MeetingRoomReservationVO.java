@@ -33,7 +33,7 @@ public class MeetingRoomReservationVO {
 	 */
 	private String meetingSubject;
 
-	private MeetingRoom meetingRoom;
+	private MeetingRoomVO meetingRoom;
 	
 	
 	private User reservedPerson;
@@ -100,10 +100,10 @@ public class MeetingRoomReservationVO {
 		this.meetingSubject = meetingSubject;
 	}
 
-	public MeetingRoom getMeetingRoom() {
+	public MeetingRoomVO getMeetingRoom() {
 		return meetingRoom;
 	}
-	public void setMeetingRoom(MeetingRoom meetingRoom) {
+	public void setMeetingRoom(MeetingRoomVO meetingRoom) {
 		this.meetingRoom = meetingRoom;
 	}
 	
