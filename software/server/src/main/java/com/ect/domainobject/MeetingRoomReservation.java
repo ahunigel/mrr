@@ -10,6 +10,15 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+/**
+ * 
+ * @hibernate.query name="deleteReservationByRoom"
+ *  query="delete from MeetingRoomReservation m where m.meetingRoom.id =: roomId"
+ *  
+ * @hibernate.query name="getReservationByRoom"
+ *  query="select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id =: roomId"
+ */
+
 @Entity
 @Table(name = "meeting_room_reservation")
 public class MeetingRoomReservation {
@@ -36,6 +45,8 @@ public class MeetingRoomReservation {
 	 * description of the meeting.
 	 */
 	private String meetingSubject;
+	
+	
 
 	private MeetingRoom meetingRoom;
 	
@@ -47,6 +58,27 @@ public class MeetingRoomReservation {
 	 * 
 	 */
 	private RecurrentType recurrentType;
+	
+	/**
+	 * if recurrent type is weekly
+	 * the value should be 0-6 for Sunday to Saturday
+	 * if recurrent type is monthly
+	 * the value should from 1-31, day of month, -1 means last day of month.
+	 * if recurrent type is yearly
+	 * the value should from 1-366, day of year, -1 means last day of year.
+	 */	
+	private Integer day;
+	
+	/**
+	 * the interval for recurrent type,
+	 * 
+	 * if the value is 2 
+	 * 		recurrent type is daily, then it means every two days
+	 * 		recurrent type is weekly, then it means every two weeks
+	 * 		recurrent type is yearly, then it means every two years.
+	 */
+	private Integer interval =1;
+	
 	//format Hour*60+Minute
 	private Integer recurrentStartTime;
 	//format Hour*60+Minute
@@ -104,6 +136,20 @@ public class MeetingRoomReservation {
 	public void setMeetingSubject(String meetingSubject) {
 		this.meetingSubject = meetingSubject;
 	}
+	
+	
+	public Integer getDay() {
+		return day;
+	}
+	public void setDay(Integer day) {
+		this.day = day;
+	}
+	public Integer getInterval() {
+		return interval;
+	}
+	public void setInterval(Integer interval) {
+		this.interval = interval;
+	}
 	@ManyToOne
 	@JoinColumn(name = "meeting_room_id")
 	public MeetingRoom getMeetingRoom() {
@@ -121,6 +167,7 @@ public class MeetingRoomReservation {
 	public void setReservedPerson(User reservedPerson) {
 		this.reservedPerson = reservedPerson;
 	}
+	
 	@Override
 	public String toString() {
 		return "MeetingRoomReservation [id=" + id + ", reservationType="
@@ -128,9 +175,9 @@ public class MeetingRoomReservation {
 				+ endTime + ", meetingSubject=" + meetingSubject
 				+ ", meetingRoom=" + meetingRoom + ", reservedPerson="
 				+ reservedPerson + ", recurrentType=" + recurrentType
+				+ ", day=" + day + ", interval=" + interval
 				+ ", recurrentStartTime=" + recurrentStartTime
 				+ ", recurrentEndTime=" + recurrentEndTime + "]";
-	}
-	
+	}	
 	
 }

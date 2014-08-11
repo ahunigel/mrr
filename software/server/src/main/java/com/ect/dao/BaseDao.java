@@ -1,6 +1,7 @@
 package com.ect.dao;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,10 @@ public class BaseDao <T> extends HibernateDaoSupport{
 	public T get(T c,Serializable id){
 		 this.getHibernateTemplate().load(c, id);
 		 return c;
+	}	
+	
+	public List<T> findByExample(T c){
+		return this.getHibernateTemplate().findByExample(c);
 	}
 	
 	public void delete(T c){
