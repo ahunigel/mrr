@@ -16,51 +16,57 @@ import com.ect.vo.UserVO;
 public class UserService {
 	@Autowired
 	private UserDao dao;
-	
-	
-	public UserVO getUserByEmail(String email){
-		User user=new User();
+
+	public UserVO getUserByEmail(String email) {
+		User user = new User();
 		user.setEmail(email);
-		List<User> users=dao.findByExample(user);
-		if(users!=null && users.size()==1){
-			user=users.get(0);
-			UserVO result=new UserVO();
+		List<User> users = dao.findByExample(user);
+		if (users != null && users.size() == 1) {
+			user = users.get(0);
+			UserVO result = new UserVO();
 			BeanUtils.copyProperties(user, result);
 			return result;
-		}
-		else
-		{
-			//can't find user by email.
+		} else {
+			// can't find user by email.
 			return null;
 		}
 	}
-	
-	public UserVO authenticate(String username,String password){
-		User user=new User();
+
+	public UserVO getUserById(Integer id) {
+		User user = new User();
+
+		user = dao.get(user, id);
+
+		UserVO result = new UserVO();
+		BeanUtils.copyProperties(user, result);
+		return result;
+
+	}
+
+	public UserVO authenticate(String username, String password) {
+		User user = new User();
 		user.setName(username);
 		user.setBu(password);
-		List<User> users=dao.findByExample(user);
-		if(users!=null && users.size()==1){
-			user=users.get(0);
-			UserVO result=new UserVO();
+		List<User> users = dao.findByExample(user);
+		if (users != null && users.size() == 1) {
+			user = users.get(0);
+			UserVO result = new UserVO();
 			BeanUtils.copyProperties(user, result);
 			return result;
-		}
-		else
-		{
-			//can't find user by email.
+		} else {
+			// can't find user by email.
 			return null;
 		}
 	}
-	
-	public void delete(Integer id){
-		User user=new User();
+
+	public void delete(Integer id) {
+		User user = new User();
 		user.setId(id);
 		dao.delete(user);
 	}
-	
-	public UserVO saveOrUpdate(UserVO userVO){
-		User user=new User();
+
+	public UserVO saveOrUpdate(UserVO userVO) {
+		User user = new User();
 		BeanUtils.copyProperties(userVO, user);
 		dao.saveOrUpdate(user);
 		userVO.setId(user.getId());
