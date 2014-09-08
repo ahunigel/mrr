@@ -77,7 +77,7 @@ public class MeetingRoomReservation {
 	 * 		recurrent type is weekly, then it means every two weeks
 	 * 		recurrent type is yearly, then it means every two years.
 	 */
-	private Integer interval =1;
+	private Integer recurrentInterval =1;
 	
 	//format Hour*60+Minute
 	private Integer recurrentStartTime;
@@ -144,11 +144,14 @@ public class MeetingRoomReservation {
 	public void setDay(Integer day) {
 		this.day = day;
 	}
-	public Integer getInterval() {
-		return interval;
+	
+	
+	
+	public Integer getRecurrentInterval() {
+		return recurrentInterval;
 	}
-	public void setInterval(Integer interval) {
-		this.interval = interval;
+	public void setRecurrentInterval(Integer recurrentInterval) {
+		this.recurrentInterval = recurrentInterval;
 	}
 	@ManyToOne
 	@JoinColumn(name = "meeting_room_id")
@@ -175,7 +178,7 @@ public class MeetingRoomReservation {
 				+ endTime + ", meetingSubject=" + meetingSubject
 				+ ", meetingRoom=" + meetingRoom + ", reservedPerson="
 				+ reservedPerson + ", recurrentType=" + recurrentType
-				+ ", day=" + day + ", interval=" + interval
+				+ ", day=" + day + ", recurrentInterval=" + recurrentInterval
 				+ ", recurrentStartTime=" + recurrentStartTime
 				+ ", recurrentEndTime=" + recurrentEndTime + "]";
 	}	

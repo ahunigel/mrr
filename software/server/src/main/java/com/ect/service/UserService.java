@@ -2,12 +2,15 @@ package com.ect.service;
 
 import java.util.List;
 
+import javax.naming.ldap.LdapContext;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ect.dao.UserDao;
+import com.ect.domainobject.Role;
 import com.ect.domainobject.User;
 import com.ect.vo.UserVO;
 
@@ -16,6 +19,10 @@ import com.ect.vo.UserVO;
 public class UserService {
 	@Autowired
 	private UserDao dao;
+	
+
+	@Autowired
+	private ActiveDirectory activeDirectory;
 
 	public UserVO getUserByEmail(String email) {
 		User user = new User();
@@ -55,7 +62,29 @@ public class UserService {
 			return result;
 		} else {
 			// can't find user by email.
-			return null;
+			LdapContext context;
+			try {
+				context = ActiveDirectory.getConnection(username, password,"emrsn.org");
+			} catch (Exception e) {
+				return null;
+			}
+			ActiveDirectory.User activeUser=ActiveDirectory.getUser(username, context);
+			
+		  	UserVO result=new UserVO();
+		  	result.setName(activeUser.getCommonName());
+		  	result.setEmail(activeUser.getUserPrincipal());
+		  	result.setRole(Role.USER);
+		  	UserVO	puser=getUserByEmail(activeUser.getUserPrincipal());
+			if(puser==null){
+				//user not exists
+				user=new User();
+				BeanUtils.copyProperties(result,user);
+				dao.saveOrUpdate(user);
+				result.setId(user.getId());
+			}else{
+				result.setId(puser.getId());
+			}
+			return result;
 		}
 	}
 
