@@ -1,7 +1,6 @@
 package com.ect.service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -13,7 +12,6 @@ import com.ect.dao.MeetingRoomDao;
 import com.ect.dao.ReservationMeetingRoomDao;
 import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
-import com.ect.domainobject.User;
 import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
 
@@ -61,40 +59,32 @@ public class MeetingRoomService {
 		return meetingRoom;
 	}
 	
-	public List<MeetingRoomReservationVO> getMeetingRoomReservationByDate(Date datetime){
-		List<MeetingRoomReservation> rem = reservationDao.findByDate(datetime);
-		return convertMeetingRoomResult(rem);
-	}
-	
-	
-	public List<MeetingRoomReservationVO> getMeetingRoomReservationByUser(User user){
-		List<MeetingRoomReservation> rem = reservationDao.findByUser(user);
-
-		return convertMeetingRoomResult(rem);
-	}
-
-	private List<MeetingRoomReservationVO> convertMeetingRoomResult(
-			List<MeetingRoomReservation> rem) {
+	public List<MeetingRoomReservationVO> getAllMeetingRoomReservation()
+	{
+		List<MeetingRoomReservation> rem = reservationDao.findAll();
+		
 		List<MeetingRoomReservationVO> result=new ArrayList<MeetingRoomReservationVO>();
 		for(MeetingRoomReservation mr:rem){
 			MeetingRoomReservationVO vo=new MeetingRoomReservationVO();
 			BeanUtils.copyProperties(mr, vo);
 			result.add(vo);
 		}
-		return result;
-	}
-	
-	public List<MeetingRoomReservationVO> getAllMeetingRoomReservation()
-	{
-		List<MeetingRoomReservation> rem = reservationDao.findAll();
 		
-		return convertMeetingRoomResult(rem);
+		return result;
 	}
 	
 	public List<MeetingRoomReservationVO> getReservationByMeetingRoom(Integer id)
 	{
 		List<MeetingRoomReservation> rem = reservationDao.findAll();
-		return convertMeetingRoomResult(rem);
+		
+		List<MeetingRoomReservationVO> result=new ArrayList<MeetingRoomReservationVO>();
+		for(MeetingRoomReservation mr:rem){
+			MeetingRoomReservationVO vo=new MeetingRoomReservationVO();
+			BeanUtils.copyProperties(mr, vo);
+			result.add(vo);
+		}
+		
+		return result;
 	}
 	
 	public MeetingRoomReservationVO saveOrUpdateMeetingRoomReservation(MeetingRoomReservationVO mrr) {
