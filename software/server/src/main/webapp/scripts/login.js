@@ -1,3 +1,5 @@
+var currentUser=null;
+
 $( "#loginForm" ).submit(function( event ) {
  
   // Stop form from submitting normally
@@ -13,12 +15,14 @@ $( "#loginForm" ).submit(function( event ) {
   // Put the results in a div
   posting.done(function( data ) {
     if(data){
-
+    	currentUser=data;
     	$("#errorMessage").html("");
     	$("#loginForm").remove();
-    	$("#main").html(data.name);
-    	
+    	$.get( "html/main.html", function( data ) {
+			  $( "#main" ).html( data );
+			});
     }else{
+    	currentUser=null;
     	$("#errorMessage").html("Invalid Username or Password.");
     }
    
