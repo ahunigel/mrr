@@ -19,7 +19,7 @@ $( "#loginForm" ).submit(function( event ) {
     	$("#errorMessage").html("");
     	$("#loginForm").remove();
     	$.get( "html/main.html", function( data ) {
-			  $( "#main" ).html( data );
+			  $( "#content" ).html( data );
 			});
     }else{
     	currentUser=null;
