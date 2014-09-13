@@ -17,10 +17,8 @@ $( "#loginForm" ).submit(function( event ) {
     if(data){
     	currentUser=data;
     	$("#errorMessage").html("");
-    	$("#loginForm").remove();
-    	$.get( "html/main.html", function( data ) {
-			  $( "#content" ).html( data );
-			});
+//    	$("#loginForm").remove();
+    	$('body').load('main.html');
     }else{
     	currentUser=null;
     	$("#errorMessage").html("Invalid Username or Password.");
