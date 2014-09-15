@@ -1,0 +1,221 @@
+<head>
+<title>Meeting Room API test</title>
+</head>
+<body>
+	Meeting room List   <a href="#" onclick="addMR()">add meeting room</a>
+	<div id="mrList">
+		<table id="mrTab" border="1">
+		</table>
+	</div>
+	
+	
+	<div id="addDiv" title="Add Meeting Room">
+	Add a new meeting room
+	<form id="addForm" action="ws/meetingrooms" method="PUT">
+		<label>Name:</label><input name="name"/></br>
+		<label>Location:</label><input name="location"/></br>
+		<label>Seats:</label><input name="seats"/></br>
+		<label>Floor:</label><select name="floor">
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+		</select></br>
+		
+		<label>Has Phone:</label><input type="checkbox" name="phoneExist" value="true"/></br>
+		<label>Has Projector:</label><input type="checkbox" name="projectorExist" value="true"/></br>
+		<input type="submit"> 
+	</form>
+	</div>
+	<hr/>
+	<div id="editDiv" title="Edit Meeting Room">
+	<form id="editForm" action="ws/meetingrooms" method="POST">
+		<input name="id" type="hidden"/>
+		<label>Name:</label><input name="name"/></br>
+		<label>Location:</label><input name="location"/></br>
+		<label>Seats:</label><input name="seats"/></br>
+		<label>Floor:</label><select name="floor">
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+		</select></br>
+		
+		<label>Has Phone:</label><input type="checkbox" name="phoneExist" value="true"/></br>
+		<label>Has Projector:</label><input type="checkbox" name="projectorExist" value="true"/></br>
+		<input type="submit"> 
+	</form>
+	</div>
+	<script >
+	function addMR(){
+		$("#addDiv").dialog("open");
+	}
+	$("#addDiv").dialog({
+	autoOpen: false,
+    height: 300,
+    width: 450,
+    modal: true,
+    buttons: {}
+	});
+	$("#editDiv").dialog({
+	autoOpen: false,
+    height: 300,
+    width: 450,
+    modal: true,
+    buttons: {}
+	});
+	var mrData;
+	var loadMRList=function (){
+		var xhr = new XMLHttpRequest();
+		  xhr.open("GET", "ws/meetingrooms", true);
+		  xhr.send();
+
+		  xhr.onload = function () {
+			mrData = JSON.parse(xhr.response);
+			var mrTab=document.getElementById("mrTab");
+			
+			mrTab.innerHTML="";
+			var header=mrTab.insertRow(0);
+				header.insertCell(0).innerHTML='Name';
+				header.insertCell(1).innerHTML='Location';
+				header.insertCell(2).innerHTML='Seats';
+				header.insertCell(3).innerHTML='Has Phone';
+				header.insertCell(4).innerHTML='Has Projector';
+				header.insertCell(5).innerHTML='Available';
+				header.insertCell(6).innerHTML='Operation';
+			for(var i=0;i<mrData.length;i++){
+				var row=mrTab.insertRow(i+1);
+				row.insertCell(0).innerHTML=mrData[i].name;
+				row.insertCell(1).innerHTML=mrData[i].floor+'F '+mrData[i].location;
+				row.insertCell(2).innerHTML=mrData[i].seats;
+				
+				row.insertCell(3).innerHTML='<input type="checkbox" '+(mrData[i].phoneExist==true?'checked':'')+' disabled/>';
+				row.insertCell(4).innerHTML='<input type="checkbox" '+(mrData[i].projectorExist?'checked':'')+' disabled/>';
+				row.insertCell(5).innerHTML='<input type="checkbox" disabled/>';
+				
+				row.insertCell(6).innerHTML='<input type="button" value="edit" onclick="editMR('+i+')"/><input type="button" value="delete" onclick="deleteMR('+mrData[i].id+')"/>';
+			}
+		  };
+	}
+	var editMR=function(id){
+	  var mr=mrData[id];
+		for (var i = 0, ii = editForm.length; i < ii; ++i) {
+	    var input = editForm[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				input.checked = mr[input.name];
+			}
+			else{
+				input.value = mr[input.name];
+			}
+		}
+	  }
+	  $("#editDiv").dialog("open");
+	}
+	var deleteMR=function(id){
+		 // construct an HTTP request
+	  var xhr = new XMLHttpRequest();
+	  xhr.open("DELETE", "ws/meetingrooms/"+id, true);
+	  xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+	  // send the collected data as JSON
+	  xhr.send();
+
+	  xhr.onloadend = function () {
+	    loadMRList();
+	  };
+	
+	}
+	loadMRList();
+	 var editForm=document.getElementById("editForm");
+	 editForm.onsubmit = function (e) {
+	  // stop the regular form submission
+	  e.preventDefault();
+
+	  // collect the form data while iterating over the inputs
+	  var data = {};
+	  for (var i = 0, ii = editForm.length; i < ii; ++i) {
+	    var input = editForm[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				data[input.name] = input.checked;
+			}
+			else{
+				data[input.name] = input.value;
+			}
+		}
+	  }
+
+	  // construct an HTTP request
+	  var xhr = new XMLHttpRequest();
+	  xhr.open("POST", editForm.action, true);
+	  xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+	  // send the collected data as JSON
+	  xhr.send(JSON.stringify(data));
+
+	  xhr.onloadend = function () {
+		for (var i = 0, ii = editForm.length; i < ii; ++i) {
+	    var input = editForm[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				input.checked=false;
+			}
+			else{
+				input.value = '';
+			}
+	    }
+		}
+	    loadMRList();
+	  };
+	};
+	 var form=document.getElementById("addForm");
+
+	 form.onsubmit = function (e) {
+	  // stop the regular form submission
+	  e.preventDefault();
+
+	  // collect the form data while iterating over the inputs
+	  var data = {};
+	  for (var i = 0, ii = form.length; i < ii; ++i) {
+	    var input = form[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				data[input.name] = input.checked;
+			}
+			else{
+				data[input.name] = input.value;
+			}
+		}
+	  }
+
+	  // construct an HTTP request
+	  var xhr = new XMLHttpRequest();
+	  xhr.open("PUT", form.action, true);
+	  xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+	  // send the collected data as JSON
+	  xhr.send(JSON.stringify(data));
+
+	  xhr.onloadend = function () {
+		for (var i = 0, ii = form.length; i < ii; ++i) {
+	    var input = form[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				input.checked=false;
+			}
+			else{
+				input.value = '';
+			}
+	    }
+		}
+	    loadMRList();
+	  };
+	};
+	
+	</script>
+</body>

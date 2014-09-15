@@ -53,7 +53,7 @@ public class UserService {
 	public UserVO authenticate(String username, String password) {
 		User user = new User();
 		user.setName(username);
-		user.setBu(password);
+		user.setPassword(password);
 		List<User> users = dao.findByExample(user);
 		if (users != null && users.size() == 1) {
 			user = users.get(0);
@@ -72,7 +72,7 @@ public class UserService {
 			
 		  	UserVO result=new UserVO();
 		  	result.setName(activeUser.getCommonName());
-		  	result.setEmail(activeUser.getUserPrincipal());
+		  	result.setEmail(activeUser.getEmail());
 		  	result.setRole(Role.USER);
 		  	UserVO	puser=getUserByEmail(activeUser.getUserPrincipal());
 			if(puser==null){

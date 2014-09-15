@@ -32,7 +32,7 @@ public class ActiveDirectory {
   private static String[] userAttributes = {
       "distinguishedName","cn","name","uid",
       "sn","givenname","memberOf","samaccountname",
-      "userPrincipalName"
+      "userPrincipalName","mail"
   };
 
   private ActiveDirectory(){}
@@ -201,16 +201,18 @@ public class ActiveDirectory {
       private String commonName;
       private String givenName;
       private String surenName;
+      private String email;
       public User(Attributes attr) throws javax.naming.NamingException {
       	NamingEnumeration<String> keys=attr.getIDs();
-      	while(keys.hasMore()){
-      		System.out.println(attr.get(keys.next()));
-      	}
+//      	while(keys.hasMore()){
+//      		System.out.println(attr.get(keys.next()));
+//      	}
           userPrincipal = (String) attr.get("userPrincipalName").get();
           commonName = (String) attr.get("cn").get();
           distinguishedName = (String) attr.get("distinguishedName").get();
           surenName=(String)attr.get("sn").get();
           givenName=(String)attr.get("givenName").get();
+          email=(String)attr.get("mail").get();
       }
 
       public String getUserPrincipal(){
@@ -234,6 +236,12 @@ public class ActiveDirectory {
       public String getSurenName() {
 		return surenName;
       }
+      
+      
+
+	public String getEmail() {
+		return email;
+	}
 
 	public String toString(){
           return getDistinguishedName();
