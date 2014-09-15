@@ -17,6 +17,10 @@ import javax.persistence.Table;
  *  
  * @hibernate.query name="getReservationByRoom"
  *  query="select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id =: roomId"
+ *  
+ *  * @hibernate.query name="getReservationByIdAndDateRange"
+ *  query="select m from MeetingRoomReservation m where (m.recurrentStartTime >=: startTime or m.recurrentStartTime <: endTime or m.recurrentEndTime >=: endTime or m.recurrentEndTime <: startTime) and m.meetingRoom.id =: roomId"
+ *  
  */
 
 @Entity

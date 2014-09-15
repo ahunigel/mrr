@@ -34,4 +34,19 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public List<MeetingRoomReservation> checkReservationDateRange(MeetingRoomReservation mrRes) {
+		
+		Integer rmId = mrRes.getMeetingRoom().getId();
+		Integer startTime = mrRes.getRecurrentStartTime();
+		Integer endTime = mrRes.getRecurrentEndTime();
+		List<MeetingRoomReservation> result = null;
+		String[] paramNames = new String[]{"startTime","endTime","roomId"};
+		Object[] values = new Object[]{startTime, endTime, rmId};
+		result = (List<MeetingRoomReservation>)this.getHibernateTemplate()
+				.findByNamedQueryAndNamedParam("getReservationByIdAndDateRange", paramNames, values);
+		
+		return result;
+	}
 }
