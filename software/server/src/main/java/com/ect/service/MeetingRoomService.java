@@ -15,6 +15,7 @@ import com.ect.dao.MeetingRoomDao;
 import com.ect.dao.ReservationMeetingRoomDao;
 import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
+import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
 import com.ect.domainobject.User;
 import com.ect.util.DateTimeUtil;
@@ -121,100 +122,50 @@ public class MeetingRoomService {
 		reservationDao.deleteReservationByMeetingRoom(id);
 	}
 	
-	private boolean isValidDayForReservation(int intervalDays, MeetingRoomReservation mrRes)
-	{
-		boolean isValid = true;
-		if (mrRes.getReservationType().equals(ReservationType.SINGLE))
-		{
-			if (intervalDays == 0)
-			{
-				isValid = false;
-			}
-		}
-		else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
-		{
-			switch (mrRes.getRecurrentType())
-			{
-			
-			case DAILY:
-				if (intervalDays % mrRes.getRecurrentInterval() == 0){
-					isValid = false;
-				}
-				break;
-			case DAILY_WORKDAY:
-				if (intervalDays % mrRes.getRecurrentInterval() == 0 || DateTimeUtil.isWorkingDay(mrRes.getStartTime())){
-					isValid = false;
-				}
-				break;
-			case WEEKLY:
-				if (intervalDays % (mrRes.getRecurrentInterval()*7) == 0){
-					isValid = false;
-				}
-				break;
-				
-			case MONTHLY:
-				if (intervalDays == 0)
-				{
-					isValid = false;
-				}
-				break;
-				
-			default:
-				break;
-			}
-		}
-		
-		return isValid;
-	}
+	
 	
 	public boolean isValidReservation(MeetingRoomReservation mrRes)
 	{
 		boolean isValid = true;
-		 List<MeetingRoomReservation> result = reservationDao.checkReservationDateRange(mrRes);
-		if (result.size() == 0)
-		{
-			isValid = true;
-			return isValid;
-		}
-        for (MeetingRoomReservation mrr : result)
-        {
-        	if (mrRes.getReservationType().equals(ReservationType.SINGLE))
-        	{
-        		
-        		int intervalDays = DateTimeUtil.getIntervalDaysBetweenDates(mrr.getStartTime(), mrRes.getStartTime());
-        		
-        		
-        		if (!isValidDayForReservation(intervalDays, mrr))
-        		{
-        			break;
-        		}
-        		
-        	}
-        	else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
-        	{
-        		int intervalDays = DateTimeUtil.getIntervalDaysBetweenDates(mrr.getStartTime(), mrRes.getStartTime());
-        		switch (mrRes.getRecurrentType())
-        		{
-        		
-        		case DAILY:
-        			break;
-        		case DAILY_WORKDAY:
-        			
-        			break;
-        		case WEEKLY:
-        			
-        			break;
-        			
-        		case MONTHLY:
-        			
-        			break;
-        			
-        		default:
-        			break;
-        		}
-        	}
-        }
-		
+     	
+     	if (mrRes.getReservationType().equals(ReservationType.SINGLE))
+     	{
+     		ReservationTimeIntervalItemBean reservationItem = new ReservationTimeIntervalItemBean();
+     		reservationItem.setMeetingRoom(mrRes.getMeetingRoom());
+     		reservationItem.setStartTime(mrRes.getStartTime());
+     		reservationItem.setEndTime(mrRes.getEndTime());
+     		
+     		List<ReservationTimeIntervalItemBean> result = reservationDao.checkReservationDateRange(reservationItem);
+     		if (result != null && result.size() > 0)
+     		{
+     			isValid = false;
+     		}
+     		
+     	}
+     	else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
+     	{
+     		switch (mrRes.getRecurrentType())
+     		{
+	        		case DAILY:
+	        			DateTimeUtil.getDailyReservationTimeIntervalRecords(mrRes);
+	        			break;
+	        		case DAILY_WORKDAY:
+	        			
+	        			break;
+	        		case WEEKLY:
+	        			
+	        			break;
+	        			
+	        		case MONTHLY:
+	        			
+	        			break;
+	        			
+	        		default:
+	        			break;
+     		}
+     	}
+     
+		 
 		return isValid;
 	}
 		

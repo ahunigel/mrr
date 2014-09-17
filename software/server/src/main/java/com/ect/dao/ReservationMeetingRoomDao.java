@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.ect.domainobject.MeetingRoomReservation;
+import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.User;
 @Component
 public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>{
@@ -48,5 +49,10 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>{
 				.findByNamedQueryAndNamedParam("getReservationByIdAndDateRange", paramNames, values);
 		
 		return result;
+	}
+	
+	public List<ReservationTimeIntervalItemBean> checkReservationDateRange(ReservationTimeIntervalItemBean reservationItem)
+	{
+		return null;
 	}
 }
