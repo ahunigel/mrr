@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.List;
 
 import com.ect.domainobject.MeetingRoomReservation;
+import com.ect.domainobject.RecurrentType;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
+import com.ect.domainobject.ReservationType;
 
 public class DateTimeUtil 
 {
@@ -88,19 +90,33 @@ public class DateTimeUtil
 	{
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		/*cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.HOUR, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);*/
+		cal.set(Calendar.MILLISECOND, 0);
 		cal.add(Calendar.MINUTE, timeMunites);
 		
+		return cal.getTime();
+	}
+	
+	public static Date getAddedMonthDate(Date date, int month)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.MONTH, month);
 		return cal.getTime();
 	}
 
 	public static ReservationTimeIntervalItemBean getFirstRunTimeRecordOfReservation(MeetingRoomReservation res)
 	{
-		Date nextRunStartTime =getAddedTimeDate(res.getStartTime(),res.getRecurrentStartTime());
-		Date nextRunEndtime = getAddedTimeDate(res.getStartTime(),res.getRecurrentEndTime());
+		Date nextRunStartTime = res.getStartTime();
+		Date nextRunEndtime = res.getStartTime();
+		if (!res.getReservationType().equals(ReservationType.SINGLE))
+		{
+			nextRunStartTime = getAddedTimeDate(nextRunStartTime,res.getRecurrentStartTime());
+			nextRunEndtime = getAddedTimeDate(nextRunEndtime,res.getRecurrentEndTime());
+		}
+		
 		ReservationTimeIntervalItemBean reservartionItem = new ReservationTimeIntervalItemBean();
 		reservartionItem.setMeetingRoom(res.getMeetingRoom());
 		reservartionItem.setReservation(res);
@@ -110,10 +126,21 @@ public class DateTimeUtil
 		return reservartionItem;
 	}
 	
-	public static ReservationTimeIntervalItemBean getCopiedReservationItem (ReservationTimeIntervalItemBean item, int addDays)
+	public static ReservationTimeIntervalItemBean getCopiedReservationItem (ReservationTimeIntervalItemBean item, int addDays, int addMonth)
 	{
-		Date nextRunStartTime = getAddedDaysDate(item.getStartTime(), addDays);
-		Date nextRunEndtime = getAddedDaysDate(item.getEndTime(),addDays);
+		Date nextRunStartTime = null; 
+		Date nextRunEndtime = null;
+		if (addMonth > 0)
+		{
+			nextRunStartTime = getAddedMonthDate(item.getStartTime(), addMonth);
+			nextRunEndtime = getAddedMonthDate(item.getEndTime(),addMonth);
+		}
+		else
+		{
+			nextRunStartTime = getAddedDaysDate(item.getStartTime(), addDays);
+			nextRunEndtime = getAddedDaysDate(item.getEndTime(),addDays);
+		}
+		
 		ReservationTimeIntervalItemBean reservartionItem = new ReservationTimeIntervalItemBean();
 		reservartionItem.setMeetingRoom(item.getMeetingRoom());
 		reservartionItem.setReservation(item.getReservation());
@@ -123,21 +150,81 @@ public class DateTimeUtil
 		return reservartionItem;
 	}
 	
-	public static List<ReservationTimeIntervalItemBean> getDailyReservationTimeIntervalRecords(MeetingRoomReservation res) 
+	public static List<ReservationTimeIntervalItemBean> getReservationTimeIntervalRecords(MeetingRoomReservation res) 
 	{
 		List<ReservationTimeIntervalItemBean> items = new ArrayList<ReservationTimeIntervalItemBean>();
-		ReservationTimeIntervalItemBean firstItem = getFirstRunTimeRecordOfReservation(res);
-		items.add(firstItem);
-		int intervalDays = getIntervalDaysBetweenDates(res.getStartTime(), res.getEndTime());
-		int repeatCount = intervalDays / res.getRecurrentInterval();
-		int addDays = res.getRecurrentInterval();
-		for (int i = 1; i < repeatCount; i++)
+		ReservationTimeIntervalItemBean resItem = getFirstRunTimeRecordOfReservation(res);
+		if (res.getReservationType().equals(ReservationType.SINGLE))
 		{
-			firstItem = getCopiedReservationItem(firstItem, addDays);
-			items.add(firstItem);
+			items.add(resItem);
+			return items;
+		}
+		else
+		{
+			items = getRecurrentReservationRecords(
+					res, resItem);
 		}
 		
 		return items;
 	}
-	
+
+
+	private static List<ReservationTimeIntervalItemBean> getRecurrentReservationRecords(
+			MeetingRoomReservation res, ReservationTimeIntervalItemBean resItem) {
+		List<ReservationTimeIntervalItemBean> items = new ArrayList<ReservationTimeIntervalItemBean>();
+		RecurrentType recurrentType = res.getRecurrentType();
+		boolean isDailyWorkingDay = recurrentType.equals(RecurrentType.DAILY_WORKDAY);
+		if (!isDailyWorkingDay || isDailyWorkingDay && isWorkingDay(resItem.getStartTime()))
+		{
+			items.add(resItem);
+		}
+		
+		int repeatCount = getRepeatCountForReservation(res);
+		
+		if (repeatCount > 0)
+		{
+			int addDays = res.getRecurrentInterval();
+			for (int i = 1; i < repeatCount; i++)
+			{
+				resItem = getCopiedReservationItem(resItem, addDays, -1);
+				if (!isDailyWorkingDay || isDailyWorkingDay && isWorkingDay(resItem.getStartTime()))
+				{
+					items.add(resItem);
+				}
+			}
+		}
+		else
+		{
+			for (int i = 1; i < repeatCount; i++)
+			{
+				resItem = getCopiedReservationItem(resItem, 0, res.getRecurrentInterval());
+				items.add(resItem);
+			}
+		}
+		return items;
+	}
+
+
+	private static int getRepeatCountForReservation(MeetingRoomReservation res)
+	{
+		int intervalDays = getIntervalDaysBetweenDates(res.getStartTime(), res.getEndTime());
+		int repeatCount = 0;
+		switch (res.getRecurrentType()) {
+		case DAILY:
+		case DAILY_WORKDAY:	
+			repeatCount = intervalDays / res.getRecurrentInterval();
+			break;
+		case WEEKLY:
+			repeatCount = intervalDays / (res.getRecurrentInterval()*7);
+			break;
+		case MONTHLY:
+			repeatCount = -1;
+			break;
+		default:
+			break;
+		}
+		
+		return repeatCount;
+	}
+		
 }

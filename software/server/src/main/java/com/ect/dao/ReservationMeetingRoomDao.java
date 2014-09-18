@@ -55,4 +55,19 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>{
 	{
 		return null;
 	}
+	
+	public boolean saveReservationTimeIntervalItems (List<ReservationTimeIntervalItemBean> resItems, boolean isTempRecord)
+	{
+		return false;
+	}
+	
+	public boolean removeReservationTimeIntervalItems(MeetingRoomReservation mrr)
+	{
+		return true;
+	}
+	
+	public List<ReservationTimeIntervalItemBean> checkCachedReservationDateRange()
+	{
+		return null;
+	}
 }

@@ -1,10 +1,8 @@
 package com.ect.service;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +24,7 @@ import com.ect.vo.MeetingRoomVO;
 @Service
 public class MeetingRoomService {
 	
+	private static final int NOT_CACHE_COUNT = 3;
 	@Autowired
 	private MeetingRoomDao dao;
 	@Autowired
@@ -105,8 +104,10 @@ public class MeetingRoomService {
 	public MeetingRoomReservationVO saveOrUpdateMeetingRoomReservation(MeetingRoomReservationVO mrr) {
 		MeetingRoomReservation mr=new MeetingRoomReservation();
 		BeanUtils.copyProperties(mrr, mr);
-		reservationDao.saveOrUpdate(mr);
-		mrr.setId(mr.getId());
+		if (isValidReservation(mr))
+		{
+			mrr.setId(mr.getId());
+		}
 		return mrr;
 	}
 	
@@ -123,19 +124,15 @@ public class MeetingRoomService {
 	}
 	
 	
-	
 	public boolean isValidReservation(MeetingRoomReservation mrRes)
 	{
 		boolean isValid = true;
      	
+		List<ReservationTimeIntervalItemBean> reservationItems  = DateTimeUtil.getReservationTimeIntervalRecords(mrRes);
+		List<ReservationTimeIntervalItemBean> result = null;
      	if (mrRes.getReservationType().equals(ReservationType.SINGLE))
      	{
-     		ReservationTimeIntervalItemBean reservationItem = new ReservationTimeIntervalItemBean();
-     		reservationItem.setMeetingRoom(mrRes.getMeetingRoom());
-     		reservationItem.setStartTime(mrRes.getStartTime());
-     		reservationItem.setEndTime(mrRes.getEndTime());
-     		
-     		List<ReservationTimeIntervalItemBean> result = reservationDao.checkReservationDateRange(reservationItem);
+     		result = reservationDao.checkReservationDateRange(reservationItems.get(0));
      		if (result != null && result.size() > 0)
      		{
      			isValid = false;
@@ -144,27 +141,37 @@ public class MeetingRoomService {
      	}
      	else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
      	{
-     		switch (mrRes.getRecurrentType())
+     		if (reservationItems.size() < NOT_CACHE_COUNT)
      		{
-	        		case DAILY:
-	        			DateTimeUtil.getDailyReservationTimeIntervalRecords(mrRes);
-	        			break;
-	        		case DAILY_WORKDAY:
-	        			
-	        			break;
-	        		case WEEKLY:
-	        			
-	        			break;
-	        			
-	        		case MONTHLY:
-	        			
-	        			break;
-	        			
-	        		default:
-	        			break;
+     			for (ReservationTimeIntervalItemBean item : reservationItems)
+     			{
+     				result = reservationDao.checkReservationDateRange(item);
+     				if (result != null && result.size() > 0)
+     	     		{
+     	     			isValid = false;
+     	     			break;
+     	     		}
+     			}
+     		}
+     		else
+     		{
+     			boolean isFinished = reservationDao.saveReservationTimeIntervalItems(reservationItems, true);
+     			if (isFinished)
+     			{
+     				result = reservationDao.checkCachedReservationDateRange();
+     			}
+     			
+     			if (result != null && result.size() > 0)
+         		{
+         			isValid = false;
+         		}
      		}
      	}
      
+     	if (isValid)
+     	{
+     		reservationDao.saveReservationTimeIntervalItems(reservationItems, false);
+     	}
 		 
 		return isValid;
 	}
