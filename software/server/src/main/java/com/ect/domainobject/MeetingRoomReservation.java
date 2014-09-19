@@ -2,6 +2,7 @@ package com.ect.domainobject;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -91,6 +92,7 @@ public class MeetingRoomReservation {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "meeting_room_reservation_id")
 	public Integer getId() {
 		return id;
 	}
