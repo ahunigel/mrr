@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.ect.domainobject.ITimeIntervalRecord;
 import com.ect.domainobject.MeetingRoomReservation;
 import com.ect.domainobject.RecurrentType;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
@@ -219,9 +220,9 @@ public class DateTimeUtil
 	 * @param res the reservation to process.
 	 * @return the time interval items by the given reservation.
 	 */
-	public static List<ReservationTimeIntervalItemBean> getReservationTimeIntervalRecords(MeetingRoomReservation res) 
+	public static List<ITimeIntervalRecord> getReservationTimeIntervalRecords(MeetingRoomReservation res) 
 	{
-		List<ReservationTimeIntervalItemBean> items = new ArrayList<ReservationTimeIntervalItemBean>();
+		List<ITimeIntervalRecord> items = new ArrayList<ITimeIntervalRecord>();
 		ReservationTimeIntervalItemBean resItem = getFirstRunTimeRecordOfReservation(res);
 		if (res.getReservationType().equals(ReservationType.SINGLE))
 		{
@@ -243,9 +244,9 @@ public class DateTimeUtil
 	 * @param resItem the time interval item of reservation.
 	 * @return the time interval items of the recurrent reservation.
 	 */
-	private static List<ReservationTimeIntervalItemBean> getRecurrentReservationRecords(
+	private static List<ITimeIntervalRecord> getRecurrentReservationRecords(
 			MeetingRoomReservation res, ReservationTimeIntervalItemBean resItem) {
-		List<ReservationTimeIntervalItemBean> items = new ArrayList<ReservationTimeIntervalItemBean>();
+		List<ITimeIntervalRecord> items = new ArrayList<ITimeIntervalRecord>();
 		RecurrentType recurrentType = res.getRecurrentType();
 		boolean isDailyWorkingDay = recurrentType.equals(RecurrentType.DAILY_WORKDAY);
 		if (!isDailyWorkingDay || isDailyWorkingDay && isWorkingDay(resItem.getStartTime()))

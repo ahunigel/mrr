@@ -2,25 +2,43 @@ package com.ect.domainobject;
 
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
 /**
- * The temporary class for time interval items of meeting room reservation.
- * Each item is the single reservation of meeting room. This class is the cache
- * data to compare the current reservation with the reservation booked before and
- * check if there is conflict in the reservations.
- * In order to speed up the comparation, use database to process the comparation
- * in two tables and get the result.
+ * The temporary class for time interval items of meeting room reservation. Each
+ * item is the single reservation of meeting room. This class is the cache data
+ * to compare the current reservation with the reservation booked before and
+ * check if there is conflict in the reservations. In order to speed up the
+ * comparation, use database to process the comparation in two tables and get
+ * the result.
  * 
  * @author Angel.Fu
  * 
- * @Entity
- * @Table(name = "reservation_temp_item")
  */
-public class ReservationTempRecordItemBean 
+@Entity
+@NamedQueries({
+		@NamedQuery(name = "getMultipleItemsByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r,ReservationTempRecordItemBean r1 where r.meetingRoom.id = r1.meetingRoom.id and"
+				+ "((r.endTime >= r1.startTime and r.endTime <= r1.endTime) or (r.startTime >= r1.startTime and r.startTime <= r1.endTime))"),
+		@NamedQuery(name = "deleteAllTempReservationItems", query = "delete from ReservationTempRecordItemBean")
+
+})
+@Table(name = "reservation_temp_item")
+public class ReservationTempRecordItemBean implements ITimeIntervalRecord
 {
 	/**
 	 * The id of time interval item.
 	 */
-	private  long id;
+	private long id;
 	/**
 	 * The reservation of time interval item.
 	 */
@@ -36,113 +54,124 @@ public class ReservationTempRecordItemBean
 	/**
 	 * The end time of reservation include date and time.
 	 */
-	private Date EndTime;
-	
-	
+	private Date endTime;
+
 	/**
 	 * Get the id of time interval item.
+	 * 
 	 * @return the id of time interval item.
 	 * 
-	 * @Id
-	 * @GeneratedValue(strategy = GenerationType.IDENTITY)
 	 */
-	
-	public long getId() 
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	public long getId()
 	{
 		return id;
 	}
 
 	/**
 	 * Set the id of time interval item.
-	 * @param id the id of time interval item to set.
+	 * 
+	 * @param id
+	 *            the id of time interval item to set.
 	 */
-	public void setId(long id) 
+	public void setId(long id)
 	{
 		this.id = id;
 	}
 
 	/**
 	 * Get the reservation of time interval item.
+	 * 
 	 * @return the reservation of time interval item.
 	 * 
-	 * @ManyToOne
-	 * @JoinColumn(name = "meeting_room_reservation_id")
 	 */
-	
-	public MeetingRoomReservation getReservation() 
+	@ManyToOne
+	@JoinColumn(name = "meeting_room_reservation_id")
+	public MeetingRoomReservation getReservation()
 	{
 		return reservation;
 	}
-	
+
 	/**
 	 * Set the reservation of time interval item.
-	 * @param reservation the reservation of time interval item to set.
+	 * 
+	 * @param reservation
+	 *            the reservation of time interval item to set.
 	 */
-	public void setReservation(MeetingRoomReservation reservation) 
+	public void setReservation(MeetingRoomReservation reservation)
 	{
 		this.reservation = reservation;
 	}
-	
+
 	/**
 	 * Get the meeting room of time interval item.
+	 * 
 	 * @return the meeting room of time interval item.
 	 * 
-	 * @ManyToOne
-	 * @JoinColumn(name = "meeting_room_id")
 	 */
-
-	public MeetingRoom getMeetingRoom() 
+	@ManyToOne
+	@JoinColumn(name = "meeting_room_id")
+	public MeetingRoom getMeetingRoom()
 	{
 		return meetingRoom;
 	}
-	
+
 	/**
 	 * Set the meeting room of time interval item.
-	 * @param meetingRoom the meeting room of time interval item to set.
+	 * 
+	 * @param meetingRoom
+	 *            the meeting room of time interval item to set.
 	 */
-	public void setMeetingRoom(MeetingRoom meetingRoom) 
+	public void setMeetingRoom(MeetingRoom meetingRoom)
 	{
 		this.meetingRoom = meetingRoom;
 	}
-	
+
 	/**
 	 * Get the start time of each reservation.
+	 * 
 	 * @return the start time of each reservation.
 	 * 
-	 * @Temporal(TemporalType.DATE)
 	 */
-	public Date getStartTime() 
+	@Temporal(TemporalType.DATE)
+	public Date getStartTime()
 	{
 		return startTime;
 	}
-	
+
 	/**
 	 * Set the start time of each reservation.
-	 * @param startTime the start time of each reservation to set.
+	 * 
+	 * @param startTime
+	 *            the start time of each reservation to set.
 	 */
-	public void setStartTime(Date startTime) 
+	public void setStartTime(Date startTime)
 	{
 		this.startTime = startTime;
 	}
-	
+
 	/**
 	 * Get the end time of each reservation.
+	 * 
 	 * @return the end time of each reservation.
 	 * 
-	 * @Temporal(TemporalType.DATE)
 	 */
-	public Date getEndTime() 
+	@Temporal(TemporalType.DATE)
+	public Date getEndTime()
 	{
-		return EndTime;
+		return endTime;
 	}
-	
+
 	/**
 	 * Set the end time of each reservation.
-	 * @param endTime the end time of each reservation.
+	 * 
+	 * @param endTime
+	 *            the end time of each reservation.
 	 */
-	public void setEndTime(Date endTime) 
+	public void setEndTime(Date endTime)
 	{
-		EndTime = endTime;
+		this.endTime = endTime;
 	}
 
 }
