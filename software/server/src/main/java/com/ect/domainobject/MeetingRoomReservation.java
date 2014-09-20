@@ -15,14 +15,14 @@ import javax.persistence.Table;
 
 @Entity
 @NamedQueries({
-		@NamedQuery(name = "deleteReservationById", query = "delete from MeetingRoomReservation m where m.id =: mrrId"),
-		@NamedQuery(name = "deleteReservationByRoom", query = "delete from MeetingRoomReservation m where m.meetingRoom.id =: roomId"),
-		@NamedQuery(name = "getReservationByRoom", query = "select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id =: roomId"),
-		@NamedQuery(name = "getReservationCountByRoom", query = "select count(m.id) from MeetingRoomReservation m where m.meetingRoom.id =: roomId and m.endTime >= nowDate"),
-		@NamedQuery(name = "getReservationByIdAndDateRange", query = "select m from MeetingRoomReservation m where (m.recurrentStartTime >=: startTime"
-				+ " or m.recurrentStartTime <: endTime or m.recurrentEndTime >=: endTime or m.recurrentEndTime <: startTime) and m.meetingRoom.id =: roomId"),
-		@NamedQuery(name = "getReservationByStartDate", query = "select m from MeetingRoomReservation m where m.startTime >=: startTime"),
-		@NamedQuery(name = "getMeetingRoomReservationByUser", query = "select m from MeetingRoomReservation m where m.reservedPerson.id =: userId")
+		@NamedQuery(name = "deleteReservationById", query = "delete from MeetingRoomReservation m where m.id = :mrrId"),
+		@NamedQuery(name = "deleteReservationByRoom", query = "delete from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
+		@NamedQuery(name = "getReservationByRoom", query = "select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
+		@NamedQuery(name = "getReservationCountByRoom", query = "select count(m.id) from MeetingRoomReservation m where m.meetingRoom.id = :roomId and m.endTime >= nowDate"),
+		@NamedQuery(name = "getReservationByIdAndDateRange", query = "select m from MeetingRoomReservation m where (m.startTime >= :startTime"
+				+ " or m.startTime < :endTime or m.endTime >= :endTime or m.endTime < :startTime) and m.meetingRoom.id = :roomId"),
+		@NamedQuery(name = "getReservationByStartDate", query = "select m from MeetingRoomReservation m where m.startTime >= :startTime"),
+		@NamedQuery(name = "getMeetingRoomReservationByUser", query = "select m from MeetingRoomReservation m where m.reservedPerson.id = :userId")
 
 })
 @Table(name = "meeting_room_reservation")
