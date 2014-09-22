@@ -16,6 +16,12 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+<script type="text/JavaScript">
+function alt(){
+
+  alert("Asdsad");
+}
+</script>
 
 <script type="text/javascript">
   $(document).ready(function(){
@@ -157,8 +163,7 @@ color:#fff;
 display:block;
 margin-top:4px;
 color:#fff;
-border-bottom:1px solid #fff;
-border-left:1px solid #fff;
+
 height:120px;
 width:110px;
 
@@ -169,7 +174,13 @@ border-radius:10px 0px 0px 10px;
 }
 
 #lists li:hover{
-background:rgb(254,78,63);
+background:#fff;
+color:#000;
+
+}
+
+#lists li a:hover{
+color:#000;
 
 }
 
@@ -213,6 +224,10 @@ border:1px solid #333;
 
   border:1px solid gray;
 }
+
+.welcome{
+  margin-top:20px;
+}
     </style>
 
   </head>
@@ -224,7 +239,8 @@ border:1px solid #333;
   <div class="row">
   <div class="col-md-4"><img class="emer" src="img/emerson-logo.png" /></div>
 
-  <div class="col-md-6"><p>Meeting room Reservation System</p></div>
+  <div class="col-md-4"><p>Meeting room Reservation System</p></div>
+  <div class="col-md-2"><h4 class="welcome">Welcome:Gentle</h4></div>
  <div class="col-md-2">
  <button type="button" class="btn btn-primary" id="btn1">Log Out</button>
 </div>
@@ -238,10 +254,10 @@ border:1px solid #333;
 
   <div class="col-sm-1" id="left">
   <ul class="nav nav-tabs" role="tablist" id="lists">
-  <li class="active"><a href="#available"  data-toggle="tab"><img src="imgs/" height="90px" width="90px"/>Available</a></li>
-  <li><a href="#all" data-toggle="tab"><img src="imgs/" height="90px" width="90px"/>All</a></li>
-  <li><a href="#maps" data-toggle="tab"><img src="imgs/" height="90px" width="90px"/>Maps</a></li>
-  <li><a href="#manage" data-toggle="tab"><img src="imgs/" height="90px" width="90px"/>Search</a></li>
+  <li class="active"><a href="#available"  onclick="alt()" data-toggle="tab"><img src="img/devplanb.png" height="90px" width="90px"/>Available</a></li>
+  <li><a href="#all" data-toggle="tab"><img src="img/reportb.png" height="90px" width="90px"/>All</a></li>
+  <li><a href="#maps" data-toggle="tab"><img src="img/reportb_bak.png" height="90px" width="90px"/>Maps</a></li>
+  <li><a href="#manage" data-toggle="tab"><img src="img/devplanb.png" height="90px" width="90px"/>Search</a></li>
         
   </ul>
 
@@ -316,7 +332,7 @@ border:1px solid #333;
 </thead>
 <tbody>
   <tr>
-<td><button class="btn btn-primary" data-toggle="modal" data-target="#MyModal">Edit</button>
+<td><button class="btn btn-primary" onclick="alt()" data-toggle="modal" data-target="#MyModal">Edit</button>
 <button  class="btn btn-danger" data-toggle="modal" data-target="#MyModal1">Delete</button>
 </td>
 
