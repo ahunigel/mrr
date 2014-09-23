@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Meetingroom Reservation System</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style type="text/css">
+    *{
+     margin:0px;
+     padding:0px;
+    }
+
+.header{
+
+height:10%;
+color:#fff;
+background:#0b4b79;
+}
+
+.content{
+height:760px;
+background:#e3e4e6;
+}
+
+
+.footer{
+height:10%;
+background:#242424;
+color:#fff;
+}
+
+  .container-fluid{
+height:100%;
+background:#a3d6fb;
+
+  }
+
+img{
+  margin:auto;
+}
+
+.header{
+
+  font-size:24px;
+
+  font-family:"Arial";
+  line-height:50px;
+}
+
+.footer{
+
+
+  margin:auto;
+  text-align:center;
+}
+
+.pics{
+margin-top:100px;
+
+}
+
+.data{
+  height:600px;
+  
+  margin:auto;
+  width:350px;
+
+}
+
+.forms{
+  height:400px;
+margin-top:120px;
+background:#ececef;
+border-radius:10px 10px 10px 10px;
+border:1px solid #0b4b79;
+marginL:auto;
+box-shadow:2px 2px 2px gray;
+}
+
+.forms input{
+
+margin-bottom:10px;
+}
+
+.emer{
+
+  margin-left:80px;
+}
+
+.titler{
+text-align:center;
+color: #0b4b79;
+
+}
+
+.red{
+  border:1px solid #0b4b79;
+}
+
+.col-md-8 h3{
+  margin-left:55px;
+}
+
+#username{
+height:40px;
+border:1px solid gray;
+margin-left:55px;
+border-radius:5px 5px 5px 5px;
+}
+
+#password{
+height:40px;
+border:1px solid gray;
+border-radius:5px 5px 5px 5px;
+margin-left:55px;
+}
+
+.titler label{
+color:red;
+
+}
+
+.lb{
+  margin-left:55px;
+}
+
+
+#login{
+  margin-left:55px;
+  margin-top:40px;
+  width:235px;
+}
+
+.col-md-8 p{
+font-family:"Arial";
+  font-size:34px;
+}
+    </style>
+
+  </head>
+  <body>
+   
+<div class="container">
+<div class="header">
+
+  <div class="row">
+  <div class="col-md-4"><img class="emer" src="img/emerson-logo.png" /></div>
+
+  <div class="col-md-8"><p>Meeting Room Reservation System</p></div>
+  </div>
+</div>
+
+
+
+
+<div id="content" class="content">
+<!--use the bootstrap to divide the page to two parts-->
+<div class="row">
+<div class="col-md-7"><img class="pics" src="img/02.png" class="img-responsive" height="550px" width="730px"></div>
+<div class="col-md-5">
+<div class="data">
+<div class="forms">
+<div class="titler"><h3>System Login</h3></div>
+<hr class="red">
+<div id="errorMessage"></div>
+<form id="loginForm" method="post">
+<label for="username" class="lb">UserName</label><br/>
+<input id="username" name="username" type="text" class="col-md-8" placeholder="please input the username"><br/>
+
+
+<label for="password" class="lb">Password</label><br/>
+<input id="password" name="password" type="password" class="col-md-8" placeholder="please input the password"><br/>
+
+<button type="submit" class="btn btn-primary" id="login">Login</button>
+</form>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+
+
+<div class="footer">Copy Right by HickSon Team of Meeting room reservation system<br/>Version V0.01<br/>emerson eresouce company</div>
+</div>
+
+ 
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="scripts/login.js"></script>   
+    <script src="scripts/jquery-ui-1.10.4.custom.min.js"></script>
+  </body>
+</html>

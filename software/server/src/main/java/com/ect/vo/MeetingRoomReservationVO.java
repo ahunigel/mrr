@@ -2,7 +2,6 @@ package com.ect.vo;
 
 import java.util.Date;
 
-import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.RecurrentType;
 import com.ect.domainobject.ReservationType;
 import com.ect.domainobject.User;
