@@ -71,7 +71,7 @@ public class UserService {
 			ActiveDirectory.User activeUser=ActiveDirectory.getUser(username, context);
 			
 		  	UserVO result=new UserVO();
-		  	result.setName(activeUser.getCommonName());
+		  	result.setName(activeUser.getGivenName()+" "+activeUser.getSurenName());
 		  	result.setEmail(activeUser.getEmail());
 		  	result.setRole(Role.USER);
 		  	UserVO	puser=getUserByEmail(activeUser.getUserPrincipal());

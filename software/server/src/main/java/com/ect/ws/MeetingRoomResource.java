@@ -79,7 +79,8 @@ public class MeetingRoomResource {
 	@Consumes({ "application/json;charset=UTF-8"})
 	@Path("/reservation")
 	public MeetingRoomReservationVO createMeetingRoomReservation (MeetingRoomReservationVO mrr){
-		return service.saveOrUpdateMeetingRoomReservation(mrr);
+		//return service.saveOrUpdateMeetingRoomReservation(mrr);
+		return null;
 	}
 	
 	@POST
@@ -87,7 +88,8 @@ public class MeetingRoomResource {
 	@Consumes({ "application/json;charset=UTF-8"})
 	@Path("/reservation")
 	public MeetingRoomReservationVO updateMeetingRoom(MeetingRoomReservationVO mrr){
-		return service.saveOrUpdateMeetingRoomReservation(mrr);
+		//return service.saveOrUpdateMeetingRoomReservation(mrr);
+		return null;
 	}
 	
 	@DELETE
