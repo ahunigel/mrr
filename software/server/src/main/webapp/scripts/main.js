@@ -49,11 +49,14 @@ var deleteMR=function(id){
 		 xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
 		 // send the collected data as JSON
+		 xhr.onreadystatechange=function()
+		{
+			if (xhr.readyState==4)
+			{
+				loadMRList();
+			}
+		}
 		 xhr.send();
-
-		 xhr.onloadend = function () {
-		   loadMRList();
-		 };
 	});
 }
 
@@ -70,16 +73,22 @@ function sendData(editForm,method,ignoreId){
 			}
 		}
 	  }
+	  
 	  var xhr = new XMLHttpRequest();
 	  xhr.open(method,"ws/meetingrooms" , true);
 	  xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
 	  // send the collected data as JSON
+	 
+	 xhr.onreadystatechange=function()
+	{
+	  if (xhr.readyState==4 && xhr.status==200)
+		{
+			loadMRList();
+		}
+	 }
 	  xhr.send(JSON.stringify(data));
-
-	  xhr.onloadend = function () {
-		 loadMRList();
-	  };
+	 
 }
 
 var editMR=function(id){
@@ -104,7 +113,7 @@ var editMR=function(id){
 	}
 }
 function  loadMRList (){
-	$.get("ws/meetingrooms", function (data) {
+	$.get("ws/meetingrooms?"+Math.random(), function (data) {
 		var mrTab=document.getElementById("mrContainer");
 		mrTab.innerHTML="";
 		mrData=data;
@@ -121,7 +130,6 @@ function  loadMRList (){
 		}
 	  });
 }
-
 
 
 initMain();
