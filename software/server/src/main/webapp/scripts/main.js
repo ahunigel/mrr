@@ -17,6 +17,7 @@ function initMain(){
 		$("#image").fileinput({previewSettings:{ image: {width: "240px", height: "240px"},}});
 		var imageUploadForm=document.getElementById("imageUploadForm");
 		imageUploadForm.onsubmit=uploadImage;
+		initValidate();
 		$("#showUploadImgBtn").click(function(){			
 			$("#image").fileinput('reset');
 		});
@@ -24,6 +25,38 @@ function initMain(){
 	{
 		$("#adminDiv").hide();
 	}
+}
+
+function initValidate(){
+	 $('#editMRForm').bootstrapValidator({
+	        message: 'This value is not valid',
+	        feedbackIcons: {
+	            valid: 'glyphicon glyphicon-ok',
+	            invalid: 'glyphicon glyphicon-remove',
+	            validating: 'glyphicon glyphicon-refresh'
+	        },
+	        fields: {
+	        	name: {
+	                message: 'The meeting room name is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The meeting room name is required and cannot be empty'
+	                    }
+	                }
+	            },
+	            seats: {
+	                message: 'The seats is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The seats is required and cannot be empty'
+	                    },
+	                    digits:{
+	                    	message: 'The seats can be digital only'
+	            		}
+	                }
+	            }
+	        }
+	 });
 }
 function uploadImage(e){
 	e.preventDefault();
