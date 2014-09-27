@@ -19,6 +19,9 @@ public class MeetingRoomVO {
 	
 	private boolean phoneExist;
 	
+	private String image;
+	
+	private boolean specailRoom;
 
 	public Integer getId() {
 		return id;
@@ -84,6 +87,34 @@ public class MeetingRoomVO {
 
 	public void setPhoneExist(boolean phoneExist) {
 		this.phoneExist = phoneExist;
+	}
+
+	/**
+	 * @return the image
+	 */
+	public String getImage() {
+		return image;
+	}
+
+	/**
+	 * @param image the image to set
+	 */
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	/**
+	 * @return the specailRoom
+	 */
+	public boolean isSpecailRoom() {
+		return specailRoom;
+	}
+
+	/**
+	 * @param specailRoom the specailRoom to set
+	 */
+	public void setSpecailRoom(boolean specailRoom) {
+		this.specailRoom = specailRoom;
 	}
 	
 	

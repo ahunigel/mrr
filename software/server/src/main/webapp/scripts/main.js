@@ -1,12 +1,11 @@
 $("#logout").click(function(){
 	currentUser=null;
-	$('body').load('index.html');
+	location.href='index.html';
 });
 
 function initMain(){
 	$(".welcome").html("Welcome "+currentUser.name); 
 	 $("#lists li").click(function(){
-         //alert("you click the ul li");  //for test the list li click
             var index = $(this).index();
             if(index==4){
             	loadMRList();
@@ -15,10 +14,38 @@ function initMain(){
 	if(currentUser.role=="ADMIN"){		
 		$("#adminDiv").show();
 		$("#addMR").click(addMR);
+		$("#image").fileinput({previewSettings:{ image: {width: "240px", height: "240px"},}});
+		var imageUploadForm=document.getElementById("imageUploadForm");
+		imageUploadForm.onsubmit=uploadImage;
+		$("#showUploadImgBtn").click(function(){			
+			$("#image").fileinput('reset');
+		});
 	}else
 	{
 		$("#adminDiv").hide();
 	}
+}
+function uploadImage(e){
+	e.preventDefault();
+	document.getElementById('data').contentWindow.document.body.innerHTML="Uploading...";
+	if($("#imagePath").val()){
+		$("#mrId").val($("#imagePath").val());
+	}
+	document.getElementById("imageUploadForm").submit();
+	var checkResutl=function()
+	{
+		var	data=document.getElementById('data').contentWindow.document.body.innerHTML;
+		if(data=="Uploading..."){		
+			setTimeout(checkResutl,100);		
+		}else{
+			console.log("uploaded "+data);
+			$("#imageDisplay").attr("src","mrimages?t="+Math.random()+"&image="+data);
+			$("#imagePath").val(data);
+			$("#closeUploadDialog").click();
+		}
+	}
+	setTimeout(checkResutl,100);
+	
 }
 var mrData;
 function addMR(){
@@ -35,6 +62,7 @@ function addMR(){
 			}
 	    }
 	}
+	$("#imageDisplay").attr("src","img/noImage.png");
 	editForm.onsubmit = function (e) {
 		  // stop the regular form submission
 		e.preventDefault();
@@ -58,6 +86,33 @@ var deleteMR=function(id){
 		}
 		 xhr.send();
 	});
+}
+
+var editMR=function(id){
+	$("#mrEditDialogHeader").html("Eidt Meeting Room");
+	var editForm=document.getElementById("editMRForm");
+	  var mr=mrData[id];
+	  for (var i = 0, ii = editForm.length; i < ii; ++i) {
+	    var input = editForm[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				input.checked = mr[input.name];
+			}
+			else{
+				input.value = mr[input.name];
+			}
+		}
+	  }
+	  if(mr.image){
+		$("#imageDisplay").attr("src","mrimages?image="+mr.image);
+	  }else{
+		$("#imageDisplay").attr("src","img/noImage.png");
+	  }
+	editForm.onsubmit = function (e) {
+			  // stop the regular form submission
+		e.preventDefault();
+		sendData(editForm,"POST",false);
+	}
 }
 
 function sendData(editForm,method,ignoreId){
@@ -84,34 +139,16 @@ function sendData(editForm,method,ignoreId){
 	{
 	  if (xhr.readyState==4 && xhr.status==200)
 		{
+			
 			loadMRList();
+			$("#closeEditMRBtn").click();
 		}
 	 }
 	  xhr.send(JSON.stringify(data));
 	 
 }
 
-var editMR=function(id){
-	$("#mrEditDialogHeader").html("Eidt Meeting Room");
-	var editForm=document.getElementById("editMRForm");
-	  var mr=mrData[id];
-		for (var i = 0, ii = editForm.length; i < ii; ++i) {
-	    var input = editForm[i];
-	    if (input.name) {
-			if(input.type=='checkbox'){
-				input.checked = mr[input.name];
-			}
-			else{
-				input.value = mr[input.name];
-			}
-		}
-	  }
-	editForm.onsubmit = function (e) {
-			  // stop the regular form submission
-		e.preventDefault();
-		sendData(editForm,"POST",false);
-	}
-}
+
 function  loadMRList (){
 	$.get("ws/meetingrooms?"+Math.random(), function (data) {
 		var mrTab=document.getElementById("mrContainer");
@@ -130,6 +167,5 @@ function  loadMRList (){
 		}
 	  });
 }
-
 
 initMain();

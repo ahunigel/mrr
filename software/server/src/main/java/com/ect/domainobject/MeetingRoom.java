@@ -25,6 +25,10 @@ public class MeetingRoom {
 	
 	private boolean phoneExist;
 	
+	private String image;
+	
+	private boolean specailRoom;
+	
 	public MeetingRoom(){
 		
 	}
@@ -97,13 +101,35 @@ public class MeetingRoom {
 		this.phoneExist = phoneExist;
 	}
 
+	
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
+	public boolean isSpecailRoom() {
+		return specailRoom;
+	}
+
+	public void setSpecailRoom(boolean specailRoom) {
+		this.specailRoom = specailRoom;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "MeetingRoom [id=" + id + ", name=" + name + ", location="
 				+ location + ", floor=" + floor + ", seats=" + seats
 				+ ", status=" + status + ", projectorExist=" + projectorExist
-				+ ", phoneExist=" + phoneExist + "]";
+				+ ", phoneExist=" + phoneExist + ", image=" + image
+				+ ", specailRoom=" + specailRoom + "]";
 	}
+
 
 
 	

@@ -23,10 +23,18 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	<servlet>
+  	<servlet-name>ImageDownload</servlet-name>
+  		<servlet-class>com.ect.ui.servlet.DownloadImageServlet</servlet-class>
+ 	</servlet>
 	<servlet-mapping>
 		<servlet-name>Jersey Web Application</servlet-name>
 		<url-pattern>/ws/*</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+        <servlet-name>ImageDownload</servlet-name>
+        <url-pattern>/mrimages/*</url-pattern>
+    </servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>

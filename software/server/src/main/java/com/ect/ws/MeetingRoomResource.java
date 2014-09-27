@@ -1,5 +1,7 @@
 package com.ect.ws;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -10,11 +12,16 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ect.service.MeetingRoomService;
+import com.ect.util.AppUtils;
 import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
 
@@ -56,6 +63,26 @@ public class MeetingRoomResource {
 	@Path("/{id}")
 	public void deleteMeetingRoom(@PathParam("id") Integer id){
 		service.deleteMeetingRoom(id);
+	}
+	
+	@POST
+	@Path("/image")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	public Response uploadImage(
+			@FormDataParam("mrId")String mrId,
+			@FormDataParam("imageFile") InputStream fileInputStream,
+			@FormDataParam("imageFile") FormDataContentDisposition contentDispositionHeader) {
+		File folder=AppUtils.getImageFolder();
+		System.out.println("mrId"+mrId);
+		String savedName;
+		if(mrId==null||mrId.trim().isEmpty()||"undefined".equalsIgnoreCase(mrId.trim())){
+			savedName=System.currentTimeMillis()+contentDispositionHeader.getFileName().substring(contentDispositionHeader.getFileName().lastIndexOf("."));
+		}else{
+			savedName= mrId.trim();
+		}
+		File filePath = new File(folder,savedName);
+		AppUtils.saveFile(fileInputStream, filePath);
+		return Response.status(200).entity(savedName).build();
 	}
 	
 	@GET
