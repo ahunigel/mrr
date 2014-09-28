@@ -3,21 +3,17 @@ function mousedownHandler(e){
      $(".ghost-select").addClass("ghost-active");
 	 $(".ghost-select").width(0).height(0);
 	 
-	 var base=$("#grid");
-	baseTop=base.offset().top;
-	baseLeft=base.offset().left;
-	 console.log("baseLeft,baseTop, offsetX, offsetY,pageX,pageY",baseLeft,baseTop,e.offsetX,e.offsetY,e.pageX,e.pageY);
+	 console.log(" offsetX, offsetY,pageX,pageY",e.offsetX,e.offsetY,e.pageX,e.pageY);
 	 
      $(".ghost-select").css({
-         left: e.pageX-baseLeft,
-         top: e.pageY-baseTop,
+         left: e.offsetX,
+         top: e.offsetY,
 		 position:'absolute'
 		 });
 
-     initialW = e.pageX;
-     initialH = e.pageY;
+     initialW = e.offsetX;
+     initialH = e.offsetY;
 	 $("#grid").css({position: 'relative'});
-	console.log("mousedown",e.pageX,e.pageY);
      $("#grid").bind("mouseup", mouseupHandler);
      $("#grid").bind("mousemove", openSelector);
 }
@@ -57,14 +53,13 @@ function mouseupHandler(e) {
 }
 
 function openSelector(e) {
-    var w = Math.abs(initialW - e.pageX);
-    var h = Math.abs(initialH - e.pageY);
+    var w = Math.abs(initialW - e.offsetX);
+    var h = Math.abs(initialH - e.offsetY);
 
-//	console.log("mousemove",w,h,e.pageX,e.pageY);
     $(".ghost-select").css({
         'width': w,
         'height': h,
-        'left': Math.min(e.pageX, initialW)-baseLeft,
-        'top': Math.min(e.pageY, initialH)-baseTop
+        'left': Math.min(e.offsetX, initialW),
+        'top': Math.min(e.offsetY, initialH)
     });
 }
