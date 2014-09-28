@@ -44,6 +44,14 @@ function initValidate(){
 	                    }
 	                }
 	            },
+	            floor: {
+	            	 message: 'The seats is not valid',
+	            	 validators: {
+		                    notEmpty: {
+		                        message: 'The seats is required and cannot be empty'
+		                    }
+	            	 }
+	            },
 	            seats: {
 	                message: 'The seats is not valid',
 	                validators: {
@@ -190,7 +198,7 @@ function  loadMRList (){
 		for(var i=0;i<mrData.length;i++){
 			var row=mrTab.insertRow(i);
 			row.insertCell(0).innerHTML=mrData[i].name;
-			row.insertCell(1).innerHTML=mrData[i].floor+'F '+mrData[i].location;
+			row.insertCell(1).innerHTML='<a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+i+')">'+mrData[i].floor+'F '+mrData[i].location+'</a>';
 			row.insertCell(2).innerHTML=mrData[i].seats;
 			
 			row.insertCell(3).innerHTML='<input type="checkbox" '+(mrData[i].phoneExist==true?'checked':'')+' disabled/>';
