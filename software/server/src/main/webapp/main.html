@@ -7,7 +7,8 @@
     <title>Welcome to Meeting Room Reservation System</title>
 
     <!-- Bootstrap -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/main.css" rel="stylesheet"/>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -26,196 +27,12 @@
 
 </script>
 
-   
-
-    <style type="text/css">
-    *{
-     margin:0px;
-     padding:0px;
-    }
-
-.header{
-
-height:10%;
-color:#fff;
-background:#0b4b79;
-}
-
-.content{
-height:800px;
-background:#e3e4e6;
-}
-
-
-.footer{
-height:10%;
-background:#242424;
-color:#fff;
-}
-
-
-img{
-  margin:auto;
-}
-
-.header{
-
-  font-size:24px;
-
-  font-family:"Arial";
-  line-height:50px;
-}
-
-.footer{
-
-
-  margin:auto;
-  text-align:center;
-}
-
-
-
-.data{
-  height:600px;
-  
-  margin:auto;
-  width:350px;
-
-}
-
-.forms{
-  height:400px;
-margin-top:120px;
-background:#f5eee4;
-border-radius:10px 10px 10px 10px;
-border:1px solid #0b4b79;
-marginL:auto;
-}
-
-
-#username{
-height:40px;
-border:1px solid gray;
-margin-left:55px;
-border-radius:5px 5px 5px 5px;
-}
-
-#password{
-height:40px;
-border:1px solid gray;
-border-radius:5px 5px 5px 5px;
-margin-left:55px;
-}
-.titler label{
-color:red;
-
-}
-
-.lb{
-  margin-left:55px;
-}
-
-
-#btn1{
-
-}
-
-.col-md-8 p{
-font-family:"Arial";
-  font-size:34px;
-}
-
-
-
-#lists li a{
-text-decoration:none;
-color:#fff;
-}
-
-
-#lists li{
-display:block;
-margin-top:4px;
-color:#fff;
-
-height:120px;
-width:110px;
-
-text-align:center;
-list-style-type:none;
-
-border-radius:10px 0px 0px 10px;
-}
-
-#lists li:hover{
-background:#fff;
-color:#000;
-
-}
-
-#lists li a:hover{
-color:#000;
-
-}
-
-#left{
-width:10%;
-height:790px;
-background:rgb(41,44,51);
-
-margin-top:3px;
-}
-
-
-#right{
-  height:790px;
-width:90%;
-margin-top:3px;
-border:1px solid #333;
-
-}
-
-*{
-  margin:0px;
-  padding:0px;
-}
-
-
-#lists li a{
-   border:none;
-  background:none;
-}
-.container1{
-  height:800px;
-
-}
-#lists{
-
-  list-style-type:none;
-}
-
-.table{
-
-  border:1px solid gray;
-}
-
-.welcome{
-  margin-top:20px;
-}
-    .center{
-        text-align: center;
-    }
-    .sub-modal form{
-        margin: 0;
-    }
-    </style>
 
   </head>
   <body>
    <iframe id="data" name="data" style="display:none"></iframe>
 <div class="container-fluid">
 <div class="header">
-
   <div class="row">
   <div class="col-md-4"><img class="emer" src="img/emerson-logo.png" /></div>
 
@@ -234,16 +51,13 @@ border:1px solid #333;
 <div class="container1">
 
   <div class="col-sm-1" id="left">
-  <ul class="nav nav-tabs" role="tablist" id="lists">
-  <li class="active"><a href="#available"  data-toggle="tab">
-  <img src="img/bg.png" height="90px" width="90px"/>Available</a></li>
-  <li><a href="#all" data-toggle="tab"><img src="img/bg.png" height="90px" width="90px"/>All</a></li>
-  <li><a href="#maps" data-toggle="tab"><img src="img/bg.png" height="90px" width="90px"/>Mine</a></li>
-  <li><a href="#report" data-toggle="tab"><img src="img/bg.png" height="90px" width="90px"/>Report</a></li>
-  <li id="adminDiv"><a href="#manage" data-toggle="tab"><img src="img/bg.png" height="90px" width="90px"/>Manage</a></li>
-        
-  </ul>
-
+	  <ul class="nav nav-tabs" role="tablist" id="lists">
+		  <li class="active"><a href="#available"  data-toggle="tab"><img src="img/avai.png" height="60px" width="60px"/>Available</a></li>
+		  <li><a href="#all" data-toggle="tab"><img src="img/all.png" height="60px" width="60px"/>All</a></li>
+		  <li><a href="#maps" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/>Mine</a></li>
+		  <li><a href="#report" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/>Report</a></li>
+		  <li id="adminDiv"><a href="#manage" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/>Manage</a></li>
+	  </ul>
   </div>
   
 

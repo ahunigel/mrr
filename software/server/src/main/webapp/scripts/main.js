@@ -45,11 +45,16 @@ function initValidate(){
 	                }
 	            },
 	            floor: {
-	            	 message: 'The seats is not valid',
+	            	 message: 'The floor is not valid',
 	            	 validators: {
 		                    notEmpty: {
-		                        message: 'The seats is required and cannot be empty'
-		                    }
+		                        message: 'The floor is required and cannot be empty'
+		                    },
+	            			greaterThan:{
+	            				value:0,
+	            				message:'the floor should greater than 0'
+	            				
+	            			}
 	            	 }
 	            },
 	            seats: {
