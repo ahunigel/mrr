@@ -1,7 +1,10 @@
 package com.ect.dao;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -10,6 +13,7 @@ import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.stereotype.Component;
 
 import com.ect.domainobject.ITimeIntervalRecord;
+import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
 import com.ect.domainobject.ReservationTempRecordItemBean;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
@@ -61,17 +65,90 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 		this.getHibernateTemplate().saveOrUpdate(mrr);
 		return mrr;
 	}
-	
-	public boolean deleteMeetingRoomReservation(
-			Integer mrrId)
+
+	public boolean deleteMeetingRoomReservation(Integer mrrId)
 	{
 		if (deleteReservationTimeIntervalItems(mrrId))
 		{
-			this.getHibernateTemplate().findByNamedParam("deleteReservationById", "mrrId", mrrId);
+			this.getHibernateTemplate().findByNamedParam(
+					"deleteReservationById", "mrrId", mrrId);
 		}
 		return true;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> getMeetingRoomReservationByDateRange(
+			Date startDate, Date endDate)
+	{
+		String[] params = new String[] { "startTime", "endTime" };
+		Object[] values = new Object[] { startDate, endDate };
+		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
+				.findByNamedParam("getItemsByTimeInterval", params,
+						values);
+		
+		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = classifyRerservationItemsByMeetingRoom(items);
+		
+		return mrr;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> getMeetingRoomReservationByDateRangeAndUser(
+			Date startDate, Date endDate, Integer userId)
+	{
+		String[] params = new String[] { "startTime", "endTime", "userId" };
+		Object[] values = new Object[] { startDate, endDate, userId };
+		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
+				.findByNamedParam("getItemsByTimeIntervalAndUser", params,
+						values);
+		
+		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = classifyRerservationItemsByRerservation(items);
+		
+		return mrr;
+	}
 
+	private Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> classifyRerservationItemsByMeetingRoom(
+			List<ReservationTimeIntervalItemBean> items)
+	{
+		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = new HashMap<MeetingRoom, List<ReservationTimeIntervalItemBean>>();
+		for (ReservationTimeIntervalItemBean item : items)
+		{
+			if (mrr.containsKey(item.getReservation()))
+			{
+				mrr.get(item.getMeetingRoom()).add(item);
+			}
+			else
+			{
+				List<ReservationTimeIntervalItemBean> resItems = new ArrayList<ReservationTimeIntervalItemBean>();
+				resItems.add(item);
+				mrr.put(item.getMeetingRoom(), resItems);
+			}
+			
+		}
+		return mrr;
+	}
+	
+	private Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> classifyRerservationItemsByRerservation(
+			List<ReservationTimeIntervalItemBean> items)
+	{
+		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = new HashMap<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>>();
+		for (ReservationTimeIntervalItemBean item : items)
+		{
+			if (mrr.containsKey(item.getReservation()))
+			{
+				mrr.get(item.getReservation()).add(item);
+			}
+			else
+			{
+				List<ReservationTimeIntervalItemBean> resItems = new ArrayList<ReservationTimeIntervalItemBean>();
+				resItems.add(item);
+				mrr.put(item.getReservation(), resItems);
+			}
+			
+		}
+		return mrr;
+	}
+
+	
 	@SuppressWarnings("unchecked")
 	public List<MeetingRoomReservation> getMeetingRoomReservationBystartDate(
 			Date datetime)

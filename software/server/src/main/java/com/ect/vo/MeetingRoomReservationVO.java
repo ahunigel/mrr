@@ -1,8 +1,10 @@
 package com.ect.vo;
 
 import java.util.Date;
+import java.util.List;
 
 import com.ect.domainobject.RecurrentType;
+import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
 import com.ect.domainobject.User;
 
@@ -46,6 +48,8 @@ public class MeetingRoomReservationVO {
 	private Integer recurrentStartTime;
 
 	private Integer recurrentEndTime;
+	
+	private List<ReservationTimeIntervalItemBean> items;
 	
 	
 
@@ -111,6 +115,15 @@ public class MeetingRoomReservationVO {
 	}
 	public void setReservedPerson(User reservedPerson) {
 		this.reservedPerson = reservedPerson;
+	}
+	
+	public List<ReservationTimeIntervalItemBean> getItems()
+	{
+		return items;
+	}
+	public void setItems(List<ReservationTimeIntervalItemBean> items)
+	{
+		this.items = items;
 	}
 		
 }
