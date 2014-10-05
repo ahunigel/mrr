@@ -1,7 +1,10 @@
 package com.ect.domainobject;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -11,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -19,6 +23,7 @@ import javax.persistence.Table;
 		@NamedQuery(name = "deleteReservationByRoom", query = "delete from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
 		@NamedQuery(name = "getReservationByRoom", query = "select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
 		@NamedQuery(name = "getReservationCountByRoom", query = "select count(m.id) from MeetingRoomReservation m where m.meetingRoom.id = :roomId and m.endTime >= nowDate"),
+		@NamedQuery(name = "getReservationGroupByMeetingRoom", query = "select m from MeetingRoomReservation m group by m.meetingRoom"),
 		@NamedQuery(name = "getReservationByIdAndDateRange", query = "select m from MeetingRoomReservation m where (m.startTime >= :startTime"
 				+ " or m.startTime < :endTime or m.endTime >= :endTime or m.endTime < :startTime) and m.meetingRoom.id = :roomId"),
 		@NamedQuery(name = "getReservationByStartDate", query = "select m from MeetingRoomReservation m where m.startTime >= :startTime"),
@@ -84,7 +89,7 @@ public class MeetingRoomReservation
 	// format Hour*60+Minute
 	private Integer recurrentEndTime;
 
-	private boolean isCanceled = false;
+	private Set<ReservationTimeIntervalItemBean> getReservationItemsSet = null;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -212,15 +217,22 @@ public class MeetingRoomReservation
 	{
 		this.reservedPerson = reservedPerson;
 	}
-
-	public boolean isCanceled()
+	
+	@OneToMany(cascade={CascadeType.ALL}, mappedBy="meeting_room_reservation_id")
+	public Set<ReservationTimeIntervalItemBean> getGetReservationItemsSet()
 	{
-		return isCanceled;
+		if (getReservationItemsSet == null)
+		{
+			getReservationItemsSet = new HashSet<ReservationTimeIntervalItemBean>();
+		}
+		
+		return getReservationItemsSet;
 	}
 
-	public void setCanceled(boolean isCanceled)
+	public void setGetReservationItemsSet(
+			Set<ReservationTimeIntervalItemBean> getReservationItemsSet)
 	{
-		this.isCanceled = isCanceled;
+		this.getReservationItemsSet = getReservationItemsSet;
 	}
 
 	@Override

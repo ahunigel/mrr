@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ect.service.MeetingRoomReservationService;
 import com.ect.vo.MeetingRoomReservationVO;
+import com.ect.vo.MeetingRoomStatusVO;
 
 @RequestScoped
 @Path("/meetingroomReservation")
@@ -26,21 +27,20 @@ public class MeetingRoomReservationResource {
 	@GET
 	@Path("/reservation")
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomReservationVO> getAllAvaliableMeetingRoomReservations()
+	public List<MeetingRoomStatusVO> getAllAvaliableMeetingRoomReservations()
 	{
-		return service.getAllMeetingRoomReservation();
+		return service.getCurrentDateAvaliableMeetingRoom();
 	}
 	
 	@GET
-	@Path("/reservation")
+	@Path("/user/{id}")
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomReservationVO> getMeetingRoomReservationsByUser()
+	public List<MeetingRoomReservationVO> getMeetingRoomReservationsByUser(@PathParam("id") Integer id)
 	{
-		return service.getAllMeetingRoomReservation();
+		return service.getMeetingRoomReservationByUser(id);
 	}
 	
 	@GET
-	@Path("/reservation")
 	@Produces({ "application/json;charset=UTF-8" })
 	public List<MeetingRoomReservationVO> getAllMeetingRoomReservations()
 	{
@@ -48,7 +48,7 @@ public class MeetingRoomReservationResource {
 	}
 	
 	@GET
-	@Path("/{id}/reservation")
+	@Path("/meetingRoom/{id}")
 	@Produces({ "application/json;charset=UTF-8" })
 	public List<MeetingRoomReservationVO> getReservationsByMeetingRoom(@PathParam("id") Integer id)
 	{
@@ -67,19 +67,14 @@ public class MeetingRoomReservationResource {
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8"})
 	@Path("/reservation")
-	public MeetingRoomReservationVO updateMeetingRoom(MeetingRoomReservationVO mrr){
+	public MeetingRoomReservationVO updateMeetingRoomReservation(MeetingRoomReservationVO mrr){
 		return service.updateMeetingRoomReservation(mrr);
 	}
 	
 	@DELETE
-	@Path("/{id}/reservation")
+	@Path("/meetingRoom/{id}")
 	public void deleteReservationByMeetingRoom(@PathParam("id") Integer id){
-		service.deleteReservationByMeetingRoom(id);
+		service.deleteOrCancelMeetingRoomReservation(id);
 	}
-	
-	@DELETE
-	@Path("/reservation/{id}")
-	public void deleteMeetingRoomReservation(@PathParam("id") Integer id){
-		service.deleteMeetingRoomReservation(id);
-	}
+
 }

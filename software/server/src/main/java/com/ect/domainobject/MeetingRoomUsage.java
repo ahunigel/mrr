@@ -21,6 +21,10 @@ public class MeetingRoomUsage {
 	private Date startTime;
 	
 	private Date endTime;
+	
+	private String meetingSubject;
+
+	private User reservedPerson;
 
 	
 	@Id
@@ -56,6 +60,26 @@ public class MeetingRoomUsage {
 
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
+	}
+
+	public String getMeetingSubject()
+	{
+		return meetingSubject;
+	}
+
+	public void setMeetingSubject(String meetingSubject)
+	{
+		this.meetingSubject = meetingSubject;
+	}
+
+	public User getReservedPerson()
+	{
+		return reservedPerson;
+	}
+
+	public void setReservedPerson(User reservedPerson)
+	{
+		this.reservedPerson = reservedPerson;
 	}
 
 	@Override

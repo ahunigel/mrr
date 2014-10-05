@@ -1,8 +1,6 @@
 package com.ect.dao;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +15,7 @@ import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
 import com.ect.domainobject.ReservationTempRecordItemBean;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
-import com.ect.domainobject.User;
+import com.ect.util.MeetingRoomUtil;
 
 @Component
 public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
@@ -48,7 +46,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 						"roomId", mId);
 	}
 
-	public int getActiveReservationCountByMeetingRoom(long mId)
+	public int getReservationCountByMeetingRoom(long mId)
 	{
 		String[] params = new String[] { "roomId", "nowDate" };
 		Object[] values = new Object[] { mId, new Date() };
@@ -75,7 +73,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 		}
 		return true;
 	}
-	
+		
 	@SuppressWarnings("unchecked")
 	public Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> getMeetingRoomReservationByDateRange(
 			Date startDate, Date endDate)
@@ -86,9 +84,22 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 				.findByNamedParam("getItemsByTimeInterval", params,
 						values);
 		
-		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = classifyRerservationItemsByMeetingRoom(items);
+		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = MeetingRoomUtil.classifyRerservationItemsByMeetingRoom(items);
 		
 		return mrr;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<ReservationTimeIntervalItemBean> getAllReservationItemsByDateRange(
+			Date startDate, Date endDate)
+	{
+		String[] params = new String[] { "startTime", "endTime" };
+		Object[] values = new Object[] { startDate, endDate };
+		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
+				.findByNamedParam("getItemsByTimeInterval", params,
+						values);
+		
+		return items;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -101,50 +112,8 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 				.findByNamedParam("getItemsByTimeIntervalAndUser", params,
 						values);
 		
-		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = classifyRerservationItemsByRerservation(items);
+		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = MeetingRoomUtil.classifyRerservationItemsByRerservation(items);
 		
-		return mrr;
-	}
-
-	private Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> classifyRerservationItemsByMeetingRoom(
-			List<ReservationTimeIntervalItemBean> items)
-	{
-		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = new HashMap<MeetingRoom, List<ReservationTimeIntervalItemBean>>();
-		for (ReservationTimeIntervalItemBean item : items)
-		{
-			if (mrr.containsKey(item.getReservation()))
-			{
-				mrr.get(item.getMeetingRoom()).add(item);
-			}
-			else
-			{
-				List<ReservationTimeIntervalItemBean> resItems = new ArrayList<ReservationTimeIntervalItemBean>();
-				resItems.add(item);
-				mrr.put(item.getMeetingRoom(), resItems);
-			}
-			
-		}
-		return mrr;
-	}
-	
-	private Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> classifyRerservationItemsByRerservation(
-			List<ReservationTimeIntervalItemBean> items)
-	{
-		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = new HashMap<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>>();
-		for (ReservationTimeIntervalItemBean item : items)
-		{
-			if (mrr.containsKey(item.getReservation()))
-			{
-				mrr.get(item.getReservation()).add(item);
-			}
-			else
-			{
-				List<ReservationTimeIntervalItemBean> resItems = new ArrayList<ReservationTimeIntervalItemBean>();
-				resItems.add(item);
-				mrr.put(item.getReservation(), resItems);
-			}
-			
-		}
 		return mrr;
 	}
 
@@ -160,11 +129,11 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 
 	@SuppressWarnings("unchecked")
 	public List<MeetingRoomReservation> getMeetingRoomReservationByUser(
-			User user)
+			Integer userId)
 	{
 		return (List<MeetingRoomReservation>) this.getHibernateTemplate()
 				.findByNamedParam("getMeetingRoomReservationByUser", "userId",
-						user.getId());
+						userId);
 	}
 
 	@SuppressWarnings("unchecked")

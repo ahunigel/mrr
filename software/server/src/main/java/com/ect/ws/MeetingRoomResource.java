@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ect.service.MeetingRoomService;
 import com.ect.util.AppUtils;
-import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
 
 @RequestScoped
@@ -83,51 +82,5 @@ public class MeetingRoomResource {
 		File filePath = new File(folder,savedName);
 		AppUtils.saveFile(fileInputStream, filePath);
 		return Response.status(200).entity(savedName).build();
-	}
-	
-	@GET
-	@Path("/reservation")
-	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomReservationVO> getAllMeetingRoomReservations()
-	{
-		return service.getAllMeetingRoomReservation();
-	}
-	
-	@GET
-	@Path("/{id}/reservation")
-	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomReservationVO> getReservationsByMeetingRoom(@PathParam("id") Integer id)
-	{
-		return service.getReservationByMeetingRoom(id);
-	}
-	
-	@PUT
-	@Produces({ "application/json;charset=UTF-8" })
-	@Consumes({ "application/json;charset=UTF-8"})
-	@Path("/reservation")
-	public MeetingRoomReservationVO createMeetingRoomReservation (MeetingRoomReservationVO mrr){
-		//return service.saveOrUpdateMeetingRoomReservation(mrr);
-		return null;
-	}
-	
-	@POST
-	@Produces({ "application/json;charset=UTF-8" })
-	@Consumes({ "application/json;charset=UTF-8"})
-	@Path("/reservation")
-	public MeetingRoomReservationVO updateMeetingRoom(MeetingRoomReservationVO mrr){
-		//return service.saveOrUpdateMeetingRoomReservation(mrr);
-		return null;
-	}
-	
-	@DELETE
-	@Path("/{id}/reservation")
-	public void deleteReservationByMeetingRoom(@PathParam("id") Integer id){
-		service.deleteReservationByMeetingRoom(id);
-	}
-	
-	@DELETE
-	@Path("/reservation/{id}")
-	public void deleteMeetingRoomReservation(@PathParam("id") Integer id){
-		service.deleteMeetingRoomReservation(id);
 	}
 }

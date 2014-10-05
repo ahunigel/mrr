@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,10 @@ import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
 import com.ect.domainobject.User;
 import com.ect.util.DateTimeUtil;
+import com.ect.util.MeetingRoomUtil;
 import com.ect.vo.MeetingRoomReservationVO;
+import com.ect.vo.MeetingRoomStatusVO;
+import com.ect.vo.MeetingRoomVO;
 
 @Transactional
 @Service
@@ -33,56 +37,59 @@ public class MeetingRoomReservationService
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByDateRange(
 			Date startDate, Date endDate)
 	{
-		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> rem = reservationDao
-				.getMeetingRoomReservationByDateRange(startDate, endDate);
-		return null;
+		List<ReservationTimeIntervalItemBean> items = reservationDao
+				.getAllReservationItemsByDateRange(startDate, endDate);
+		
+		return MeetingRoomUtil.getMeetingRoomReservationVo(items);
 	}
 	
-	public List<MeetingRoomReservationVO> getCurrentDateAvaliableMeetingRoom()
+	public List<MeetingRoomStatusVO> getCurrentDateAvaliableMeetingRoom()
 	{
 		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
 		Date endDate = DateTimeUtil.getAddedDaysDate(startDate, 1);
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = reservationDao
 				.getMeetingRoomReservationByDateRange(startDate, endDate);
+		List<MeetingRoomStatusVO> result = new ArrayList<MeetingRoomStatusVO>();
+		Set<MeetingRoom> meetingRooms = mrr.keySet();
+		MeetingRoomVO mrVo = null;
+		MeetingRoomStatusVO  mrStatusVo = null;
+		for (MeetingRoom mr : meetingRooms)
+		{
+			/*if (!MeetingRoomUtil.isMeetingRoomAvaliable(mrr.get(mr)))
+			{
+				continue;
+			}*/
+			mrStatusVo = new MeetingRoomStatusVO();
+			mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(mr, mrVo);
+			mrStatusVo.setMeetingRoom(mrVo);
+			mrStatusVo.setItems(MeetingRoomUtil.getMeetingRoomReservationVo(mrr.get(mr)));
+			result.add(mrStatusVo);
+		}
 		
-		
-		return null;
+		return result;
 	} 
-	
 
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByUser(
-			User user)
+			Integer userId)
 	{
 		List<MeetingRoomReservation> rem = reservationDao
-				.getMeetingRoomReservationByUser(user);
+				.getMeetingRoomReservationByUser(userId);
 
-		return convertMeetingRoomResult(rem);
-	}
-
-	private List<MeetingRoomReservationVO> convertMeetingRoomResult(
-			List<MeetingRoomReservation> rem)
-	{
-		List<MeetingRoomReservationVO> result = new ArrayList<MeetingRoomReservationVO>();
-		for (MeetingRoomReservation mr : rem)
-		{
-			MeetingRoomReservationVO vo = new MeetingRoomReservationVO();
-			BeanUtils.copyProperties(mr, vo);
-			result.add(vo);
-		}
-		return result;
+		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
 	public List<MeetingRoomReservationVO> getAllMeetingRoomReservation()
 	{
 		List<MeetingRoomReservation> rem = reservationDao.findAll();
 
-		return convertMeetingRoomResult(rem);
+		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
 	public List<MeetingRoomReservationVO> getReservationByMeetingRoom(Integer id)
 	{
 		List<MeetingRoomReservation> rem = reservationDao.findAll();
-		return convertMeetingRoomResult(rem);
+		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
 	public MeetingRoomReservationVO saveMeetingRoomReservation(
@@ -102,23 +109,13 @@ public class MeetingRoomReservationService
 		return mrr;
 	}
 
-	public MeetingRoomReservationVO updateMeetingRoomReservation(
-			MeetingRoomReservationVO mrr)
+	public boolean deleteOrCancelMeetingRoomReservation(Integer id)
 	{
-		MeetingRoomReservation mr = new MeetingRoomReservation();
-		BeanUtils.copyProperties(mrr, mr);
-		mr.setCanceled(true);
-		mr = reservationDao.saveMeetingRoomReservation(mr);
-		reservationDao.deleteReservationTimeIntervalItems(mr.getId());
-		return mrr;
-	}
-	
-	public boolean deleteMeetingRoomReservation(Integer id)
-	{
+		reservationDao.deleteReservationTimeIntervalItems(id);
 		return reservationDao.deleteMeetingRoomReservation(id);
 	}
-	
-	public MeetingRoomReservationVO cancelMeetingRoomReservation(
+		
+	public MeetingRoomReservationVO updateMeetingRoomReservation(
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
@@ -137,18 +134,12 @@ public class MeetingRoomReservationService
 		return mrr;
 	}
 
-
-	public void deleteReservationByMeetingRoom(Integer id)
-	{
-		reservationDao.deleteReservationByMeetingRoom(id);
-	}
-
 	private boolean isValidReservation(MeetingRoomReservation mrRes,
 			List<ITimeIntervalRecord> reservationItems)
 	{
 		boolean isValid = true;
 		int resCount = reservationDao
-				.getActiveReservationCountByMeetingRoom(mrRes.getMeetingRoom()
+				.getReservationCountByMeetingRoom(mrRes.getMeetingRoom()
 						.getId());
 		List<ReservationTimeIntervalItemBean> result = null;
 		if (resCount == 0)
@@ -156,8 +147,6 @@ public class MeetingRoomReservationService
 			return isValid;
 		}
 
-		reservationItems = DateTimeUtil
-				.getReservationTimeIntervalRecords(mrRes);
 		ReservationTimeIntervalItemBean rt;
 		if (mrRes.getReservationType().equals(ReservationType.SINGLE))
 		{
@@ -209,6 +198,8 @@ public class MeetingRoomReservationService
 			{
 				isValid = false;
 			}
+			
+			reservationDao.deleteAllTempReservationItems();
 		}
 		return isValid;
 	}
