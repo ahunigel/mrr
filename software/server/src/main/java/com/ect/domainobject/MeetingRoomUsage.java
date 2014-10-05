@@ -72,6 +72,8 @@ public class MeetingRoomUsage {
 		this.meetingSubject = meetingSubject;
 	}
 
+	@ManyToOne
+	@JoinColumn(name = "user_id")
 	public User getReservedPerson()
 	{
 		return reservedPerson;

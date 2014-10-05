@@ -218,7 +218,7 @@ public class MeetingRoomReservation
 		this.reservedPerson = reservedPerson;
 	}
 	
-	@OneToMany(cascade={CascadeType.ALL}, mappedBy="meeting_room_reservation_id")
+	@OneToMany(cascade={CascadeType.ALL}, mappedBy="meetingRoom")
 	public Set<ReservationTimeIntervalItemBean> getGetReservationItemsSet()
 	{
 		if (getReservationItemsSet == null)
