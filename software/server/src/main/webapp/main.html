@@ -9,6 +9,7 @@
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/main.css" rel="stylesheet"/>
+    <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet"/>
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -64,6 +65,7 @@
   <div class="col-sm-11" id="right">
     <div class="tab-content" id="contents">
       <div class="tab-pane fade in active" id="available">
+      <button  class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
     <table class="table table-hover">
      <thead>
        <tr>
@@ -147,9 +149,106 @@
 <div class="footer">Copy Right by HickSon Team of Meetingroom reservation system<br/>Version V0.01<br/>emerson eresouce company</div>
 </div>
 
+<div class="modal fade" id="meetingRoomReservationEdit" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 id="mrrEditDialogHeader">Edit MeetingRoom Reservation</h4>
+			</div>
+			<div class="modal-body">
 
+				<form class="form-horizontal" id="editMRRForm" role="form">
+					<div class="form-group">
+						<label for="" class="col-sm-3 control-label">Subject</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" name="meetingSubject" id="meetingSubject"
+								placeholder="Meetingroom Reservation Subject">
+						</div>
+					</div>
 
- <div class="modal fade" id="meetingRoomEdit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+					<div class="form-group">
+						<label for="" class="col-sm-3 control-label">Floor</label>
+						<div class="col-sm-9">
+							<select class="form-control" id="mrrFloor" name="floor">
+								<option value="3">3</option>
+								<option value="4">4</option>
+								<option value="5">5</option>
+								<option value="6">6</option>
+								<option value="7">7</option>
+								<option value="8">8</option>
+
+							</select>
+
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="" class="col-sm-3 control-label">Meeting Room</label>
+						<div class="col-sm-9">
+							<select class="form-control" id="mrrFloorMeetingRoom" name="floor">
+								<option value="3">Meeting Room 3</option>
+								<option value="4">Meeting Room 4</option>
+								<option value="5">Meeting Room 5</option>
+								<option value="6">Meeting Room 6</option>
+								<option value="7">Meeting Room 7</option>
+								<option value="8">Meeting Room 8</option>
+
+							</select>
+
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="" class="col-sm-3 control-label">ReservationType</label>
+						<div class="col-sm-9 btn-group" data-toggle="buttons">
+							<input checked="checked" id="singleRes" name="SINGLE"
+								type="radio" value="0">SINGLE <input
+								id="recurrentRes" name="RECURRENT" type="radio" value="1">RECURRENT
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="startTime" class="col-sm-3 control-label">Start
+							DateTime</label>
+						<div class="input-group date form_datetime col-sm-8"
+							data-date-format="yyyy/mm/dd   HH:ii P"
+							data-link-field="startTime">
+							<input class="form-control" id="startTime" size="16"
+								type="text" value="" disabled="disabled"> <span
+								class="input-group-addon"><span
+								class="glyphicon glyphicon-remove"></span></span> <span
+								class="input-group-addon"><span
+								class="glyphicon glyphicon-th"></span></span>
+						</div>
+						<br> <label for="endTime" class="col-sm-3 control-label">End
+							DateTime</label>
+						<div class="input-group date form_datetime col-sm-8"
+							data-date-format="yyyy/mm/dd   HH:ii P"
+							data-link-field="endTime">
+							<input class="form-control" id="endTime" size="16"
+								type="text" value="" disabled="disabled"> <span
+								class="input-group-addon"><span
+								class="glyphicon glyphicon-remove"></span></span> <span
+								class="input-group-addon"><span
+								class="glyphicon glyphicon-th"></span></span>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-sm-offset-3 col-sm-9">
+							<button type="submit" class="btn btn-primary">Submit</button>
+							<button class="btn btn-default" id="closeEditMRRBtn"
+								data-dismiss="modal">Cancel</button>
+						</div>
+					</div>
+				</form>
+			</div>
+
+		</div>
+
+	</div>
+
+</div>
+
+<div class="modal fade" id="meetingRoomEdit" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
        <div class="modal-header">
@@ -321,6 +420,8 @@
     <script src="js/jquery-1.11.0.min.js"></script> -->
     <!-- Include all compiled plugins (below), or include individual files as needed -->     
     <script src="scripts/main.js"></script>
+    <script type="text/javascript" src="scripts/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="scripts/reservation.js"></script> 
     <!-- <script src="js/bootstrap.min.js"></script>-->
   </body>
 </html>
