@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.stereotype.Component;
 
@@ -17,8 +16,9 @@ import com.ect.domainobject.ReservationTempRecordItemBean;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.util.MeetingRoomUtil;
 
+@SuppressWarnings("rawtypes")
 @Component
-public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
+public class ReservationMeetingRoomDao extends BaseDao
 {
 
 	public List<MeetingRoomReservation> findAll()
@@ -27,7 +27,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 				.loadAll(MeetingRoomReservation.class);
 	}
 
-	public void deleteReservationByMeetingRoom(long mId)
+	public void deleteReservationByMeetingRoom(Integer mId)
 	{
 		List<MeetingRoomReservation> mrrs = getReservationByMeetingRoom(mId);
 		for (MeetingRoomReservation mrr : mrrs)
@@ -39,22 +39,22 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<MeetingRoomReservation> getReservationByMeetingRoom(long mId)
+	public List<MeetingRoomReservation> getReservationByMeetingRoom(Integer mId)
 	{
 		return (List<MeetingRoomReservation>) this.getHibernateTemplate()
 				.findByNamedQueryAndNamedParam("getReservationByRoom",
 						"roomId", mId);
 	}
 
-	public int getReservationCountByMeetingRoom(long mId)
+	public int getReservationCountByMeetingRoom(Integer mId)
 	{
 		String[] params = new String[] { "roomId", "nowDate" };
 		Object[] values = new Object[] { mId, new Date() };
-		@SuppressWarnings("rawtypes")
 		List result = this.getHibernateTemplate()
 				.findByNamedQueryAndNamedParam("getReservationCountByRoom",
 						params, values);
-		return (Integer) result.get(0);
+		
+		return ((Number)result.get(0)).intValue();
 	}
 
 	public MeetingRoomReservation saveMeetingRoomReservation(
@@ -68,7 +68,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 	{
 		if (deleteReservationTimeIntervalItems(mrrId))
 		{
-			this.getHibernateTemplate().findByNamedParam(
+			this.getHibernateTemplate().findByNamedQueryAndNamedParam(
 					"deleteReservationById", "mrrId", mrrId);
 		}
 		return true;
@@ -81,7 +81,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 		String[] params = new String[] { "startTime", "endTime" };
 		Object[] values = new Object[] { startDate, endDate };
 		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
-				.findByNamedParam("getItemsByTimeInterval", params,
+				.findByNamedQueryAndNamedParam("getItemsByTimeInterval", params,
 						values);
 		
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = MeetingRoomUtil.classifyRerservationItemsByMeetingRoom(items);
@@ -96,7 +96,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 		String[] params = new String[] { "startTime", "endTime" };
 		Object[] values = new Object[] { startDate, endDate };
 		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
-				.findByNamedParam("getItemsByTimeInterval", params,
+				.findByNamedQueryAndNamedParam("getItemsByTimeInterval", params,
 						values);
 		
 		return items;
@@ -109,7 +109,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 		String[] params = new String[] { "startTime", "endTime", "userId" };
 		Object[] values = new Object[] { startDate, endDate, userId };
 		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
-				.findByNamedParam("getItemsByTimeIntervalAndUser", params,
+				.findByNamedQueryAndNamedParam("getItemsByTimeIntervalAndUser", params,
 						values);
 		
 		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = MeetingRoomUtil.classifyRerservationItemsByRerservation(items);
@@ -123,7 +123,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 			Date datetime)
 	{
 		return (List<MeetingRoomReservation>) this.getHibernateTemplate()
-				.findByNamedParam("getReservationByStartDate", "startTime",
+				.findByNamedQueryAndNamedParam("getReservationByStartDate", "startTime",
 						datetime);
 	}
 
@@ -132,7 +132,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 			Integer userId)
 	{
 		return (List<MeetingRoomReservation>) this.getHibernateTemplate()
-				.findByNamedParam("getMeetingRoomReservationByUser", "userId",
+				.findByNamedQueryAndNamedParam("getMeetingRoomReservationByUser", "userId",
 						userId);
 	}
 
@@ -144,7 +144,7 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 				rsItem.getEndTime(), rsItem.getMeetingRoom().getId() };
 		String[] paramNames = new String[] { "startTime", "endTime", "mrId" };
 		return (List<ReservationTimeIntervalItemBean>) this
-				.getHibernateTemplate().findByNamedParam(
+				.getHibernateTemplate().findByNamedQueryAndNamedParam(
 						"checkItemByTimeIntervalAndMeetingRoom", paramNames,
 						values);
 	}
@@ -155,11 +155,9 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 		boolean isSucceed = this.getHibernateTemplate().execute(
 				new HibernateCallback<Boolean>()
 				{
-
 					public Boolean doInHibernate(Session session)
 							throws HibernateException
 					{
-						Transaction ts = session.beginTransaction();
 						for (int i = 0; i < resItems.size(); i++)
 						{
 							if (isTempRecord)
@@ -182,7 +180,6 @@ public class ReservationMeetingRoomDao extends BaseDao<MeetingRoomReservation>
 							}
 						}
 
-						ts.commit();
 						return true;
 					};
 				});

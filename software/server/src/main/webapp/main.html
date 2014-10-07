@@ -65,7 +65,7 @@
   <div class="col-sm-11" id="right">
     <div class="tab-content" id="contents">
       <div class="tab-pane fade in active" id="available">
-      <button  class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
+      <button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
     <table class="table table-hover">
      <thead>
        <tr>
@@ -122,7 +122,7 @@
 <div class="tab-pane fade" id="all">here is the page2's contents</div>
 <div class="tab-pane fade" id="maps">here is the page3's contents</div>
 <div class="tab-pane fade" id="manage">
-<button class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" id="addMR">Add Meeting Room</button>
+<button class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomEdit" id="addMR">Add Meeting Room</button>
 <table class="table table-hover">
 <thead>
 <tr>
@@ -157,13 +157,15 @@
 				<h4 id="mrrEditDialogHeader">Edit MeetingRoom Reservation</h4>
 			</div>
 			<div class="modal-body">
-
-				<form class="form-horizontal" id="editMRRForm" role="form">
-					<div class="form-group">
-						<label for="" class="col-sm-3 control-label">Subject</label>
+			 <form class="form-horizontal" id="editMRRForm" role="form">
+					<div class="form-group" id = "mrSubject">
+						<label  class="col-sm-3 control-label">Subject</label>
 						<div class="col-sm-9">
 							<input type="text" class="form-control" name="meetingSubject" id="meetingSubject"
-								placeholder="Meetingroom Reservation Subject">
+								placeholder="Meetingroom Reservation Subject"/>
+						 <div>
+			           		 <small id = "mrSubjectErrorMsg" class="help-block" ></small>
+			            </div>
 						</div>
 					</div>
 
@@ -199,43 +201,57 @@
 					</div>
 					<div class="form-group">
 						<label for="" class="col-sm-3 control-label">ReservationType</label>
-						<div class="col-sm-9 btn-group" data-toggle="buttons">
-							<input checked="checked" id="singleRes" name="SINGLE"
-								type="radio" value="0">SINGLE <input
-								id="recurrentRes" name="RECURRENT" type="radio" value="1">RECURRENT
+						<div class="col-sm-9 btn-group">
+							<input checked="checked" id="singleRes" name="ReservationType"
+								type="radio" value="SINGLE">SINGLE <input
+								id="recurrentRes" name="ReservationType" type="radio" value="RECURRENT">RECURRENT
 						</div>
 					</div>
-					<div class="form-group">
-						<label for="startTime" class="col-sm-3 control-label">Start
+					<div class="form-group" id = "mrStartTime">
+						<label  class="col-sm-3 control-label">Start
 							DateTime</label>
-						<div class="input-group date form_datetime col-sm-8"
+						<div class="col-sm-9">
+						<div class="input-group date form_datetime"
 							data-date-format="yyyy/mm/dd   HH:ii P"
 							data-link-field="startTime">
-							<input class="form-control" id="startTime" size="16"
-								type="text" value="" disabled="disabled"> <span
+							<input class="form-control" size="16"
+								type="text" value="" readonly> <span
 								class="input-group-addon"><span
 								class="glyphicon glyphicon-remove"></span></span> <span
 								class="input-group-addon"><span
 								class="glyphicon glyphicon-th"></span></span>
 						</div>
-						<br> <label for="endTime" class="col-sm-3 control-label">End
+						<input type="hidden" id="startTime" value="" />
+						<div  >
+			           		 <small id = "startTimeErrorMsg" class="help-block" ></small>
+			            </div>
+						</div>
+						</div>
+						<div class="form-group" id = "mrEndTime">
+						 <label  class="col-sm-3 control-label">End
 							DateTime</label>
-						<div class="input-group date form_datetime col-sm-8"
+						<div class="col-sm-9">
+						<div class="input-group date form_datetime"
 							data-date-format="yyyy/mm/dd   HH:ii P"
 							data-link-field="endTime">
-							<input class="form-control" id="endTime" size="16"
-								type="text" value="" disabled="disabled"> <span
+							<input class="form-control" size="16"
+								type="text" value="" readonly> <span
 								class="input-group-addon"><span
 								class="glyphicon glyphicon-remove"></span></span> <span
 								class="input-group-addon"><span
 								class="glyphicon glyphicon-th"></span></span>
+						</div>
+						<input type="hidden" id="endTime" value="" />
+						<div>
+			           		 <small id = "endTimeErrorMsg" class="help-block" ></small>
+			            </div>
 						</div>
 					</div>
 
 					<div class="form-group">
 						<div class="col-sm-offset-3 col-sm-9">
-							<button type="submit" class="btn btn-primary">Submit</button>
-							<button class="btn btn-default" id="closeEditMRRBtn"
+							<button id="saveEditMRRBtn" class="btn btn-primary">Submit</button>
+							<button class="btn btn-default"
 								data-dismiss="modal">Cancel</button>
 						</div>
 					</div>
@@ -296,7 +312,7 @@
     <div class="col-sm-10">
       <input type="hidden"  name="image" id="imagePath" />
 	  <img src="" alt="Meeting Room Image" id="imageDisplay" height="200" width="200"/>
-	  <a data-toggle="modal" data-target="#mysubModal" id="showUploadImgBtn">Upload image…</a>
+	  <a data-toggle="modal" data-target="#mysubModal" data-backdrop="static" data-keyboard="false" id="showUploadImgBtn">Upload image…</a>
     </div>
   </div>
    <div class="form-group">

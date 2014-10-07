@@ -22,7 +22,7 @@ import javax.persistence.Table;
 		@NamedQuery(name = "deleteReservationById", query = "delete from MeetingRoomReservation m where m.id = :mrrId"),
 		@NamedQuery(name = "deleteReservationByRoom", query = "delete from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
 		@NamedQuery(name = "getReservationByRoom", query = "select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
-		@NamedQuery(name = "getReservationCountByRoom", query = "select count(m.id) from MeetingRoomReservation m where m.meetingRoom.id = :roomId and m.endTime >= nowDate"),
+		@NamedQuery(name = "getReservationCountByRoom", query = "select count(m.id) from MeetingRoomReservation m where m.meetingRoom.id = :roomId and m.endTime >= :nowDate"),
 		@NamedQuery(name = "getReservationGroupByMeetingRoom", query = "select m from MeetingRoomReservation m group by m.meetingRoom"),
 		@NamedQuery(name = "getReservationByIdAndDateRange", query = "select m from MeetingRoomReservation m where (m.startTime >= :startTime"
 				+ " or m.startTime < :endTime or m.endTime >= :endTime or m.endTime < :startTime) and m.meetingRoom.id = :roomId"),

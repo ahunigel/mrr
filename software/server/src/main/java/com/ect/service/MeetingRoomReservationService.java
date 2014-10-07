@@ -17,7 +17,6 @@ import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
-import com.ect.domainobject.User;
 import com.ect.util.DateTimeUtil;
 import com.ect.util.MeetingRoomUtil;
 import com.ect.vo.MeetingRoomReservationVO;
@@ -96,7 +95,10 @@ public class MeetingRoomReservationService
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
+		MeetingRoom mrt = new MeetingRoom();
 		BeanUtils.copyProperties(mrr, mr);
+		BeanUtils.copyProperties(mrr.getMeetingRoom(), mrt);
+		mr.setMeetingRoom(mrt);
 		List<ITimeIntervalRecord> reservationItems = DateTimeUtil
 				.getReservationTimeIntervalRecords(mr);
 		if (isValidReservation(mr, reservationItems))
