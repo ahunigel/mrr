@@ -11,13 +11,13 @@ function getReservationTypeTimeRange(e)
 	reservationType = e.currentTarget.value;
 	if (reservationType == "SINGLE")
 	{
-		$("#mrStartTime").show();
-		$("#mrEndTime").show();
+		$("#recurrentChoice").addClass("hide");
+		$("#singleChoice").removeClass("hide");
 	}
 	else
 	{
-		$("#mrStartTime").hide();
-		$("#mrEndTime").hide();
+		$("#singleChoice").addClass("hide");
+		$("#recurrentChoice").removeClass("hide");
 	}
 
 }
