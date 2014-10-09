@@ -139,7 +139,13 @@ color:red;
 text-align:center;
 
 }
-    .center{
-        text-align: center;
+
+.center{
+text-align: center;
     }
+    
+ .input-radius{
+ border-radius: 4px;
+ width:50%;
+ }
     

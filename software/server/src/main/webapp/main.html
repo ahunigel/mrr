@@ -17,18 +17,6 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-<script type="text/javascript">
-  $(document).ready(function(){
-        //$(".selectpicker").selectpicker({
-         //  style:"btn-danger",
-         //  size:4
-
-        //});
-  });
-
-</script>
-
-
   </head>
   <body>
    <iframe id="data" name="data" style="display:none"></iframe>
@@ -173,13 +161,6 @@
 						<label for="" class="col-sm-3 control-label">Floor</label>
 						<div class="col-sm-9">
 							<select class="form-control" id="mrrFloor" name="floor">
-								<option value="3">3</option>
-								<option value="4">4</option>
-								<option value="5">5</option>
-								<option value="6">6</option>
-								<option value="7">7</option>
-								<option value="8">8</option>
-
 							</select>
 
 						</div>
@@ -188,13 +169,6 @@
 						<label for="" class="col-sm-3 control-label">Meeting Room</label>
 						<div class="col-sm-9">
 							<select class="form-control" id="mrrFloorMeetingRoom" name="floor">
-								<option value="3">Meeting Room 3</option>
-								<option value="4">Meeting Room 4</option>
-								<option value="5">Meeting Room 5</option>
-								<option value="6">Meeting Room 6</option>
-								<option value="7">Meeting Room 7</option>
-								<option value="8">Meeting Room 8</option>
-
 							</select>
 
 						</div>
@@ -208,7 +182,7 @@
 						</div>
 					</div>
 					<div id="singleChoice">
-					<div class="form-group" id = "mrStartTime">
+					<div class="form-group" id = "startTimeContainer">
 						<label  class="col-sm-3 control-label">Start
 							DateTime</label>
 						<div class="col-sm-9">
@@ -228,7 +202,7 @@
 			            </div>
 						</div>
 						</div>
-						<div class="form-group" id = "mrEndTime">
+						<div class="form-group" id = "endTimeContainer">
 						 <label  class="col-sm-3 control-label">End
 							DateTime</label>
 						<div class="col-sm-9">
@@ -253,9 +227,7 @@
 							<div class="form-group">
 								<label class="col-md-4 control-label">Appointment Time</label>
 							</div>
-							<div class="form-group" id="recurrentTime">
-
-
+							<div class="form-group" id = "recStartTimeContainer">
 								<label class="col-sm-3 control-label">Start Time</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_time"
@@ -271,7 +243,8 @@
 										<small id="reStartTimeErrorMsg" class="help-block"></small>
 									</div>
 								</div>
-
+								</div>
+								<div class="form-group" id = "recEndTimeContainer">
 								<label class="col-sm-3 control-label">End Time</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_time"
@@ -293,21 +266,30 @@
 							</div>
 							<div class="form-group">
 								<div class="col-sm-offset-3 col-sm-9 btn-group">
-									<input checked="checked" id="singleRes" name="ReservationPt"
+									<input checked="checked" id="DAILY" name="ReservationPt"
 										type="radio" value="DAILY">Daily <input
-										id="recurrentRes" name="ReservationPt" type="radio"
+										id="DAILY_WORKDAY" name="ReservationPt" type="radio"
 										value="DAILY_WORKDAY">DailyWorkDay <input
-										id="recurrentRes" name="ReservationPt" type="radio"
-										value="RECURRENT">Weekly <input id="recurrentRes"
+										id="WEEKLY" name="ReservationPt" type="radio"
+										value="WEEKLY">Weekly <input id="MONTHLY"
 										name="ReservationPt" type="radio" value="MONTHLY">Monthly
 								</div>
+							</div>
+							 <div class="form-group" id="resInterval">
+								<div class="col-sm-offset-3 col-sm-9">
+									Every<input    class="text-center input-radius" 
+										type="number" min = "1" max = "100" value="1"><span
+											id="intervalLabel">day(s)</span> 
+									<div>
+										<small id="resIntervalErrorMsg" class="help-block"></small>
+									</div>
+								</div>
+								
 							</div>
 							<div class="form-group">
 								<label class="col-md-4 control-label">Range of Recurrent</label>
 							</div>
-							<div class="form-group" id="recurrentDate">
-
-
+							<div class="form-group" id="recurrentStartDate">
 								<label class="col-sm-3 control-label">Start Date</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_date"
@@ -323,7 +305,8 @@
 										<small id="reStartDateErrorMsg" class="help-block"></small>
 									</div>
 								</div>
-
+								</div>
+								<div class="form-group" id="recurrentEndDate">
 								<label class="col-sm-3 control-label">End Date</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_date"
@@ -345,7 +328,7 @@
 						<div class="form-group">
 						<div class="col-sm-offset-3 col-sm-9">
 							<button id="saveEditMRRBtn" class="btn btn-primary">Submit</button>
-							<button class="btn btn-default"
+							<button class="btn btn-default" id="cancelMRR"
 								data-dismiss="modal">Cancel</button>
 						</div>
 					</div>
