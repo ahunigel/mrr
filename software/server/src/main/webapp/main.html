@@ -146,10 +146,10 @@
 			</div>
 			<div class="modal-body">
 			 <form class="form-horizontal" id="editMRRForm" role="form">
-					<div class="form-group" id = "mrSubject">
+					<div class="form-group" id = "mrSubjectContainer">
 						<label  class="col-sm-3 control-label">Subject</label>
 						<div class="col-sm-9">
-							<input type="text" class="form-control" name="meetingSubject" id="meetingSubject"
+							<input type="text" class="form-control" name="mrSubject" id="mrSubject"
 								placeholder="Meetingroom Reservation Subject"/>
 						 <div>
 			           		 <small id = "mrSubjectErrorMsg" class="help-block" ></small>
@@ -160,7 +160,7 @@
 					<div class="form-group">
 						<label for="" class="col-sm-3 control-label">Floor</label>
 						<div class="col-sm-9">
-							<select class="form-control" id="mrrFloor" name="floor">
+							<select class="form-control" id="mrrFloor" name="mrrFloor">
 							</select>
 
 						</div>
@@ -168,7 +168,7 @@
 					<div class="form-group">
 						<label for="" class="col-sm-3 control-label">Meeting Room</label>
 						<div class="col-sm-9">
-							<select class="form-control" id="mrrFloorMeetingRoom" name="floor">
+							<select class="form-control" id="mrrFloorMeetingRoom" name="mrrFloorMeetingRoom">
 							</select>
 
 						</div>
@@ -240,7 +240,7 @@
 									</div>
 									<input type="hidden" id="recStartTime" value="" />
 									<div>
-										<small id="reStartTimeErrorMsg" class="help-block"></small>
+										<small id="recStartTimeErrorMsg" class="help-block"></small>
 									</div>
 								</div>
 								</div>
@@ -257,7 +257,7 @@
 									</div>
 									<input type="hidden" id="recEndTime" value="" />
 									<div>
-										<small id="reEndTimeErrorMsg" class="help-block"></small>
+										<small id="recEndTimeErrorMsg" class="help-block"></small>
 									</div>
 								</div>
 							</div>
@@ -275,7 +275,7 @@
 										name="ReservationPt" type="radio" value="MONTHLY">Monthly
 								</div>
 							</div>
-							 <div class="form-group" id="resInterval">
+							 <div class="form-group" id="resIntervalContainer">
 								<div class="col-sm-offset-3 col-sm-9">
 									Every<input    class="text-center input-radius" 
 										type="number" min = "1" max = "100" value="1"><span
@@ -289,7 +289,7 @@
 							<div class="form-group">
 								<label class="col-md-4 control-label">Range of Recurrent</label>
 							</div>
-							<div class="form-group" id="recurrentStartDate">
+							<div class="form-group" id="recStartDateContainer">
 								<label class="col-sm-3 control-label">Start Date</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_date"
@@ -302,11 +302,11 @@
 									</div>
 									<input type="hidden" id="recStartDate" value="" />
 									<div>
-										<small id="reStartDateErrorMsg" class="help-block"></small>
+										<small id="recStartDateErrorMsg" class="help-block"></small>
 									</div>
 								</div>
 								</div>
-								<div class="form-group" id="recurrentEndDate">
+								<div class="form-group" id="recEndDateContainer">
 								<label class="col-sm-3 control-label">End Date</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_date"
@@ -319,7 +319,7 @@
 									</div>
 									<input type="hidden" id="recEndDate" value="" />
 									<div>
-										<small id="reEndDateErrorMsg" class="help-block"></small>
+										<small id="recEndDateErrorMsg" class="help-block"></small>
 									</div>
 								</div>
 							</div>

@@ -1,16 +1,14 @@
- $("#addMRR").click(addMRR);
- $("#cancelMRR").click(resetReservation);
-$("#meetingSubject").change(mrrSubjectChange);
-$("#mrrFloor").change(getMrFloorChange);
-$("#singleRes").click(getReservationTypeTimeRange);
-$("#recurrentRes").click(getReservationTypeTimeRange);
-$("#resInterval").change(checkRecInterval);
-
 var reservationType = "SINGLE";
 var mrObj = [];
 var floorOptions = [];
 var numPattern = /^\d+$/;
+var startTimer = {};
+var endTimer = {};
 
+/**
+ * The function for load meeting rooms and 
+ * initial floor and meeting room options for add or edit reservation.
+ */
 function loadMeetingRooms()
 {
 	$.get("ws/meetingrooms?"+Math.random(), function (data) {
@@ -33,14 +31,16 @@ function loadMeetingRooms()
 		}
 		if (floorOptions.length > 0)
 		{
-			floorOptions.sort(function(a,b){
+			//Sort the floors by floor number.
+			floorOptions.sort(function(a,b)
+			{
 				if (a.value > b.value)
 				{
-					return -1;
+					return 1;
 				}
 				if (a.value < b.value)
 				{
-					return 1;
+					return -1;
 				}
 				 
 				 return 0;
@@ -57,41 +57,45 @@ function loadMeetingRooms()
 	  });
 }
 
+/**
+ * The function for meeting room floor change.
+ */
 function getMrFloorChange()
 {
 	var fValue = this[this.selectedIndex].value;
+	//Change the meeting room options by floor number.
 	$("#mrrFloorMeetingRoom").html(mrObj[fValue].data);
 }
 
+/**
+ * The function for handle the subject of meeting room reservation
+ * and check if the value is valid or not.
+ */
 function mrrSubjectChange()
 {
 	var isSubjectValid = true;
-	var subValue = $("#meetingSubject").val();
+	var subValue = $("#mrSubject").val();
+	var msg = "";
 	if (!subValue || subValue == "")
 	{
-		$('#mrSubjectErrorMsg')
-				.html(
-						"The meeting room reservation subject is required and cannot be empty");
-		$("#mrSubject").addClass("has-error");
+		msg = "The meeting room reservation subject is required and cannot be empty";
 		isSubjectValid = false;
 	}
 	else if (subValue.length < 6 || subValue.length > 300)
 	{
-		$('#mrSubjectErrorMsg')
-				.html(
-						"The meeting room reservation subject must be more than 6 and less than 300 characters long");
-		$("#mrSubject").addClass("has-error");
+		msg = "The meeting room reservation subject must be more than 6 and less than 300 characters long";
 		isSubjectValid = false;
-	}
-	else
-	{
-		$('#mrSubjectErrorMsg').html("");
-		$("#mrSubject").removeClass("has-error");
-	}
-		
+	}	
+	
+	addOrRemoveErrorMsg(isSubjectValid, "#mrSubject", msg);
+	enableOrDisableSubmit(isSubjectValid);			
 }
 
-
+/**
+ * The function for handle single or recurrent type reservation
+ * and switch the UI by reservation type.
+ * @param e the default event.
+ */
 function getReservationTypeTimeRange(e)
 {
 	reservationType = e.currentTarget.value;
@@ -99,15 +103,34 @@ function getReservationTypeTimeRange(e)
 	{
 		$("#recurrentChoice").addClass("hide");
 		$("#singleChoice").removeClass("hide");
+		$("#startTimeContainer input[type='text']").bind("change", function(){startTimeValidate("#startTime", "start date time",false);});
+		$("#endTimeContainer input[type='text']").bind("change", function(){endTimeValidate("#endTime", "#startTime", "end date time", true, false)});
+		$("#resInterval").removeAttr("change");
+		$("#recStartTimeContainer input[type='text']").unbind("change");
+		$("#recEndTimeContainer input[type='text']").unbind("change");
+		$("#recStartDateContainer input[type='text']").unbind("change");
+		$("#recEndDateContainer input[type='text']").unbind("change");
+		$("#recurrentChoice").children().removeClass(".has-error");
 	}
 	else
 	{
 		$("#singleChoice").addClass("hide");
 		$("#recurrentChoice").removeClass("hide");
+		$("#resInterval").bind("change", checkRecInterval);
+		$("#recStartTimeContainer input[type='text']").bind("change", function(){startTimeValidate("#recStartTime", "start time",true)});
+		$("#recEndTimeContainer input[type='text']").bind("change", function(){endTimeValidate("#recEndTime", "#recStartTime", "end time", false, true)});
+		$("#recStartDateContainer input[type='text']").bind("change", function(){startTimeValidate("#recStartDate", "start time",false)});
+		$("#recEndDateContainer input[type='text']").bind("change", function(){endTimeValidate("#recEndDate", "#recStartDate", "end time", false, false)});
+		$("#startTimeContainer input[type='text']").unbind("change");
+		$("#endTimeContainer input[type='text']").unbind("change");
+		$("#singleChoice").children().removeClass(".has-error");
 	}
 
 }
 
+/**
+ * The function for reset reservation form.
+ */
 function resetReservation()
 {
 	var editForm = document.getElementById("editMRRForm");
@@ -144,6 +167,11 @@ function resetReservation()
 	}
 }
 
+/**
+ * The function for edit reservation and fill the reservation
+ * information into form.
+ * @param res the reservation for process.
+ */
 function editMrrForm(res)
 {
 	$("#meetingSubject").val(res.meetingSubject);
@@ -184,23 +212,64 @@ function editMrrForm(res)
 	
 }
 
+/**
+ * The function for enable or disable submit button.
+ * @param isValid the flag for enable or disable submit button.
+ */
+function enableOrDisableSubmit(isValid)
+{
+	if (isValid && $('#editMRRForm .has-error').length == 0)
+	{
+		$("#saveEditMRRBtn").attr("disabled",false);
+	}
+	else
+	{
+		$("#saveEditMRRBtn").attr("disabled",true);
+	}
+}
+
+/**
+ * The function for add or remove error message and class.
+ * @param isValid the flag for add or remove error message.
+ * @param resEl the element of reservation for process.
+ * @param msg the message for display.
+ */
+function addOrRemoveErrorMsg(isValid, resEl, msg)
+{
+	var errorEl = resEl + "ErrorMsg";
+	var conDiv = resEl + "Container";
+	$(errorEl).html(msg);
+	if (!isValid)
+	{
+		$(conDiv).addClass("has-error");
+	}
+	else
+	{
+		$(conDiv).removeClass("has-error");
+	}
+}
+
+/**
+ * The function for submit meeting room reservation
+ * and load meeting room list.
+ * @param e the default event.
+ */
 function submitMRR(e)
 {
 	mrrSubjectChange();
 	if(reservationType == "SINGLE")
 	{
-		checkStartTimeChange("#startTime","start date time");
-		checkEndTimeChange("#endTime","#startTime", "end date time", true, false);
+	    startTimeValidate("#startTime", "start date time", false);
+	    endTimeValidate("#endTime", "#startTime", "end date time", true, false);
 	}
 	else
 	{
-		checkRecInterval();
-		checkStartTimeChange("#recStartTime", "start time");
-		checkEndTimeChange("#recEndTime","#recStartTime", "end time", false, true);
-		checkStartTimeChange("#recStartDate", "start time");
-		checkEndTimeChange("#recEndDate","#recStartDate", "end time", false, false);
+	    checkRecInterval();
+	    startTimeValidate("#recStartTime", "start time");
+	    endTimeValidate("#recEndTime", "#recStartTime", "end time", false, true);
+	    startTimeValidate("#recStartDate", "start time");
+	    endTimeValidate("#recEndDate", "#recStartDate", "end time", false, false);
 	}
-	
 	if ($('#editMRRForm .has-error').length > 0)
 	{
 		e.preventDefault();
@@ -213,6 +282,8 @@ function submitMRR(e)
 		return;
 	}
 	var resData = {};
+	startTimer = null;
+	endTimer = null;
 	if (mrrId)
 	{
 		resData.id = mrrId;
@@ -244,6 +315,9 @@ function submitMRR(e)
 	xhr.send(JSON.stringify(resData));
 }
 
+/**
+ * The function for add meeting room reservation.
+ */
 function addMRR()
 {
 	if (floorOptions.length < 1)
@@ -258,6 +332,10 @@ function addMRR()
 
 }
 
+/**
+ * The function for check the interval of reservation
+ * is valid or not.
+ */
 function checkRecInterval()
 {
 	var isIntervalValid = true;
@@ -266,156 +344,163 @@ function checkRecInterval()
 	if (numPattern.test(intValue) && intValue>100 || intValue < 1)
 	{
 		$("#resInterval input").val("");
-		$("#resIntervalErrorMsg").html("The interval of time range is should be in 1 to 100 !");
-		$("#resInterval").addClass("has-error");
+		msg = "The interval of time range is should be in 1 to 100 !";
 		isIntervalValid = false;
 	}
 	else if (!numPattern.test(intValue))
 	{
 		$("#resInterval input").val("");
-		$("#resIntervalErrorMsg").html("The interval of time range is inValid!");
-		$("#resInterval").addClass("has-error");
+		msg = "The interval of time range is inValid!";
 		isIntervalValid = false;
 	}
 	else
 	{
-		$("#resIntervalErrorMsg").html("");
-		$("#resInterval").removeClass("has-error");
+		msg = "";
 	}
+	
+	addOrRemoveErrorMsg(isIntervalValid, "#resInterval", msg);
+	enableOrDisableSubmit(isIntervalValid);
 }
 
-function checkStartTimeChange(resEl, name)
+/**
+ * The function for check the start time/date is valid or not.
+ * @param resEl the start time/date element of reservation for process.
+ * @param oldValue the old value of start time/date to process.
+ * @param name the name of error message should be shown.
+ */
+function startTimeValidate(resEl, name, isTime)
 {
-	var errorEl = resEl + "ErrorMsg";
-	var conDiv = resEl + "Container";
 	var isStartTimeValid = true;
 	var startTimeValue = $(resEl).val();
 	var starTi = null;
-
+	var msg = "";
+	
 	if (!startTimeValue || startTimeValue == "")
 	{
-		$(errorEl).html("The "+ name +" is required");
-		$(conDiv).addClass("has-error");
+		msg = "The "+ name +" is required";
 		isStartTimeValid = false;
 	}
 	else
-	{
-		starTi = new Date(Date.parse(startTimeValue));
+	{	
 		var tempTi = new Date();
-		if (starTi.getTime() < tempTi.getTime())
+		starTi = new Date(Date.parse(startTimeValue));
+		if (isTime)
 		{
-			$(errorEl).html(
-					"The "+ name +" cannot be older than current time!");
-			$(conDiv).addClass("has-error");
+			if (starTi.getHours() < tempTi.getHours() || starTi.getHours() == tempTi.getHours() && starTi.getMinutes() < tempTi.getMinutes())
+			{
+				msg = "The "+ name +" should be older than current time!";
+				isStartTimeValid = false;
+			}
+		}
+		else if (starTi.getTime() < tempTi.getTime())
+		{
+			msg = "The "+ name +" should be older than current date time!";
 			isStartTimeValid = false;
 		}
-		else
-		{
-			$(errorEl).html("");
-			$(conDiv).removeClass("has-error");
-		}
-	}	
+		
+	}
 	
+	addOrRemoveErrorMsg(isStartTimeValid, resEl, msg);
+	enableOrDisableSubmit(isStartTimeValid);
 }
 
-function checkEndTimeChange(startEl, endEl, name, isSingle, isTime)
+/**
+ * The function for check if the end time/date is valid or not.
+ * @param endEl the end time/date element of reservation for process.
+ * @param startEl the start time/date element of reservation for process.
+ * @param name  the name of error message should be shown.
+ * @param isSingle the flag for check if it is single reservation.
+ * @param isTime the flag for check if it is time without date.
+ */
+function endTimeValidate(endEl, startEl, name, isSingle, isTime)
 {
-	var errorEl = startEl + "ErrorMsg";
-	var conDiv = startEl + "Container";
 	var isEndTimeValid = true;
-	var endTimeValue = $(startEl).val();
+	var endTimeValue = $(endEl).val();
 	var starTi = null;
+	var msg = "";
+
 	if (!endTimeValue || endTimeValue == "")
 	{
-		$(errorEl).html("The "+ name +" is required");
-		$(conDiv).addClass("has-error");
+		msg = "The "+ name +" is required";
 		isEndTimeValid = false;
 	}
 	else
 	{
 		var endTi = new Date(Date.parse(endTimeValue));
-		var tempTi = new Date();
-		tempTi.setHours(0);
-		tempTi.setMinutes(0);
-		tempTi.setSeconds(0);
-		if (isSingle)
+	    if (!isSingle && !isTime)
 		{
-			tempTi.setDate(tempTi.getDate() + 1);
-			if (endTi.getTime() > tempTi.getTime())
-			{
-				$(errorEl).html("The "+ name +" cannot be older than today!");
-				$(conDiv).addClass("has-error");
-				isEndTimeValid = false;
-			}
-
-		}
-		else if (!isTime)
-		{
+			var tempTi = new Date();
+			tempTi.setHours(0);
+			tempTi.setMinutes(0);
+			tempTi.setSeconds(0);
 			tempTi.setMonth(tempTi.getMonth() + 3);
 			if (endTi.getTime() > tempTi.getTime())
 			{
-				$(errorEl).html("The "+ name +" cannot be older than three months after today!");
-				$(conDiv).addClass("has-error");
+				msg = "The "+ name +" cannot be older than three months after today!";
 				isEndTimeValid = false;
 			}
 		}
-		
-		if (isEndTimeValid)
+	    else if (!$(startEl+'Container').hasClass('has-error')&& !isNaN(Date.parse($(startEl).val())))
 		{
-			if (!$(endEl+'Container').hasClass('has-error'))
+			starTi = new Date(Date.parse($(startEl).val()));
+			
+			if (isSingle)
 			{
-				starTi = new Date(Date.parse($(endEl).val()));
-				
-				if (isSingle)
+				if (endTi.getTime() <= starTi.getTime())
 				{
-					if (endTi.getTime() <= starTi.getTime())
-					{
-						$(errorEl).html(
-								"The "+ name +" cannot be early than start date time!");
-						$(conDiv).addClass("has-error");
-						isEndTimeValid = false;
-					}
+					msg = "The "+ name +" cannot be early than start date time!";
+					isEndTimeValid = false;
 				}
-				else if (!isTime)
+				else if (endTi.getDate() != starTi.getDate())
 				{
-					if (endTi.getTime() <= starTi.getTime())
-					{
-						$(errorEl).html(
-								"The "+ name +" cannot be early than start date !");
-						$(conDiv).addClass("has-error");
-						isEndTimeValid = false;
-					}
-				}
-				else if (endTi.getHours() < starTi.getHours ||endTi.getHours() == starTi.getHours && endTi.getMinutes() <= starTi.getMinutes())
-				{
-					$(errorEl).html(
-							"The "+ name +" cannot be equals or early than start time !");
-					$(conDiv).addClass("has-error");
+					msg = "The date range of single reservation cannot be more than one day!";
 					isEndTimeValid = false;
 				}
 			}
-			else
+			else if (!isTime)
 			{
-				$(errorEl).html(
-						"The "+ name +" is depend on start date, please make sure start time is correct !");
-				$(conDiv).addClass("has-error");
-				isEndTimeValid = false;
+				if (endTi.getTime() <= starTi.getTime())
+				{
+					msg = "The "+ name +" cannot be early than start date !";
+					isEndTimeValid = false;
+				}
+			}
+			else 
+			{
+				if (endTi.getHours() < starTi.getHours ||endTi.getHours() == starTi.getHours && endTi.getMinutes() <= starTi.getMinutes())
+				{
+					msg = "The "+ name +" cannot be equals or early than start time !";
+					isEndTimeValid = false;
+				}
 			}
 		}
-
-		
-		if (isEndTimeValid)
+		else
 		{
-			$(errorEl).html("");
-			$(conDiv).removeClass("has-error");
+			msg = "The "+ name +" is depend on start date, please make sure start time is correct !";
+			isEndTimeValid = false;
 		}
 	}
 	
+	addOrRemoveErrorMsg(isEndTimeValid, endEl, msg);
+	enableOrDisableSubmit(isEndTimeValid);
+	
 }
 
-
-function loadDateTimePicker()
+/**
+ * The function for initial meeting room reservation elements
+ * such as date time picker and the elements of reservation form.
+ */
+function initMRResElement()
 {
+	$("#mrSubject").change(mrrSubjectChange);
+	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "start date time",false);});
+	$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", "end date time", true, false)});
+		
+	$("#addMRR").click(addMRR);
+	$("#cancelMRR").click(resetReservation);
+	$("#mrrFloor").change(getMrFloorChange);
+	$("#singleRes").click(getReservationTypeTimeRange);
+	$("#recurrentRes").click(getReservationTypeTimeRange);
 	 $('.form_datetime').datetimepicker({
 	        weekStart: 1,
 	        todayBtn:  1,
@@ -445,5 +530,5 @@ function loadDateTimePicker()
 	    });
 }
 
-loadDateTimePicker();
+initMRResElement();
 loadMeetingRooms();
