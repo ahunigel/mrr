@@ -19,8 +19,6 @@ import javax.persistence.Table;
 
 @Entity
 @NamedQueries({
-		@NamedQuery(name = "deleteReservationById", query = "delete from MeetingRoomReservation m where m.id = :mrrId"),
-		@NamedQuery(name = "deleteReservationByRoom", query = "delete from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
 		@NamedQuery(name = "getReservationByRoom", query = "select m.meetingRoom from MeetingRoomReservation m where m.meetingRoom.id = :roomId"),
 		@NamedQuery(name = "getReservationCountByRoom", query = "select count(m.id) from MeetingRoomReservation m where m.meetingRoom.id = :roomId and m.endTime >= :nowDate"),
 		@NamedQuery(name = "getReservationGroupByMeetingRoom", query = "select m from MeetingRoomReservation m group by m.meetingRoom"),
@@ -218,7 +216,7 @@ public class MeetingRoomReservation
 		this.reservedPerson = reservedPerson;
 	}
 	
-	@OneToMany(cascade={CascadeType.ALL}, mappedBy="meetingRoom")
+	@OneToMany(cascade={CascadeType.ALL}, mappedBy="reservation")
 	public Set<ReservationTimeIntervalItemBean> getGetReservationItemsSet()
 	{
 		if (getReservationItemsSet == null)

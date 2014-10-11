@@ -15,6 +15,7 @@ import com.ect.dao.ReservationMeetingRoomDao;
 import com.ect.domainobject.ITimeIntervalRecord;
 import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
+import com.ect.domainobject.ReservationTempRecordItemBean;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
 import com.ect.util.DateTimeUtil;
@@ -101,13 +102,18 @@ public class MeetingRoomReservationService
 		mr.setMeetingRoom(mrt);
 		List<ITimeIntervalRecord> reservationItems = DateTimeUtil
 				.getReservationTimeIntervalRecords(mr);
+		mr = reservationDao.saveMeetingRoomReservation(mr);
 		if (isValidReservation(mr, reservationItems))
 		{
-			mr = reservationDao.saveMeetingRoomReservation(mr);
 			reservationDao.saveReservationTimeIntervalItems(reservationItems,
 					false);
 			mrr.setId(mr.getId());
 		}
+		else
+		{
+			reservationDao.deleteMeetingRoomReservation(mr.getId());
+		}
+		
 		return mrr;
 	}
 
@@ -189,8 +195,18 @@ public class MeetingRoomReservationService
 		}
 		else
 		{
+			List<ITimeIntervalRecord> tempItems = new ArrayList<ITimeIntervalRecord>();
+			ReservationTempRecordItemBean tempItem = null;
+			for (ITimeIntervalRecord item : reservationItems)
+			{
+				item = (ReservationTimeIntervalItemBean)item;
+				tempItem = new ReservationTempRecordItemBean();
+				BeanUtils.copyProperties(item, tempItem);
+				tempItems.add(tempItem);
+				
+			}
 			boolean isFinished = reservationDao
-					.saveReservationTimeIntervalItems(reservationItems, true);
+					.saveReservationTimeIntervalItems(tempItems, true);
 			if (isFinished)
 			{
 				result = reservationDao.checkCachedReservationDateRange();

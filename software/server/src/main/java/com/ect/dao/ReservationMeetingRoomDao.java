@@ -34,8 +34,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 		{
 			deleteReservationTimeIntervalItems(mrr.getId());
 		}
-		this.getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"deleteReservationByRoom", "roomId", mId);
+		this.getHibernateTemplate().bulkUpdate("delete from MeetingRoomReservation m where m.meetingRoom.id =" + mId);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -68,8 +67,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 	{
 		if (deleteReservationTimeIntervalItems(mrrId))
 		{
-			this.getHibernateTemplate().findByNamedQueryAndNamedParam(
-					"deleteReservationById", "mrrId", mrrId);
+			this.getHibernateTemplate().bulkUpdate("delete from MeetingRoomReservation m where m.id =" + mrrId);
 		}
 		return true;
 	}
@@ -173,7 +171,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 								session.save(tempRt);
 							}
 
-							if (i % 20 == 0)
+							if (i > 0 && i % 20 == 0)
 							{
 								session.flush();
 								session.clear();
@@ -189,8 +187,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 
 	public boolean deleteReservationTimeIntervalItems(Integer mrrId)
 	{
-		this.getHibernateTemplate().findByNamedQueryAndNamedParam(
-				"deleteItemsByReservation", "mrrId", mrrId);
+		this.getHibernateTemplate().bulkUpdate("delete from ReservationTimeIntervalItemBean r where r.reservation.id="+mrrId);
 		return true;
 	}
 
@@ -204,7 +201,6 @@ public class ReservationMeetingRoomDao extends BaseDao
 
 	public void deleteAllTempReservationItems()
 	{
-		this.getHibernateTemplate().findByNamedQuery(
-				"deleteAllTempReservationItems");
+		this.getHibernateTemplate().bulkUpdate("delete from ReservationTempRecordItemBean");
 	}
 }

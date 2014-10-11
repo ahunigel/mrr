@@ -1,9 +1,7 @@
-var reservationType = "SINGLE";
+
 var mrObj = [];
 var floorOptions = [];
 var numPattern = /^\d+$/;
-var startTimer = {};
-var endTimer = {};
 
 /**
  * The function for load meeting rooms and 
@@ -94,37 +92,32 @@ function mrrSubjectChange()
 /**
  * The function for handle single or recurrent type reservation
  * and switch the UI by reservation type.
- * @param e the default event.
  */
-function getReservationTypeTimeRange(e)
+function getReservationType()
 {
-	reservationType = e.currentTarget.value;
+	var reservationType = $("#reservationType input:checked").val();
 	if (reservationType == "SINGLE")
 	{
 		$("#recurrentChoice").addClass("hide");
 		$("#singleChoice").removeClass("hide");
-		$("#startTimeContainer input[type='text']").bind("change", function(){startTimeValidate("#startTime", "start date time",false);});
-		$("#endTimeContainer input[type='text']").bind("change", function(){endTimeValidate("#endTime", "#startTime", "end date time", true, false)});
-		$("#resInterval").removeAttr("change");
-		$("#recStartTimeContainer input[type='text']").unbind("change");
-		$("#recEndTimeContainer input[type='text']").unbind("change");
-		$("#recStartDateContainer input[type='text']").unbind("change");
-		$("#recEndDateContainer input[type='text']").unbind("change");
-		$("#recurrentChoice").children().removeClass(".has-error");
+		$("#recurrentChoice").children().removeClass("has-error");
+		$("#recurrentChoice").children().find(".help-block").html("");
 	}
 	else
 	{
 		$("#singleChoice").addClass("hide");
 		$("#recurrentChoice").removeClass("hide");
-		$("#resInterval").bind("change", checkRecInterval);
-		$("#recStartTimeContainer input[type='text']").bind("change", function(){startTimeValidate("#recStartTime", "start time",true)});
-		$("#recEndTimeContainer input[type='text']").bind("change", function(){endTimeValidate("#recEndTime", "#recStartTime", "end time", false, true)});
-		$("#recStartDateContainer input[type='text']").bind("change", function(){startTimeValidate("#recStartDate", "start time",false)});
-		$("#recEndDateContainer input[type='text']").bind("change", function(){endTimeValidate("#recEndDate", "#recStartDate", "end time", false, false)});
-		$("#startTimeContainer input[type='text']").unbind("change");
-		$("#endTimeContainer input[type='text']").unbind("change");
-		$("#singleChoice").children().removeClass(".has-error");
+		$("#resInterval").change(checkRecInterval);
+		$("#ReservationPt").change(getRecurrentType);
+		$("#recStartTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", "start time", false, true)});
+		$("#recEndTimeContainer input[type='text']").change(function(){endTimeValidate("#recEndTime", "#recStartTime", "end time", false, true)});
+		$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", "start time", false, false)});
+		$("#recEndDateContainer input[type='text']").change(function(){endTimeValidate("#recEndDate", "#recStartDate", "end time", false, false)});
+		$("#singleChoice").children().removeClass("has-error");
+		$("#singleChoice").children().find(".help-block").html("");
 	}
+	
+	enableOrDisableSubmit(!$("#mrSubjectContainer").hasClass('has-error'));
 
 }
 
@@ -257,17 +250,18 @@ function addOrRemoveErrorMsg(isValid, resEl, msg)
 function submitMRR(e)
 {
 	mrrSubjectChange();
+	var reservationType = $("#reservationType input:checked").val();
 	if(reservationType == "SINGLE")
 	{
-	    startTimeValidate("#startTime", "start date time", false);
+	    startTimeValidate("#startTime", "start date time", true, false);
 	    endTimeValidate("#endTime", "#startTime", "end date time", true, false);
 	}
 	else
 	{
 	    checkRecInterval();
-	    startTimeValidate("#recStartTime", "start time");
+	    startTimeValidate("#recStartTime", "start time", false, true);
 	    endTimeValidate("#recEndTime", "#recStartTime", "end time", false, true);
-	    startTimeValidate("#recStartDate", "start time");
+	    startTimeValidate("#recStartDate", "start time", false, false);
 	    endTimeValidate("#recEndDate", "#recStartDate", "end time", false, false);
 	}
 	if ($('#editMRRForm .has-error').length > 0)
@@ -275,26 +269,29 @@ function submitMRR(e)
 		e.preventDefault();
 		return;
 	}
-	if (reservationType != "SINGLE")
-	{
-		e.preventDefault();
-		alert("Not implemented Recurrent type, please select single !");
-		return;
-	}
+
 	var resData = {};
-	startTimer = null;
-	endTimer = null;
-	if (mrrId)
-	{
-		resData.id = mrrId;
-	}
+
 	resData.meetingSubject = $("#meetingSubject").val();
-	var mr = $("#mrrFloorMeetingRoom option:selected").val();
-	resData.meetingRoom = {id:mr.options[mr.selectedIndex].value};
+	var mrValue = $("#mrrFloorMeetingRoom option:selected").text();
+	resData.meetingRoom = {id:mrValue};
 	resData.reservedPerson = {id:1};
-	resData.reservationType = "SINGLE";
-	resData.startTime = $('#startTime').datetimepicker("getDate");
-	resData.endTime = $('#endTime').datetimepicker("getDate");
+	resData.reservationType = reservationType;
+	if (reservationType == "SINGLE")
+	{
+		resData.startTime = $('#startTime').datetimepicker("getDate");
+		resData.endTime = $('#endTime').datetimepicker("getDate");
+	}
+	else
+	{
+
+		resData.startTime = getDateWithoutTime($('#recStartDate').datetimepicker("getDate"));
+		resData.endTime = getDateWithoutTime($('#recEndDate').datetimepicker("getDate"));
+		resData.recurrentType=$("#ReservationPt input:checked").val();
+		resData.recurrentInterval=$("#resInterval").val();
+		resData.recurrentStartTime = getTimeMinutesWithoutDate($('#recStartTime').datetimepicker("getDate"));
+		resData.recurrentEndTime = getTimeMinutesWithoutDate($('#recEndTime').datetimepicker("getDate"));
+	}
 	var xhr = new XMLHttpRequest();
 	xhr.open('PUT', "ws/meetingroomReservation/reservation", true);
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
@@ -305,7 +302,7 @@ function submitMRR(e)
 	{
 		if (xhr.readyState==4 && xhr.status==200)
 		{
-			data = http.responseText;
+			data = xhr.responseText;
 			if (!data.id)
 			{
 				alert("The date time range of the meeting room reservation in conflict with others ,please rebook!");
@@ -313,6 +310,46 @@ function submitMRR(e)
 		}
 	}
 	xhr.send(JSON.stringify(resData));
+}
+
+function getRecurrentType(e)
+{
+  var recValue = $("#ReservationPt input:checked").val();
+  if (recValue == "DAILY" || recValue == "DAILY_WORKDAY")
+  {
+	  $("#intervalLabel").html("day(s)");
+  }
+  else if (recValue == "WEEKLY")
+  {
+	  $("#intervalLabel").html("week(s)");
+  }
+  else if (recValue == "MONTHLY")
+  {
+	  $("#intervalLabel").html("month(s)");
+  }
+}
+
+/**
+ * Get the date without time.
+ * @param date the date to process.
+ * @returns the date without time.
+ */
+function getDateWithoutTime(date)
+{
+	date.setHours(0);
+	date.setMinutes(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+	
+	return date;
+}
+
+function getTimeMinutesWithoutDate(date)
+{
+	var minutes = date.getHours()*60;
+	minutes+=date.getMinutes();
+	
+	return minutes;
 }
 
 /**
@@ -323,7 +360,8 @@ function addMRR()
 	if (floorOptions.length < 1)
 	{
 		alert("The reservation cannot be shown due to there is no meeting room to choice, please contact administrator !");
-		$("#mrrEditDialogHeader").modal('hide');
+		$("#addMRR").attr("data-toggle","hide");
+		$("#addMRR").attr("disabled",true);
 		return;
 	}
 	
@@ -339,18 +377,16 @@ function addMRR()
 function checkRecInterval()
 {
 	var isIntervalValid = true;
-	var intValue = $("#resInterval input").val();
+	var intValue = $("#resInterval").val();
 	var msg = null;
-	if (numPattern.test(intValue) && intValue>100 || intValue < 1)
+	if (numPattern.test(intValue) && (intValue>100 || intValue < 1))
 	{
-		$("#resInterval input").val("");
-		msg = "The interval of time range is should be in 1 to 100 !";
+		msg = "The value of time range is should be in 1 to 100 !";
 		isIntervalValid = false;
 	}
 	else if (!numPattern.test(intValue))
 	{
-		$("#resInterval input").val("");
-		msg = "The interval of time range is inValid!";
+		msg = "The value of time range is inValid, it should be integer type!";
 		isIntervalValid = false;
 	}
 	else
@@ -368,7 +404,7 @@ function checkRecInterval()
  * @param oldValue the old value of start time/date to process.
  * @param name the name of error message should be shown.
  */
-function startTimeValidate(resEl, name, isTime)
+function startTimeValidate(resEl, name, isSingle, isTime)
 {
 	var isStartTimeValid = true;
 	var startTimeValue = $(resEl).val();
@@ -384,25 +420,26 @@ function startTimeValidate(resEl, name, isTime)
 	{	
 		var tempTi = new Date();
 		starTi = new Date(Date.parse(startTimeValue));
-		if (isTime)
+		if (isSingle)
 		{
-			if (starTi.getHours() < tempTi.getHours() || starTi.getHours() == tempTi.getHours() && starTi.getMinutes() < tempTi.getMinutes())
+			tempTi.setSeconds(0);
+			if (starTi.getTime() < tempTi.getTime())
 			{
-				msg = "The "+ name +" should be older than current time!";
+				msg = "The "+ name +" should be older than current date time!";
 				isStartTimeValid = false;
 			}
 		}
-		else if (starTi.getTime() < tempTi.getTime())
+		else if (!isTime && getDateWithoutTime(tempTi).getTime() > starTi.getTime())
 		{
-			msg = "The "+ name +" should be older than current date time!";
+			msg = "The "+ name +" should be older than current date!";
 			isStartTimeValid = false;
 		}
-		
 	}
 	
 	addOrRemoveErrorMsg(isStartTimeValid, resEl, msg);
 	enableOrDisableSubmit(isStartTimeValid);
 }
+
 
 /**
  * The function for check if the end time/date is valid or not.
@@ -439,46 +476,56 @@ function endTimeValidate(endEl, startEl, name, isSingle, isTime)
 				msg = "The "+ name +" cannot be older than three months after today!";
 				isEndTimeValid = false;
 			}
-		}
-	    else if (!$(startEl+'Container').hasClass('has-error')&& !isNaN(Date.parse($(startEl).val())))
-		{
-			starTi = new Date(Date.parse($(startEl).val()));
 			
-			if (isSingle)
-			{
-				if (endTi.getTime() <= starTi.getTime())
-				{
-					msg = "The "+ name +" cannot be early than start date time!";
-					isEndTimeValid = false;
-				}
-				else if (endTi.getDate() != starTi.getDate())
-				{
-					msg = "The date range of single reservation cannot be more than one day!";
-					isEndTimeValid = false;
-				}
-			}
-			else if (!isTime)
-			{
-				if (endTi.getTime() <= starTi.getTime())
-				{
-					msg = "The "+ name +" cannot be early than start date !";
-					isEndTimeValid = false;
-				}
-			}
-			else 
-			{
-				if (endTi.getHours() < starTi.getHours ||endTi.getHours() == starTi.getHours && endTi.getMinutes() <= starTi.getMinutes())
-				{
-					msg = "The "+ name +" cannot be equals or early than start time !";
-					isEndTimeValid = false;
-				}
-			}
 		}
-		else
-		{
-			msg = "The "+ name +" is depend on start date, please make sure start time is correct !";
-			isEndTimeValid = false;
-		}
+	    
+	    if (isEndTimeValid)
+	    {
+	    	if (!$(startEl+'Container').hasClass('has-error')&& !isNaN(Date.parse($(startEl).val())))
+	    	{
+	    		starTi = new Date(Date.parse($(startEl).val()));
+	    		
+	    		if (isSingle)
+	    		{
+	    			if (endTi.getTime() <= starTi.getTime())
+	    			{
+	    				msg = "The "+ name +" cannot be early than start date time!";
+	    				isEndTimeValid = false;
+	    			}
+	    			else if (endTi.getYear() != starTi.getYear()||endTi.getMonth() != starTi.getMonth()||endTi.getDate() != starTi.getDate())
+	    			{
+	    				msg = "The date range of single reservation cannot be more than one day!";
+	    				isEndTimeValid = false;
+	    			}
+	    		}
+	    		else if (!isTime)
+	    		{
+	    			if (endTi.getTime() <= starTi.getTime())
+	    			{
+	    				msg = "The "+ name +" cannot be early than start date !";
+	    				isEndTimeValid = false;
+	    			}
+	    			else if(endTi.getYear() == starTi.getYear()&&endTi.getMonth() == starTi.getMonth()&&endTi.getDate() == starTi.getDate())
+	    			{
+	    				msg = "The recurrent type of "+ name +" cannot be the same day as start date, it should be more than one day!";
+	    				isEndTimeValid = false;
+	    			}
+	    		}
+	    		else 
+	    		{
+	    			if (endTi.getHours() < starTi.getHours() ||endTi.getHours() == starTi.getHours() && endTi.getMinutes() <= starTi.getMinutes())
+	    			{
+	    				msg = "The "+ name +" cannot be equals or early than start time !";
+	    				isEndTimeValid = false;
+	    			}
+	    		}
+	    	}
+	    	else
+	    	{
+	    		msg = "The "+ name +" is depend on start date, please make sure start time is correct !";
+	    		isEndTimeValid = false;
+	    	}
+	    }
 	}
 	
 	addOrRemoveErrorMsg(isEndTimeValid, endEl, msg);
@@ -493,14 +540,13 @@ function endTimeValidate(endEl, startEl, name, isSingle, isTime)
 function initMRResElement()
 {
 	$("#mrSubject").change(mrrSubjectChange);
-	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "start date time",false);});
+	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "start date time", true, false);});
 	$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", "end date time", true, false)});
 		
 	$("#addMRR").click(addMRR);
 	$("#cancelMRR").click(resetReservation);
 	$("#mrrFloor").change(getMrFloorChange);
-	$("#singleRes").click(getReservationTypeTimeRange);
-	$("#recurrentRes").click(getReservationTypeTimeRange);
+	$("#reservationType").click(getReservationType);
 	 $('.form_datetime').datetimepicker({
 	        weekStart: 1,
 	        todayBtn:  1,
@@ -516,7 +562,8 @@ function initMRResElement()
 			todayHighlight: 1,
 			startView: 2,
 			minView: 2,
-			forceParse: 0
+			forceParse: 0,
+			pickerPosition:"top-right"
 	    });
 		$('.form_time').datetimepicker({
 	        weekStart: 1,

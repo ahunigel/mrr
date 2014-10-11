@@ -28,10 +28,10 @@ import javax.persistence.TemporalType;
 @Entity
 @NamedQueries({
 		@NamedQuery(name = "getMultipleItemsByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r,ReservationTempRecordItemBean r1 where r.meetingRoom.id = r1.meetingRoom.id and"
-				+ "((r.endTime >= r1.startTime and r.endTime <= r1.endTime) or (r.startTime >= r1.startTime and r.startTime <= r1.endTime))"),
-		@NamedQuery(name = "deleteAllTempReservationItems", query = "delete from ReservationTempRecordItemBean")
+				+ "((r.endTime >= r1.startTime and r.endTime <= r1.endTime) or (r.startTime >= r1.startTime and r.startTime <= r1.endTime))")
 
 })
+
 @Table(name = "reservation_temp_item")
 public class ReservationTempRecordItemBean implements ITimeIntervalRecord
 {
@@ -134,7 +134,7 @@ public class ReservationTempRecordItemBean implements ITimeIntervalRecord
 	 * @return the start time of each reservation.
 	 * 
 	 */
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getStartTime()
 	{
 		return startTime;
@@ -157,7 +157,7 @@ public class ReservationTempRecordItemBean implements ITimeIntervalRecord
 	 * @return the end time of each reservation.
 	 * 
 	 */
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getEndTime()
 	{
 		return endTime;

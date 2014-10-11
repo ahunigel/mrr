@@ -173,12 +173,12 @@
 
 						</div>
 					</div>
-					<div class="form-group">
+					<div class="form-group" id="reservationType">
 						<label for="" class="col-sm-3 control-label">ReservationType</label>
 						<div class="col-sm-9 btn-group">
-							<input checked="checked" id="singleRes" name="ReservationType"
+							<input checked="checked"  name="ReservationType"
 								type="radio" value="SINGLE">SINGLE <input
-								id="recurrentRes" name="ReservationType" type="radio" value="RECURRENT">RECURRENT
+								 name="ReservationType" type="radio" value="RECURRENT">RECURRENT
 						</div>
 					</div>
 					<div id="singleChoice">
@@ -265,19 +265,19 @@
 								<label class="col-md-4 control-label">Recurrent pattern</label>
 							</div>
 							<div class="form-group">
-								<div class="col-sm-offset-3 col-sm-9 btn-group">
+								<div class="col-sm-offset-3 col-sm-9 btn-group" id="ReservationPt">
 									<input checked="checked" id="DAILY" name="ReservationPt"
-										type="radio" value="DAILY">Daily <input
+										type="radio" value="DAILY"/>Daily <input
 										id="DAILY_WORKDAY" name="ReservationPt" type="radio"
-										value="DAILY_WORKDAY">DailyWorkDay <input
+										value="DAILY_WORKDAY"/>DailyWorkDay <input
 										id="WEEKLY" name="ReservationPt" type="radio"
-										value="WEEKLY">Weekly <input id="MONTHLY"
-										name="ReservationPt" type="radio" value="MONTHLY">Monthly
+										value="WEEKLY"/>Weekly <input id="MONTHLY"
+										name="ReservationPt" type="radio" value="MONTHLY"/>Monthly
 								</div>
 							</div>
 							 <div class="form-group" id="resIntervalContainer">
 								<div class="col-sm-offset-3 col-sm-9">
-									Every<input    class="text-center input-radius" 
+									Every<input    class="text-center input-radius" id="resInterval"
 										type="number" min = "1" max = "100" value="1"><span
 											id="intervalLabel">day(s)</span> 
 									<div>

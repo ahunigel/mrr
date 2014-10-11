@@ -30,10 +30,6 @@ import javax.persistence.TemporalType;
 		@NamedQuery(name = "getItemsByReservation", query = "select r from ReservationTimeIntervalItemBean r where r.reservation.id=:mrrId"),
 		@NamedQuery(name = "getItemsByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and r.meetingRoom.id=:mrId"),
 		@NamedQuery(name = "getItemsByTimeIntervalAndReservation", query = "select r from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and r.reservation.id=:mrrId"),
-		@NamedQuery(name = "deleteItemsByMeetingRoom", query = "delete from ReservationTimeIntervalItemBean r where r.meetingRoom.id=:mrId"),
-		@NamedQuery(name = "deleteItemsByReservation", query = "delete from ReservationTimeIntervalItemBean r where r.reservation.id=:mrrId"),
-		@NamedQuery(name = "deleteItemsByTimeIntervalAndMeetingRoom", query = "delete from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and r.meetingRoom.id=:mrId"),
-		@NamedQuery(name = "deleteItemsByTimeIntervalAndReservation", query = "delete from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and r.reservation.id=:mrrId"),
 		@NamedQuery(name = "checkItemByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where ( (r.startTime >=:startTime and r.startTime <=:endTime) or"
 				+ "  (r.endTime >=:startTime and r.endTime <=:endTime)) and r.meetingRoom.id=:mrId")
 
@@ -140,7 +136,7 @@ public class ReservationTimeIntervalItemBean implements ITimeIntervalRecord
 	 * @return the start time of each reservation.
 	 * 
 	 */
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getStartTime()
 	{
 		return startTime;
@@ -163,7 +159,7 @@ public class ReservationTimeIntervalItemBean implements ITimeIntervalRecord
 	 * @return the end time of each reservation.
 	 * 
 	 */
-	@Temporal(TemporalType.DATE)
+	@Temporal(TemporalType.TIMESTAMP)
 	public Date getEndTime()
 	{
 		return endTime;
