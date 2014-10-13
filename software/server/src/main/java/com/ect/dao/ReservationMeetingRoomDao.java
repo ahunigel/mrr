@@ -21,7 +21,7 @@ import com.ect.util.MeetingRoomUtil;
 public class ReservationMeetingRoomDao extends BaseDao
 {
 
-	public List<MeetingRoomReservation> findAll()
+	public List<MeetingRoomReservation> getAllMeetingRoomReservation()
 	{
 		return this.getHibernateTemplate()
 				.loadAll(MeetingRoomReservation.class);
@@ -135,13 +135,13 @@ public class ReservationMeetingRoomDao extends BaseDao
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ReservationTimeIntervalItemBean> checkReservationDateRange(
+	public List<ITimeIntervalRecord> checkReservationDateRange(
 			ReservationTimeIntervalItemBean rsItem)
 	{
 		Object[] values = new Object[] { rsItem.getStartTime(),
 				rsItem.getEndTime(), rsItem.getMeetingRoom().getId() };
 		String[] paramNames = new String[] { "startTime", "endTime", "mrId" };
-		return (List<ReservationTimeIntervalItemBean>) this
+		return (List<ITimeIntervalRecord>) this
 				.getHibernateTemplate().findByNamedQueryAndNamedParam(
 						"checkItemByTimeIntervalAndMeetingRoom", paramNames,
 						values);
@@ -192,15 +192,15 @@ public class ReservationMeetingRoomDao extends BaseDao
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<ReservationTimeIntervalItemBean> checkCachedReservationDateRange()
+	public List<ITimeIntervalRecord> checkCachedReservationDateRange()
 	{
-		return (List<ReservationTimeIntervalItemBean>) this
+		return (List<ITimeIntervalRecord>) this
 				.getHibernateTemplate().findByNamedQuery(
 						"getMultipleItemsByTimeIntervalAndMeetingRoom");
 	}
 
 	public void deleteAllTempReservationItems()
 	{
-		this.getHibernateTemplate().bulkUpdate("delete from ReservationTempRecordItemBean");
+		this.getHibernateTemplate().bulkUpdate("delete from ReservationTempRecordItemBean r where r.id > 0");
 	}
 }

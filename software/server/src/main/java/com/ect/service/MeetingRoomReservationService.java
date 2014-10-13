@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ect.dao.MeetingRoomDao;
 import com.ect.dao.ReservationMeetingRoomDao;
 import com.ect.domainobject.ITimeIntervalRecord;
 import com.ect.domainobject.MeetingRoom;
@@ -33,6 +33,8 @@ public class MeetingRoomReservationService
 
 	@Autowired
 	private ReservationMeetingRoomDao reservationDao;
+	@Autowired
+	private MeetingRoomDao dao;
 
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByDateRange(
 			Date startDate, Date endDate)
@@ -45,12 +47,12 @@ public class MeetingRoomReservationService
 	
 	public List<MeetingRoomStatusVO> getCurrentDateAvaliableMeetingRoom()
 	{
+		List<MeetingRoom> meetingRooms = dao.findAll();
 		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
 		Date endDate = DateTimeUtil.getAddedDaysDate(startDate, 1);
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = reservationDao
 				.getMeetingRoomReservationByDateRange(startDate, endDate);
 		List<MeetingRoomStatusVO> result = new ArrayList<MeetingRoomStatusVO>();
-		Set<MeetingRoom> meetingRooms = mrr.keySet();
 		MeetingRoomVO mrVo = null;
 		MeetingRoomStatusVO  mrStatusVo = null;
 		for (MeetingRoom mr : meetingRooms)
@@ -81,14 +83,14 @@ public class MeetingRoomReservationService
 
 	public List<MeetingRoomReservationVO> getAllMeetingRoomReservation()
 	{
-		List<MeetingRoomReservation> rem = reservationDao.findAll();
+		List<MeetingRoomReservation> rem = reservationDao.getAllMeetingRoomReservation();
 
 		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
 	public List<MeetingRoomReservationVO> getReservationByMeetingRoom(Integer id)
 	{
-		List<MeetingRoomReservation> rem = reservationDao.findAll();
+		List<MeetingRoomReservation> rem = reservationDao.getReservationByMeetingRoom(id);
 		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
@@ -102,7 +104,6 @@ public class MeetingRoomReservationService
 		mr.setMeetingRoom(mrt);
 		List<ITimeIntervalRecord> reservationItems = DateTimeUtil
 				.getReservationTimeIntervalRecords(mr);
-		mr = reservationDao.saveMeetingRoomReservation(mr);
 		if (isValidReservation(mr, reservationItems))
 		{
 			reservationDao.saveReservationTimeIntervalItems(reservationItems,
@@ -149,7 +150,7 @@ public class MeetingRoomReservationService
 		int resCount = reservationDao
 				.getReservationCountByMeetingRoom(mrRes.getMeetingRoom()
 						.getId());
-		List<ReservationTimeIntervalItemBean> result = null;
+		List<ITimeIntervalRecord> result = null;
 		if (resCount == 0)
 		{
 			return isValid;
@@ -168,6 +169,7 @@ public class MeetingRoomReservationService
 		}
 		else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
 		{
+			mrRes = reservationDao.saveMeetingRoomReservation(mrRes);
 			isValid = checkRecurrentReservation(reservationItems);
 		}
 
@@ -178,7 +180,7 @@ public class MeetingRoomReservationService
 			List<ITimeIntervalRecord> reservationItems)
 	{
 		boolean isValid = true;
-		List<ReservationTimeIntervalItemBean> result = null;
+		List<ITimeIntervalRecord> result = null;
 		ReservationTimeIntervalItemBean rt;
 		if (reservationItems.size() < NOT_CACHE_COUNT)
 		{

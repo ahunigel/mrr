@@ -2,7 +2,6 @@
 var mrObj = [];
 var floorOptions = [];
 var numPattern = /^\d+$/;
-
 /**
  * The function for load meeting rooms and 
  * initial floor and meeting room options for add or edit reservation.
@@ -14,7 +13,7 @@ function loadMeetingRooms()
 		for(var i=0;i<data.length;i++)
 		{
 			var fl = null;
-			option = new Option(data[i].id, data[i].name);
+			option = new Option(data[i].name, data[i].id);
 			if (!mrObj[data[i].floor])
 			{
 				fl = new Option(data[i].floor, data[i].floor);
@@ -158,6 +157,15 @@ function resetReservation()
 		}
 
 	}
+	
+	$("#singleChoice").children().removeClass("has-error");
+	$("#singleChoice").children().find(".help-block").html("");
+	$("#recurrentChoice").children().removeClass("has-error");
+	$("#recurrentChoice").children().find(".help-block").html("");
+	$("#editMRRForm").children().find(".help-block").html("");
+	$("#editMRRForm").children().removeClass("has-error");
+	$("#editMRRForm").children().find(".help-block").html("");
+	$("#saveEditMRRBtn").attr("disabled",false);
 }
 
 /**
@@ -203,6 +211,7 @@ function editMrrForm(res)
 		$('#recEndDate').val(res.endTime.format("yyyy/mm/dd"));
 	}
 	
+	addMRR();
 }
 
 /**
@@ -279,18 +288,18 @@ function submitMRR(e)
 	resData.reservationType = reservationType;
 	if (reservationType == "SINGLE")
 	{
-		resData.startTime = $('#startTime').datetimepicker("getDate");
-		resData.endTime = $('#endTime').datetimepicker("getDate");
+		resData.startTime = new Date(Date.parse($('#startTime').val()));
+		resData.endTime = new Date(Date.parse($('#endTime').val()));
 	}
 	else
 	{
 
-		resData.startTime = getDateWithoutTime($('#recStartDate').datetimepicker("getDate"));
-		resData.endTime = getDateWithoutTime($('#recEndDate').datetimepicker("getDate"));
+		resData.startTime = getDateWithoutTime($('#recStartDate').val());
+		resData.endTime = getDateWithoutTime($('#recEndDate').val());
 		resData.recurrentType=$("#ReservationPt input:checked").val();
 		resData.recurrentInterval=$("#resInterval").val();
-		resData.recurrentStartTime = getTimeMinutesWithoutDate($('#recStartTime').datetimepicker("getDate"));
-		resData.recurrentEndTime = getTimeMinutesWithoutDate($('#recEndTime').datetimepicker("getDate"));
+		resData.recurrentStartTime = getTimeMinutesWithoutDate($('#recStartTime').val());
+		resData.recurrentEndTime = getTimeMinutesWithoutDate($('#recEndTime').val());
 	}
 	var xhr = new XMLHttpRequest();
 	xhr.open('PUT', "ws/meetingroomReservation/reservation", true);
@@ -331,11 +340,20 @@ function getRecurrentType(e)
 
 /**
  * Get the date without time.
- * @param date the date to process.
+ * @param dateStr the date string to process.
  * @returns the date without time.
  */
-function getDateWithoutTime(date)
+function getDateWithoutTime(dateStr)
 {
+	var date = null;
+	if (dateStr != null && dateStr.length > 0)
+	{
+		date = new Date(Date.parse(dateStr));
+	}
+	else
+	{
+		date = new Date();
+	}
 	date.setHours(0);
 	date.setMinutes(0);
 	date.setSeconds(0);
@@ -344,8 +362,14 @@ function getDateWithoutTime(date)
 	return date;
 }
 
-function getTimeMinutesWithoutDate(date)
+/**
+ * Get the minutes of time without date.
+ * @param dateStr the date string to process.
+ * @returns {Number} the minutes of time without date.
+ */
+function getTimeMinutesWithoutDate(dateStr)
 {
+	var date = new Date(Date.parse(dateStr));
 	var minutes = date.getHours()*60;
 	minutes+=date.getMinutes();
 	
@@ -366,8 +390,26 @@ function addMRR()
 	}
 	
 	$("#mrrEditDialogHeader").html("Add Meeting Room Reservation");
-	$("#saveEditMRRBtn").click(submitMRR);
+}
 
+function deleteMRR(mrrId)
+{
+	$("#delMRBtn").click(function(){
+		var xhr = new XMLHttpRequest();
+		 xhr.open("DELETE", "ws/meetingroomReservation/meetingRoom/"+id, true);
+		 xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+		 // send the collected data as JSON
+		 xhr.onreadystatechange=function()
+		{
+			if (xhr.readyState==4)
+			{
+				loadMyReservaion();
+			}
+		}
+		 xhr.send();
+	
+	});
 }
 
 /**
@@ -401,8 +443,9 @@ function checkRecInterval()
 /**
  * The function for check the start time/date is valid or not.
  * @param resEl the start time/date element of reservation for process.
- * @param oldValue the old value of start time/date to process.
  * @param name the name of error message should be shown.
+ * @param isSingle the flag for if it is single reservation.
+ * @param isTime the flag for if it is time filed.
  */
 function startTimeValidate(resEl, name, isSingle, isTime)
 {
@@ -429,7 +472,7 @@ function startTimeValidate(resEl, name, isSingle, isTime)
 				isStartTimeValid = false;
 			}
 		}
-		else if (!isTime && getDateWithoutTime(tempTi).getTime() > starTi.getTime())
+		else if (!isTime && getDateWithoutTime(null).getTime() > starTi.getTime())
 		{
 			msg = "The "+ name +" should be older than current date!";
 			isStartTimeValid = false;
@@ -542,10 +585,11 @@ function initMRResElement()
 	$("#mrSubject").change(mrrSubjectChange);
 	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "start date time", true, false);});
 	$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", "end date time", true, false)});
-		
+	$("#saveEditMRRBtn").click(submitMRR);
 	$("#addMRR").click(addMRR);
 	$("#cancelMRR").click(resetReservation);
 	$("#mrrFloor").change(getMrFloorChange);
+	
 	$("#reservationType").click(getReservationType);
 	 $('.form_datetime').datetimepicker({
 	        weekStart: 1,
@@ -576,6 +620,137 @@ function initMRResElement()
 			forceParse: 0
 	    });
 }
+
+function getDateStrWithGivenTime(date, minutes)
+{
+	var hours = minutes % 60;
+	minutes -= hours*60;
+	date.setHours(hours);
+	date.setMinutes(minutes);
+	return date.format("yyyy/mm/dd   HH:ii P");
+}
+
+function getRecurrentTypeMsg(recValue, intervalValue)
+{
+	var msg = "Everry "
+	  if (recValue == "DAILY" || recValue == "DAILY_WORKDAY")
+	  {
+		   msg += intervalValue + " day(s)";
+	  }
+	  else if (recValue == "WEEKLY")
+	  {
+		  msg += intervalValue + " week(s)";
+	  }
+	  else if (recValue == "MONTHLY")
+	  {
+		  msg += intervalValue + " month(s)";
+	  }
+	
+	msg += " occurs";
+}
+
+function bookRoom(floor, mrId)
+{
+	$("#mrrFloor").val(floor);
+	$("#mrrFloorMeetingRoom").html(mrObj[floor].data);
+	$("#mrrFloorMeetingRoom").val(mrId);
+	addMRR();
+}
+
+function getMrOperation(floor, mrId)
+{
+	return '<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" '
+		+ 'data-keyboard="false" data-target="#meetingRoomReservationEdit" id="bookRoom('+ floor +','+ mrId +')">Book It</button>';
+}
+
+function getReservationOperation(mrr)
+{
+	return '<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomReservationEdit" '
+		+ 'value="edit" onclick="editMrrForm('+mrr+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" '
+		+ 'data-target="#MyModal1" value="delete" onclick="deleteMRR('+mrr.id+')"/>';
+}
+
+function getTodayStatus(items)
+{
+	return "not implemented!";
+}
+
+function loadAvaliableMeetingRoomStatus()
+{
+	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (mrData) {
+		var mrTab=document.getElementById("mrReservation");
+		mrTab.innerHTML="";
+		for(var i=0;i<mrData.length;i++){
+			var row=mrTab.insertRow(i);
+			row.insertCell(0).innerHTML= mrData[i].meetingRoom.name;
+			row.insertCell(1).innerHTML= mrData[i].meetingRoom.floor;
+			row.insertCell(2).innerHTML= mrData[i].meetingRoom.location;
+			row.insertCell(3).innerHTML= mrData[i].meetingRoom.seats;
+			row.insertCell(4).innerHTML= mrData[i].meetingRoom.phoneExist;
+			row.insertCell(5).innerHTML= mrData[i].meetingRoom.projectorExist;
+			row.insertCell(6).innerHTML= getTodayStatus(mrData[i].items);
+			row.insertCell(7).innerHTML= getMrOperation(mrData[i].meetingRoom.floor, mrData[i].meetingRoom.id);
+		}
+	  });
+
+}
+
+function loadAllMeetingRoomStatus()
+{
+	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (mrData) {
+		var mrTab=document.getElementById("allMeetingRoomStatus");
+		mrTab.innerHTML="";
+		for(var i=0;i<mrData.length;i++){
+			var row=mrTab.insertRow(i);
+			row.insertCell(0).innerHTML= mrData[i].meetingRoom.name;
+			row.insertCell(1).innerHTML= mrData[i].meetingRoom.floor;
+			row.insertCell(2).innerHTML= mrData[i].meetingRoom.location;
+			row.insertCell(3).innerHTML= mrData[i].meetingRoom.seats;
+			row.insertCell(4).innerHTML= mrData[i].meetingRoom.phoneExist;
+			row.insertCell(5).innerHTML= mrData[i].meetingRoom.projectorExist;
+			row.insertCell(6).innerHTML= getTodayStatus(mrData[i].items);
+			row.insertCell(7).innerHTML= getMrOperation(mrData[i].meetingRoom.floor, mrData[i].meetingRoom.id);
+		}
+	  });
+
+}
+
+function loadMyReservaion()
+{
+	$.get("ws/meetingroomReservation/user/"+1, function (mrrData) {
+		var mrTab=document.getElementById("myReservation");
+		mrTab.innerHTML="";
+		for(var i=0;i<mrrData.length;i++){
+			var row=mrTab.insertRow(i);
+			row.insertCell(0).innerHTML= mrrData[i].meetingSubject.substring(0,20);
+			if(mrrData[i].reservationType == "SINGLE")
+			{
+				row.insertCell(1).innerHTML= mrrData[i].startTime.format("yyyy/mm/dd   HH:ii P");
+				row.insertCell(2).innerHTML= mrrData[i].endTime.format("yyyy/mm/dd   HH:ii P");
+				row.insertCell(3).innerHTML=mrrData[i].reservationType;
+				row.insertCell(4).innerHTML='Only once';
+			}
+			else
+			{
+				row.insertCell(1).innerHTML= getDateStrWithGivenTime(mrrData[i].startTime, mrrData[i].recurrentStartTime);
+				row.insertCell(2).innerHTML= getDateStrWithGivenTime(mrrData[i].endTime, mrrData[i].recurrentEndTime);
+				row.insertCell(3).innerHTML= mrrData[i].reservationType;
+				row.insertCell(4).innerHTML= getRecurrentTypeMsg(mrrData[i].reservationType, mrrData[i].recurrentInterval);
+
+			}
+			
+			row.insertCell(5).innerHTML= mrrData[i].meetingRoom.name;
+			row.insertCell(1).innerHTML= mrrData[i].meetingRoom.floor;
+			row.insertCell(2).innerHTML= mrrData[i].meetingRoom.location;
+			row.insertCell(3).innerHTML= mrrData[i].meetingRoom.seats;
+			row.insertCell(4).innerHTML= mrrData[i].meetingRoom.phoneExist;
+			row.insertCell(5).innerHTML= mrrData[i].meetingRoom.projectorExist;
+			row.insertCell(6).innerHTML= getReservationOperation(mrrData[i]);
+		}
+	  });
+}
+
+loadAvaliableMeetingRoomStatus();
 
 initMRResElement();
 loadMeetingRooms();

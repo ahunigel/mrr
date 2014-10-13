@@ -50,65 +50,69 @@
   </div>
   
 
-  <div class="col-sm-11" id="right">
+  <div class="col-sm-11 left-container-scrollable" id="right">
     <div class="tab-content" id="contents">
       <div class="tab-pane fade in active" id="available">
-      <button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
-    <table class="table table-hover">
-     <thead>
-       <tr>
-      <td>Meetingroom</td>
-      <td>Level</td>
-      <td>Number</td>
-      <td>Big</td>
-      <td>Contain</td>
-       </tr>
-
-     </thead>
-   <tbody>
-       <tr>
-      <td>12</td>
-      <td>12</td>
-      <td>2323</td>
-      <td>123123</td>
-      <td>12323</td>
-       </tr>
-
-        <tr>
-      <td>12</td>
-      <td>12</td>
-      <td>2323</td>
-      <td>123123</td>
-      <td>12323</td>
-       </tr>
-
-
- <tr>
-      <td>12</td>
-      <td>12</td>
-      <td>2323</td>
-      <td>123123</td>
-      <td>12323</td>
-       </tr>
-
-
- <tr>
-      <td>12</td>
-      <td>12</td>
-      <td>2323</td>
-      <td>123123</td>
-      <td>12323</td>
-       </tr>
-
-
- 
-
-   </tbody>
-
-    </table>
-  </div>
-<div class="tab-pane fade" id="all">here is the page2's contents</div>
-<div class="tab-pane fade" id="maps">here is the page3's contents</div>
+		<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<td>Meeting Room Name</td>
+					<td>floor</td>
+					<td>Location</td>
+					<td>Seats</td>
+					<td>Has Phone</td>
+					<td>Has Projector</td>
+					<td>Today Status</td>
+					<td>operation</td>
+				</tr>
+			</thead>
+			<tbody id="mrReservation">
+			</tbody>
+		</table>
+	</div>
+<div class="tab-pane fade" id="all">
+<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<td>Meeting Room Name</td>
+					<td>floor</td>
+					<td>Location</td>
+					<td>Seats</td>
+					<td>Has Phone</td>
+					<td>Has Projector</td>
+					<td>Today Status</td>
+					<td>operation</td>
+				</tr>
+			</thead>
+			<tbody id="allMeetingRoomStatus">
+			</tbody>
+		</table>
+</div>
+<div class="tab-pane fade" id="maps">
+<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<td>Reservation Subject</td>
+					<td>Start Time</td>
+					<td>End Time</td>
+					<td>Reservation Type</td>
+					<td>Recurrent Type</td>
+					<td>Meeting Room Name</td>
+					<td>floor</td>
+					<td>Location</td>
+					<td>Seats</td>
+					<td>Has Phone</td>
+					<td>Has Projector</td>
+					<td>operation</td>
+				</tr>
+			</thead>
+			<tbody id="myReservation">
+			</tbody>
+		</table>
+</div>
 <div class="tab-pane fade" id="manage">
 <button class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomEdit" id="addMR">Add Meeting Room</button>
 <table class="table table-hover">

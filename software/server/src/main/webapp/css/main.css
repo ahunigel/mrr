@@ -148,4 +148,9 @@ text-align: center;
  border-radius: 4px;
  width:50%;
  }
+ 
+ .left-container-scrollable {
+  overflow-x: scroll;
+  overflow-y: scroll;
+} 
     

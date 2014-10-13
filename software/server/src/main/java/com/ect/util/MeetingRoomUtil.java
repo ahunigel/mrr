@@ -55,6 +55,10 @@ public class MeetingRoomUtil
 	public static List<MeetingRoomReservationVO> getMeetingRoomReservationVo(List<ReservationTimeIntervalItemBean> items)
 	{
 		List<MeetingRoomReservationVO> mrr = new ArrayList<MeetingRoomReservationVO>();
+		if (items == null)
+		{
+			return mrr;
+		}
 		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> tempData = classifyRerservationItemsByRerservation(items);
 		Set<MeetingRoomReservation>  mrItems = tempData.keySet();
 		MeetingRoomReservationVO mrVo = null;
