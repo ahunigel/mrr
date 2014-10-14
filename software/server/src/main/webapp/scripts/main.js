@@ -7,9 +7,26 @@ function initMain(){
 	$(".welcome").html("Welcome "+currentUser.name); 
 	 $("#lists li").click(function(){
             var index = $(this).index();
-            if(index==4){
-            	loadMRList();
-            }
+            switch (index)
+			{
+				case 0:// avaliable meeting room
+					loadAvaliableMeetingRoomStatus();
+					break;
+				case 1: // all meeting room
+					loadAllMeetingRoomStatus();
+					break;
+				case 2: // my reservation
+					loadMyReservaion();
+					break;
+				case 3: // report
+					// not implemented.
+					break;
+				case 4: // administrator tool
+					loadMRList();
+					break;
+				default:
+					break;
+			}
          });
 	if(currentUser.role=="ADMIN"){		
 		$("#adminDiv").show();

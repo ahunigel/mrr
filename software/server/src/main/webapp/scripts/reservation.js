@@ -2,6 +2,7 @@
 var mrObj = [];
 var floorOptions = [];
 var numPattern = /^\d+$/;
+var myReservations = {};
 /**
  * The function for load meeting rooms and 
  * initial floor and meeting room options for add or edit reservation.
@@ -94,7 +95,7 @@ function mrrSubjectChange()
  */
 function getReservationType()
 {
-	var reservationType = $("#reservationType input:checked").val();
+	var reservationType = $("input[name='ReservationType']:checked").val();
 	if (reservationType == "SINGLE")
 	{
 		$("#recurrentChoice").addClass("hide");
@@ -107,7 +108,9 @@ function getReservationType()
 		$("#singleChoice").addClass("hide");
 		$("#recurrentChoice").removeClass("hide");
 		$("#resInterval").change(checkRecInterval);
-		$("#ReservationPt").change(getRecurrentType);
+		$("#ReservationPt").change(function(){
+			 var recValue = $("#ReservationPt input:checked").val();
+			getRecurrentType(recValue)});
 		$("#recStartTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", "start time", false, true)});
 		$("#recEndTimeContainer input[type='text']").change(function(){endTimeValidate("#recEndTime", "#recStartTime", "end time", false, true)});
 		$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", "start time", false, false)});
@@ -171,47 +174,65 @@ function resetReservation()
 /**
  * The function for edit reservation and fill the reservation
  * information into form.
- * @param res the reservation for process.
+ * @param mrrId the id of reservation for process.
  */
-function editMrrForm(res)
+function editMRR(mrrId)
 {
-	$("#meetingSubject").val(res.meetingSubject);
+	var res = myReservations[mrrId];
+	$("#mrrId").val(mrrId);
+	$("#mrSubject").val(res.meetingSubject);
 	$("#mrrFloor").val(res.meetingRoom.floor);
+	$("#mrrFloorMeetingRoom").html(mrObj[res.meetingRoom.floor].data);
 	$("#mrrFloorMeetingRoom").val(res.meetingRoom.id);
 	if (res.reservationType == "SINGLE")
 	{
-		$("#singleRes").attr("checked","checked");
-		$("#recurrentRes").removeAttr("checked");
+		$("input:radio[value='SINGLE']").prop("checked","checked");
 		$("#recurrentChoice").addClass("hide");
 		$("#singleChoice").removeClass("hide");
-		$('#startTime').val(res.startTime.format("yyyy/mm/dd   HH:ii P"));
-		$('#endTime').val(res.endTime.format("yyyy/mm/dd   HH:ii P"));
+		$("#startTimeContainer input[type='text']").val(getDateStrWithGivenTime(res.startTime, null));
+		$("#endTimeContainer input[type='text']").val(getDateStrWithGivenTime(res.endTime, null));
 	}
 	else
 	{
+		$("input:radio[value='RECURRENT']").prop("checked","checked");
 		$("#singleChoice").addClass("hide");
 		$("#recurrentChoice").removeClass("hide");
-		var hour = recurrentStartTime % 60;
-		var minutes = recurrentStartTime - hour * 60;
-		var dateWithTime = new Date()
-		dateWithTime.setHours(hour);
-		dateWithTime.setMinutes(minutes);
-		$('#recStartTime').val(dateWithTime.format("HH:ii P"));
-		hour = recurrentEndTime % 60;
-		minutes = recurrentEndTime - hour * 60;
-		dateWithTime.setHours(hour);
-		dateWithTime.setMinutes(minutes);
-		$('#recEndTime').val(dateWithTime.format("HH:ii P"));
-		if (res.recurrentType != "DAILY")
-		{
-			$("#" +res.recurrentType).attr("checked","checked");
-		}
+		$("#recStartTimeContainer input[type='text']").val(getDateStrOrtTimeStr(null, res.recurrentStartTime));
+		$("#recEndTimeContainer input[type='text']").val(getDateStrOrtTimeStr(null, res.recurrentEndTime));
+		getRecurrentType(res.recurrentType);
+		$("input:radio[value='" +res.recurrentType+ "']").prop("checked","checked");
 		$('#resInterval').val(res.recurrentInterval);
-		$('#recStartDate').val(res.startTime.format("yyyy/mm/dd"));
-		$('#recEndDate').val(res.endTime.format("yyyy/mm/dd"));
+		$("#recStartDateContainer input[type='text']").val(getDateStrOrtTimeStr(res.startTime, null));
+		$("#recEndDateContainer input[type='text']").val(getDateStrOrtTimeStr(res.endTime, null));
 	}
 	
 	addMRR();
+}
+
+function getDateStrOrtTimeStr(date, minutes)
+{
+	var dateStr = "";
+	if (date != null)
+	{
+		if (typeof date=="string")
+		{
+			date = new Date(Date.parse(date));
+		}
+		dateStr = date.getFullYear();
+		dateStr += "/" + formatTimeStr(date.getMonth());
+		dateStr += "/" + formatTimeStr(date.getDate());
+	}
+	else if (minutes != null)
+	{
+		var hours = parseInt(minutes / 60);
+		var minutes = minutes % 60;
+		var tm = hours < 12 ? "AM" : "PM";
+		dateStr += formatTimeStr(hours%12);
+		dateStr += ":" + formatTimeStr(minutes);
+		dateStr += " " + tm;
+	}
+	
+	return dateStr;
 }
 
 /**
@@ -280,9 +301,12 @@ function submitMRR(e)
 	}
 
 	var resData = {};
-
-	resData.meetingSubject = $("#meetingSubject").val();
-	var mrValue = $("#mrrFloorMeetingRoom option:selected").text();
+	if ($("#mrrId").val() != null && $("#mrrId").val().length > 0)
+	{
+		resData.id = $("#mrrId").val();
+	}
+	resData.meetingSubject = $("#mrSubject").val();
+	var mrValue = $("#mrrFloorMeetingRoom option:selected").val();
 	resData.meetingRoom = {id:mrValue};
 	resData.reservedPerson = {id:1};
 	resData.reservationType = reservationType;
@@ -302,7 +326,14 @@ function submitMRR(e)
 		resData.recurrentEndTime = getTimeMinutesWithoutDate($('#recEndTime').val());
 	}
 	var xhr = new XMLHttpRequest();
-	xhr.open('PUT', "ws/meetingroomReservation/reservation", true);
+	if (resData.id)
+	{
+		xhr.open('POST', "ws/meetingroomReservation/reservation", true);
+	}
+	else
+	{
+		xhr.open('PUT', "ws/meetingroomReservation/reservation", true);
+	}
 	xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
 	// send the collected data as JSON
@@ -316,14 +347,27 @@ function submitMRR(e)
 			{
 				alert("The date time range of the meeting room reservation in conflict with others ,please rebook!");
 			}
+			else
+			{
+				var row = null;
+				if ($("#myReservation").find("#"+data.id).length > 0)
+				{
+					row = $("#myReservation").find("#"+data.id);
+					fillOrCreateTableCell(row, data, false);
+				}
+				else
+				{
+					row =$("#myReservation").get(0).insertRow(0);
+					fillOrCreateTableCell(row, data, false);
+				}
+			}
 		}
 	}
 	xhr.send(JSON.stringify(resData));
 }
 
-function getRecurrentType(e)
+function getRecurrentType(recValue)
 {
-  var recValue = $("#ReservationPt input:checked").val();
   if (recValue == "DAILY" || recValue == "DAILY_WORKDAY")
   {
 	  $("#intervalLabel").html("day(s)");
@@ -396,7 +440,7 @@ function deleteMRR(mrrId)
 {
 	$("#delMRBtn").click(function(){
 		var xhr = new XMLHttpRequest();
-		 xhr.open("DELETE", "ws/meetingroomReservation/meetingRoom/"+id, true);
+		 xhr.open("DELETE", "ws/meetingroomReservation/meetingRoom/"+mrrId, true);
 		 xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
 
 		 // send the collected data as JSON
@@ -404,7 +448,8 @@ function deleteMRR(mrrId)
 		{
 			if (xhr.readyState==4)
 			{
-				loadMyReservaion();
+				$("#myReservation").find("#"+mrrId).remove();
+				
 			}
 		}
 		 xhr.send();
@@ -621,32 +666,63 @@ function initMRResElement()
 	    });
 }
 
+function formatTimeStr(value)
+{
+	if (value < 10)
+	{
+		value ='0' + value;
+	}
+	
+	return value;
+}
+
 function getDateStrWithGivenTime(date, minutes)
 {
-	var hours = minutes % 60;
-	minutes -= hours*60;
-	date.setHours(hours);
-	date.setMinutes(minutes);
-	return date.format("yyyy/mm/dd   HH:ii P");
+	
+	if (typeof date=="string")
+	{
+		date = new Date(Date.parse(date));
+	}
+	var dateStr = date.getFullYear();
+	dateStr += "/" + formatTimeStr(date.getMonth());
+	dateStr += "/" + formatTimeStr(date.getDate());
+	if (minutes != null)
+	{
+		var hours = parseInt(minutes / 60);
+		minutes = minutes % 60;
+		date.setHours(hours);
+		date.setMinutes(minutes);
+	}
+	var tm = hours < 12 ? "AM" : "PM";
+	dateStr += "  " + formatTimeStr(date.getHours()%12);
+	dateStr += ":" + formatTimeStr(date.getMinutes());
+	dateStr += " " + tm;
+	return dateStr;
 }
 
 function getRecurrentTypeMsg(recValue, intervalValue)
 {
-	var msg = "Everry "
-	  if (recValue == "DAILY" || recValue == "DAILY_WORKDAY")
-	  {
-		   msg += intervalValue + " day(s)";
-	  }
-	  else if (recValue == "WEEKLY")
-	  {
-		  msg += intervalValue + " week(s)";
-	  }
-	  else if (recValue == "MONTHLY")
-	  {
-		  msg += intervalValue + " month(s)";
-	  }
+	var msg = "Only once";
+	if (recValue != null && intervalValue != null)
+	{
+		msg = "Everry "
+			if (recValue == "DAILY" || recValue == "DAILY_WORKDAY")
+			{
+				msg += intervalValue + " day(s)";
+			}
+			else if (recValue == "WEEKLY")
+			{
+				msg += intervalValue + " week(s)";
+			}
+			else if (recValue == "MONTHLY")
+			{
+				msg += intervalValue + " month(s)";
+			}
+		
+		msg += " occurs";
+	}
 	
-	msg += " occurs";
+	return msg;
 }
 
 function bookRoom(floor, mrId)
@@ -663,11 +739,11 @@ function getMrOperation(floor, mrId)
 		+ 'data-keyboard="false" data-target="#meetingRoomReservationEdit" id="bookRoom('+ floor +','+ mrId +')">Book It</button>';
 }
 
-function getReservationOperation(mrr)
+function getReservationOperation(mrrId)
 {
 	return '<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomReservationEdit" '
-		+ 'value="edit" onclick="editMrrForm('+mrr+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" '
-		+ 'data-target="#MyModal1" value="delete" onclick="deleteMRR('+mrr.id+')"/>';
+		+ 'value="edit" onclick="editMRR('+mrrId+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" '
+		+ 'data-target="#MyModal1" value="delete" onclick="deleteMRR('+mrrId+')"/>';
 }
 
 function getTodayStatus(items)
@@ -680,16 +756,19 @@ function loadAvaliableMeetingRoomStatus()
 	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (mrData) {
 		var mrTab=document.getElementById("mrReservation");
 		mrTab.innerHTML="";
+		var index = null;
+		var row = null;
 		for(var i=0;i<mrData.length;i++){
-			var row=mrTab.insertRow(i);
-			row.insertCell(0).innerHTML= mrData[i].meetingRoom.name;
-			row.insertCell(1).innerHTML= mrData[i].meetingRoom.floor;
-			row.insertCell(2).innerHTML= mrData[i].meetingRoom.location;
-			row.insertCell(3).innerHTML= mrData[i].meetingRoom.seats;
-			row.insertCell(4).innerHTML= mrData[i].meetingRoom.phoneExist;
-			row.insertCell(5).innerHTML= mrData[i].meetingRoom.projectorExist;
-			row.insertCell(6).innerHTML= getTodayStatus(mrData[i].items);
-			row.insertCell(7).innerHTML= getMrOperation(mrData[i].meetingRoom.floor, mrData[i].meetingRoom.id);
+			row=mrTab.insertRow(i);
+			index = 0;
+			row.insertCell(index++).innerHTML= mrData[i].meetingRoom.name;
+			row.insertCell(index++).innerHTML= mrData[i].meetingRoom.floor;
+			row.insertCell(index++).innerHTML= mrData[i].meetingRoom.location;
+			row.insertCell(index++).innerHTML= mrData[i].meetingRoom.seats;
+			row.insertCell(index++).innerHTML= mrData[i].meetingRoom.phoneExist;
+			row.insertCell(index++).innerHTML= mrData[i].meetingRoom.projectorExist;
+			row.insertCell(index++).innerHTML= getTodayStatus(mrData[i].items);
+			row.insertCell(index++).innerHTML= getMrOperation(mrData[i].meetingRoom.floor, mrData[i].meetingRoom.id);
 		}
 	  });
 
@@ -718,36 +797,50 @@ function loadAllMeetingRoomStatus()
 function loadMyReservaion()
 {
 	$.get("ws/meetingroomReservation/user/"+1, function (mrrData) {
-		var mrTab=document.getElementById("myReservation");
+		var mrTab=$("#myReservation").get(0);
 		mrTab.innerHTML="";
 		for(var i=0;i<mrrData.length;i++){
+			myReservations[mrrData[i].id] = mrrData[i];
 			var row=mrTab.insertRow(i);
-			row.insertCell(0).innerHTML= mrrData[i].meetingSubject.substring(0,20);
-			if(mrrData[i].reservationType == "SINGLE")
-			{
-				row.insertCell(1).innerHTML= mrrData[i].startTime.format("yyyy/mm/dd   HH:ii P");
-				row.insertCell(2).innerHTML= mrrData[i].endTime.format("yyyy/mm/dd   HH:ii P");
-				row.insertCell(3).innerHTML=mrrData[i].reservationType;
-				row.insertCell(4).innerHTML='Only once';
-			}
-			else
-			{
-				row.insertCell(1).innerHTML= getDateStrWithGivenTime(mrrData[i].startTime, mrrData[i].recurrentStartTime);
-				row.insertCell(2).innerHTML= getDateStrWithGivenTime(mrrData[i].endTime, mrrData[i].recurrentEndTime);
-				row.insertCell(3).innerHTML= mrrData[i].reservationType;
-				row.insertCell(4).innerHTML= getRecurrentTypeMsg(mrrData[i].reservationType, mrrData[i].recurrentInterval);
-
-			}
-			
-			row.insertCell(5).innerHTML= mrrData[i].meetingRoom.name;
-			row.insertCell(1).innerHTML= mrrData[i].meetingRoom.floor;
-			row.insertCell(2).innerHTML= mrrData[i].meetingRoom.location;
-			row.insertCell(3).innerHTML= mrrData[i].meetingRoom.seats;
-			row.insertCell(4).innerHTML= mrrData[i].meetingRoom.phoneExist;
-			row.insertCell(5).innerHTML= mrrData[i].meetingRoom.projectorExist;
-			row.insertCell(6).innerHTML= getReservationOperation(mrrData[i]);
+			fillOrCreateTableCell(row, mrrData[i], true);
 		}
 	  });
+}
+
+function fillOrCreateTableCell(row, mrr, isNewData)
+{
+	var index = 0;
+	if (isNewData)
+	{
+		row.id=mrr.id;
+		row.insertCell(index++).innerHTML= mrr.meetingSubject.substring(0,20);
+		row.insertCell(index++).innerHTML= getDateStrWithGivenTime(mrr.startTime, mrr.recurrentStartTime);
+		row.insertCell(index++).innerHTML= getDateStrWithGivenTime(mrr.endTime, mrr.recurrentEndTime);
+		row.insertCell(index++).innerHTML= mrr.reservationType;
+		row.insertCell(index++).innerHTML= getRecurrentTypeMsg(mrr.recurrentType, mrr.recurrentInterval);
+		row.insertCell(index++).innerHTML= mrr.meetingRoom.name;
+		row.insertCell(index++).innerHTML= mrr.meetingRoom.floor;
+		row.insertCell(index++).innerHTML= mrr.meetingRoom.location;
+		row.insertCell(index++).innerHTML= mrr.meetingRoom.seats;
+		row.insertCell(index++).innerHTML= mrr.meetingRoom.phoneExist;
+		row.insertCell(index++).innerHTML= mrr.meetingRoom.projectorExist;
+		row.insertCell(index++).innerHTML= getReservationOperation(mrr.id);
+	}
+	else
+	{
+		row.getCell(index++).innerHTML= mrr.meetingSubject.substring(0,20);
+		row.getCell(index++).innerHTML= getDateStrWithGivenTime(mrr.startTime, mrr.recurrentStartTime);
+		row.getCell(index++).innerHTML= getDateStrWithGivenTime(mrr.endTime, mrr.recurrentEndTime);
+		row.getCell(index++).innerHTML= mrr.reservationType;
+		row.getCell(index++).innerHTML= getRecurrentTypeMsg(mrr.recurrentType, mrr.recurrentInterval);
+		row.getCell(index++).innerHTML= mrr.meetingRoom.name;
+		row.getCell(index++).innerHTML= mrr.meetingRoom.floor;
+		row.getCell(index++).innerHTML= mrr.meetingRoom.location;
+		row.getCell(index++).innerHTML= mrr.meetingRoom.seats;
+		row.getCell(index++).innerHTML= mrr.meetingRoom.phoneExist;
+		row.getCell(index++).innerHTML= mrr.meetingRoom.projectorExist;
+		row.getCell(index++).innerHTML= getReservationOperation(mrr.id);
+	}
 }
 
 loadAvaliableMeetingRoomStatus();

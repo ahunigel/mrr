@@ -48,7 +48,7 @@ public class MeetingRoomReservationService
 	public List<MeetingRoomStatusVO> getCurrentDateAvaliableMeetingRoom()
 	{
 		List<MeetingRoom> meetingRooms = dao.findAll();
-		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
+		Date startDate = DateTimeUtil.getCurrentGMTDateWithoutTime();
 		Date endDate = DateTimeUtil.getAddedDaysDate(startDate, 1);
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = reservationDao
 				.getMeetingRoomReservationByDateRange(startDate, endDate);
@@ -104,10 +104,16 @@ public class MeetingRoomReservationService
 		mr.setMeetingRoom(mrt);
 		List<ITimeIntervalRecord> reservationItems = DateTimeUtil
 				.getReservationTimeIntervalRecords(mr);
+		mr = reservationDao.saveMeetingRoomReservation(mr);
 		if (isValidReservation(mr, reservationItems))
 		{
 			reservationDao.saveReservationTimeIntervalItems(reservationItems,
 					false);
+			
+			mrt = dao.getMeetingRoomById(mrt.getId());
+			MeetingRoomVO mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(mrt, mrVo);
+			mrr.setMeetingRoom(mrVo);
 			mrr.setId(mr.getId());
 		}
 		else
@@ -120,7 +126,6 @@ public class MeetingRoomReservationService
 
 	public boolean deleteOrCancelMeetingRoomReservation(Integer id)
 	{
-		reservationDao.deleteReservationTimeIntervalItems(id);
 		return reservationDao.deleteMeetingRoomReservation(id);
 	}
 		
@@ -128,18 +133,27 @@ public class MeetingRoomReservationService
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
+		MeetingRoom mrt = new MeetingRoom();
 		BeanUtils.copyProperties(mrr, mr);
+		BeanUtils.copyProperties(mrr.getMeetingRoom(), mrt);
+		mr.setMeetingRoom(mrt);
 		List<ITimeIntervalRecord> reservationItems = DateTimeUtil
 				.getReservationTimeIntervalRecords(mr);
 		if (isValidReservation(mr, reservationItems))
 		{
+			reservationDao.saveMeetingRoomReservation(mr);
 			if(reservationDao.deleteReservationTimeIntervalItems(mr.getId()))
 			{
 				reservationDao.saveReservationTimeIntervalItems(reservationItems,
 						false);
 			}
+			mrt = dao.getMeetingRoomById(mrt.getId());
+			MeetingRoomVO mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(mrt, mrVo);
+			mrr.setMeetingRoom(mrVo);
 			mrr.setId(mr.getId());
 		}
+		
 		return mrr;
 	}
 
@@ -151,7 +165,7 @@ public class MeetingRoomReservationService
 				.getReservationCountByMeetingRoom(mrRes.getMeetingRoom()
 						.getId());
 		List<ITimeIntervalRecord> result = null;
-		if (resCount == 0)
+		if (resCount <= 1)
 		{
 			return isValid;
 		}
@@ -169,7 +183,6 @@ public class MeetingRoomReservationService
 		}
 		else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
 		{
-			mrRes = reservationDao.saveMeetingRoomReservation(mrRes);
 			isValid = checkRecurrentReservation(reservationItems);
 		}
 

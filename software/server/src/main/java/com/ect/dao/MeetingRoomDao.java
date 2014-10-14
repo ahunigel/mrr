@@ -12,4 +12,10 @@ public class MeetingRoomDao extends BaseDao<MeetingRoom>{
 		return this.getHibernateTemplate().loadAll(MeetingRoom.class);
 	}
 	
+	public MeetingRoom getMeetingRoomById(Integer mrId)
+	{
+		return (MeetingRoom) this.getHibernateTemplate()
+				.findByNamedQueryAndNamedParam("getMeetingRoomById",
+						"mrId", mrId).get(0);
+	}
 }

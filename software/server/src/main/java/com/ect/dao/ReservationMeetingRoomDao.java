@@ -44,7 +44,15 @@ public class ReservationMeetingRoomDao extends BaseDao
 				.findByNamedQueryAndNamedParam("getReservationByRoom",
 						"roomId", mId);
 	}
-
+	
+	@SuppressWarnings("unchecked")
+	public List<MeetingRoomReservation> getReservationById(Integer mrrId)
+	{
+		return (List<MeetingRoomReservation>) this.getHibernateTemplate()
+				.findByNamedQueryAndNamedParam("getReservationById",
+						"mrrId", mrrId);
+	}
+	
 	public int getReservationCountByMeetingRoom(Integer mId)
 	{
 		String[] params = new String[] { "roomId", "nowDate" };

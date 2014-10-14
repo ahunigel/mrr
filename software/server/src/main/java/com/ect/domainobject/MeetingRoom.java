@@ -5,9 +5,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 @Entity
+@NamedQueries({
+	@NamedQuery(name = "getMeetingRoomById", query = "select m from MeetingRoom m where m.id = :mrId")
+})
 @Table(name = "meeting_room")
 public class MeetingRoom {
 	private Integer id;

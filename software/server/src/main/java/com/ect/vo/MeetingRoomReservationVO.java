@@ -44,6 +44,8 @@ public class MeetingRoomReservationVO {
 	 * 
 	 */
 	private RecurrentType recurrentType;
+	
+	private Integer recurrentInterval = 1;
 
 	private Integer recurrentStartTime;
 
@@ -82,6 +84,15 @@ public class MeetingRoomReservationVO {
 	}
 	public void setRecurrentType(RecurrentType recurrentType) {
 		this.recurrentType = recurrentType;
+	}
+	public Integer getRecurrentInterval()
+	{
+		return recurrentInterval;
+	}
+
+	public void setRecurrentInterval(Integer recurrentInterval)
+	{
+		this.recurrentInterval = recurrentInterval;
 	}
 	public Integer getRecurrentStartTime() {
 		return recurrentStartTime;

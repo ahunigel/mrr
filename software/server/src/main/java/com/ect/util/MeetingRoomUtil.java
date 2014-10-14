@@ -14,6 +14,7 @@ import com.ect.domainobject.MeetingRoomReservation;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.TimeInterval;
 import com.ect.vo.MeetingRoomReservationVO;
+import com.ect.vo.MeetingRoomVO;
 
 public class MeetingRoomUtil
 {
@@ -43,10 +44,15 @@ public class MeetingRoomUtil
 			List<MeetingRoomReservation> rem)
 	{
 		List<MeetingRoomReservationVO> result = new ArrayList<MeetingRoomReservationVO>();
+		MeetingRoomVO mrVo = null;
+		MeetingRoomReservationVO vo = null;
 		for (MeetingRoomReservation mr : rem)
 		{
-			MeetingRoomReservationVO vo = new MeetingRoomReservationVO();
+			vo = new MeetingRoomReservationVO();
+			mrVo = new MeetingRoomVO();
 			BeanUtils.copyProperties(mr, vo);
+			BeanUtils.copyProperties(mr.getMeetingRoom(), mrVo);
+			vo.setMeetingRoom(mrVo);
 			result.add(vo);
 		}
 		return result;
