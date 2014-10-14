@@ -42,6 +42,27 @@ function initMain(){
 	{
 		$("#adminDiv").hide();
 	}
+	
+	$("#closeEditMRBtn").click(resetMRRForm);
+}
+
+function resetMRRForm()
+{
+	$(".form-control-feedback").hide();
+	$("#editMRForm").children().removeClass("has-feedback").removeClass("has-success").removeClass("has-error");  
+	var editForm=document.getElementById("editMRForm");
+	for (var i = 0, ii = editForm.length; i < ii; ++i) {
+	    var input = editForm[i];
+	    if (input.name) {
+			if(input.type=='checkbox'){
+				input.checked=false;
+			}
+			else{
+				input.value = '';
+			}
+	    }
+	}
+	$("#imageDisplay").attr("src","img/noImage.png");
 }
 
 function initValidate(){
@@ -111,26 +132,14 @@ function uploadImage(e){
 	
 }
 var mrData;
-function addMR(){
+function addMR()
+{
 	$("#mrEditDialogHeader").html("Add Meeting Room");
-	var editForm=document.getElementById("editMRForm");
-	for (var i = 0, ii = editForm.length; i < ii; ++i) {
-	    var input = editForm[i];
-	    if (input.name) {
-			if(input.type=='checkbox'){
-				input.checked=false;
-			}
-			else{
-				input.value = '';
-			}
-	    }
-	}
-	$("#imageDisplay").attr("src","img/noImage.png");
-	editForm.onsubmit = function (e) {
-		  // stop the regular form submission
+	$("#addOrEditMRR").click(function (e) {
+		// stop the regular form submission
 		e.preventDefault();
-		sendData(editForm,"PUT",true);
-	}
+		sendData("PUT",true);
+	});
 }
 
 var deleteMR=function(id){
@@ -171,15 +180,16 @@ var editMR=function(id){
 	  }else{
 		$("#imageDisplay").attr("src","img/noImage.png");
 	  }
-	editForm.onsubmit = function (e) {
-			  // stop the regular form submission
-		e.preventDefault();
-		sendData(editForm,"POST",false);
-	}
+	  $("#addOrEditMRR").click(function (e) {
+			// stop the regular form submission
+		  	e.preventDefault();
+			sendData("POST",false);
+		});
 }
 
-function sendData(editForm,method,ignoreId){
+function sendData(method,ignoreId){
 	 var data = {};
+	 var editForm=document.getElementById("editMRForm");
 	  for (var i = 0, ii = editForm.length; i < ii; ++i) {
 	    var input = editForm[i];
 	    if (input.name&&((input.name=='id'&&!ignoreId)||input.name!='id')) {
@@ -187,7 +197,15 @@ function sendData(editForm,method,ignoreId){
 				data[input.name] = input.checked;
 			}
 			else{
-				data[input.name] = input.value;
+				if ((input.name == "floor" ||input.name == "name" || input.name == "location" ||input.name == "seats") && (input.value == null || input.value.length < 1))
+				{
+					alert("The value of "+input.name+" cannot be null");
+					return;
+				}
+				else
+				{
+					data[input.name] = input.value;
+				}
 			}
 		}
 	  }
@@ -204,6 +222,7 @@ function sendData(editForm,method,ignoreId){
 		{
 			
 			loadMRList();
+			resetMRRForm();
 			$("#closeEditMRBtn").click();
 		}
 	 }
