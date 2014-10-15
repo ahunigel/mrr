@@ -4,6 +4,7 @@ $("#logout").click(function(){
 });
 
 function initMain(){
+	currentUser = {name:"administrator",role:"ADMIN"};
 	$(".welcome").html("Welcome "+currentUser.name); 
 	 $("#lists li").click(function(){
             var index = $(this).index();
@@ -48,7 +49,7 @@ function initMain(){
 
 function resetMRRForm()
 {
-	$(".form-control-feedback").hide();
+	$(".form-control-feedback").remove();
 	$("#editMRForm").children().removeClass("has-feedback").removeClass("has-success").removeClass("has-error");  
 	var editForm=document.getElementById("editMRForm");
 	for (var i = 0, ii = editForm.length; i < ii; ++i) {
@@ -220,7 +221,6 @@ function sendData(method,ignoreId){
 	{
 	  if (xhr.readyState==4 && xhr.status==200)
 		{
-			
 			loadMRList();
 			resetMRRForm();
 			$("#closeEditMRBtn").click();

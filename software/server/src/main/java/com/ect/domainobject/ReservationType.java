@@ -1,6 +1,8 @@
 package com.ect.domainobject;
 
-public enum ReservationType {
+import java.io.Serializable;
+
+public enum ReservationType implements Serializable{
 	SINGLE,
 	RECURRENT
 }

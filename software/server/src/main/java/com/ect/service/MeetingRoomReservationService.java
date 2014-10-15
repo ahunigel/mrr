@@ -39,10 +39,12 @@ public class MeetingRoomReservationService
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByDateRange(
 			Date startDate, Date endDate)
 	{
+		startDate = DateTimeUtil.getGMTDateTime(startDate);
+		endDate = DateTimeUtil.getGMTDateTime(endDate);
 		List<ReservationTimeIntervalItemBean> items = reservationDao
 				.getAllReservationItemsByDateRange(startDate, endDate);
 		
-		return MeetingRoomUtil.getMeetingRoomReservationVo(items);
+		return MeetingRoomUtil.getMeetingRoomReservationVo(items, true);
 	}
 	
 	public List<MeetingRoomStatusVO> getCurrentDateAvaliableMeetingRoom()
@@ -65,7 +67,8 @@ public class MeetingRoomReservationService
 			mrVo = new MeetingRoomVO();
 			BeanUtils.copyProperties(mr, mrVo);
 			mrStatusVo.setMeetingRoom(mrVo);
-			mrStatusVo.setItems(MeetingRoomUtil.getMeetingRoomReservationVo(mrr.get(mr)));
+			mrStatusVo.setTimeIntervalItems(MeetingRoomUtil.convertReservationTimeIntervalItemForUI(mrr.get(mr)));
+			mrStatusVo.setReservationItems(MeetingRoomUtil.getMeetingRoomReservationVo(mrr.get(mr), false));
 			result.add(mrStatusVo);
 		}
 		
@@ -94,7 +97,7 @@ public class MeetingRoomReservationService
 		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
-	public MeetingRoomReservationVO saveMeetingRoomReservation(
+	public boolean saveMeetingRoomReservation(
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
@@ -109,19 +112,14 @@ public class MeetingRoomReservationService
 		{
 			reservationDao.saveReservationTimeIntervalItems(reservationItems,
 					false);
-			
-			mrt = dao.getMeetingRoomById(mrt.getId());
-			MeetingRoomVO mrVo = new MeetingRoomVO();
-			BeanUtils.copyProperties(mrt, mrVo);
-			mrr.setMeetingRoom(mrVo);
-			mrr.setId(mr.getId());
+			return true;
 		}
 		else
 		{
 			reservationDao.deleteMeetingRoomReservation(mr.getId());
 		}
 		
-		return mrr;
+		return false;
 	}
 
 	public boolean deleteOrCancelMeetingRoomReservation(Integer id)
@@ -129,7 +127,7 @@ public class MeetingRoomReservationService
 		return reservationDao.deleteMeetingRoomReservation(id);
 	}
 		
-	public MeetingRoomReservationVO updateMeetingRoomReservation(
+	public boolean updateMeetingRoomReservation(
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
@@ -147,14 +145,11 @@ public class MeetingRoomReservationService
 				reservationDao.saveReservationTimeIntervalItems(reservationItems,
 						false);
 			}
-			mrt = dao.getMeetingRoomById(mrt.getId());
-			MeetingRoomVO mrVo = new MeetingRoomVO();
-			BeanUtils.copyProperties(mrt, mrVo);
-			mrr.setMeetingRoom(mrVo);
-			mrr.setId(mr.getId());
+			
+			return true;
 		}
 		
-		return mrr;
+		return false;
 	}
 
 	private boolean isValidReservation(MeetingRoomReservation mrRes,
@@ -165,7 +160,7 @@ public class MeetingRoomReservationService
 				.getReservationCountByMeetingRoom(mrRes.getMeetingRoom()
 						.getId());
 		List<ITimeIntervalRecord> result = null;
-		if (resCount <= 1)
+		if (resCount == 0)
 		{
 			return isValid;
 		}

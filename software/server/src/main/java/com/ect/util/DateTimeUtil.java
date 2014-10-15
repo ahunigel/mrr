@@ -67,8 +67,15 @@ public class DateTimeUtil
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
-		cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+		cal.setTimeInMillis(cal.getTimeInMillis() - TimeZone.getDefault().getRawOffset());
 		
+		return cal.getTime();
+	}
+	
+	public static Date getGMTDateTime(Date date)
+	{
+		Calendar cal = Calendar.getInstance();
+		cal.setTimeInMillis(date.getTime() - TimeZone.getDefault().getRawOffset());
 		return cal.getTime();
 	}
 	
@@ -184,7 +191,7 @@ public class DateTimeUtil
 	public static ReservationTimeIntervalItemBean getFirstRunTimeRecordOfReservation(MeetingRoomReservation res)
 	{
 		Date nextRunStartTime = res.getStartTime();
-		Date nextRunEndtime = res.getStartTime();
+		Date nextRunEndtime = res.getEndTime();
 		if (!res.getReservationType().equals(ReservationType.SINGLE))
 		{
 			nextRunStartTime = getAddedTimeDate(nextRunStartTime,res.getRecurrentStartTime());
@@ -320,5 +327,5 @@ public class DateTimeUtil
 		}
 		
 		return repeatCount;
-	}		
+	}	
 }

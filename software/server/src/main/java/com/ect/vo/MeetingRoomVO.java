@@ -1,8 +1,15 @@
 package com.ect.vo;
 
+import java.io.Serializable;
+
 import com.ect.domainobject.MeetingRoomStatus;
 
-public class MeetingRoomVO {
+public class MeetingRoomVO implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Integer id;
 	
 	private String name;

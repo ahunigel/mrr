@@ -1,16 +1,21 @@
 package com.ect.vo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import com.ect.domainobject.RecurrentType;
-import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
 import com.ect.domainobject.User;
 
 
-public class MeetingRoomReservationVO {
+public class MeetingRoomReservationVO implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Integer id;
 	
 	private ReservationType reservationType;
@@ -51,7 +56,7 @@ public class MeetingRoomReservationVO {
 
 	private Integer recurrentEndTime;
 	
-	private List<ReservationTimeIntervalItemBean> items;
+	private List<ReservationTimeIntervalItemVO> items;
 	
 	
 
@@ -128,11 +133,11 @@ public class MeetingRoomReservationVO {
 		this.reservedPerson = reservedPerson;
 	}
 	
-	public List<ReservationTimeIntervalItemBean> getItems()
+	public List<ReservationTimeIntervalItemVO> getItems()
 	{
 		return items;
 	}
-	public void setItems(List<ReservationTimeIntervalItemBean> items)
+	public void setItems(List<ReservationTimeIntervalItemVO> items)
 	{
 		this.items = items;
 	}

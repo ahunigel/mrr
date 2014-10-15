@@ -1,6 +1,8 @@
 package com.ect.domainobject;
 
-public enum MeetingRoomStatus {
+import java.io.Serializable;
+
+public enum MeetingRoomStatus implements Serializable{
 	
 	OCCUPIED,
 	AVAILABLE

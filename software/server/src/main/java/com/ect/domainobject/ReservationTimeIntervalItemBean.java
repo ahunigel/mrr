@@ -24,12 +24,12 @@ import javax.persistence.TemporalType;
 
 @Entity
 @NamedQueries({
-		@NamedQuery(name = "getItemsByTimeInterval", query = "select r from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime"),
-		@NamedQuery(name = "getItemsByTimeIntervalAndUser", query = "select r from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and reservation.reservedPerson.id=:userId"),
+		@NamedQuery(name = "getItemsByTimeInterval", query = "select r from ReservationTimeIntervalItemBean r where r.startTime >=:startTime and r.endTime <=:endTime"),
+		@NamedQuery(name = "getItemsByTimeIntervalAndUser", query = "select r from ReservationTimeIntervalItemBean r where r.startTime >=:startTime and r.endTime <=:endTime and reservation.reservedPerson.id=:userId"),
 		@NamedQuery(name = "getItemsByMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where r.meetingRoom.id=:mrId"),
 		@NamedQuery(name = "getItemsByReservation", query = "select r from ReservationTimeIntervalItemBean r where r.reservation.id=:mrrId"),
-		@NamedQuery(name = "getItemsByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and r.meetingRoom.id=:mrId"),
-		@NamedQuery(name = "getItemsByTimeIntervalAndReservation", query = "select r from ReservationTimeIntervalItemBean r where r.startTime <=:startTime and r.endTime >=:endTime and r.reservation.id=:mrrId"),
+		@NamedQuery(name = "getItemsByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where r.startTime >=:startTime and r.endTime <=:endTime and r.meetingRoom.id=:mrId"),
+		@NamedQuery(name = "getItemsByTimeIntervalAndReservation", query = "select r from ReservationTimeIntervalItemBean r where r.startTime >=:startTime and r.endTime <=:endTime and r.reservation.id=:mrrId"),
 		@NamedQuery(name = "checkItemByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where ( (r.startTime >=:startTime and r.startTime <=:endTime) or"
 				+ "  (r.endTime >=:startTime and r.endTime <=:endTime)) and r.meetingRoom.id=:mrId")
 

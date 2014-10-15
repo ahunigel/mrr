@@ -57,17 +57,17 @@ public class MeetingRoomReservationResource {
 	
 	@PUT
 	@Produces({ "application/json;charset=UTF-8" })
-	@Consumes({ "application/json;charset=UTF-8"})
+	@Consumes({ "application/xml"})
 	@Path("/reservation")
-	public MeetingRoomReservationVO createMeetingRoomReservation (MeetingRoomReservationVO mrr){
+	public boolean createMeetingRoomReservation (MeetingRoomReservationVO mrr){
 		return service.saveMeetingRoomReservation(mrr);
 	}
 	
 	@POST
 	@Produces({ "application/json;charset=UTF-8" })
-	@Consumes({ "application/json;charset=UTF-8"})
+	@Consumes({ "application/xml"})
 	@Path("/reservation")
-	public MeetingRoomReservationVO updateMeetingRoomReservation(MeetingRoomReservationVO mrr){
+	public boolean updateMeetingRoomReservation(MeetingRoomReservationVO mrr){
 		return service.updateMeetingRoomReservation(mrr);
 	}
 	

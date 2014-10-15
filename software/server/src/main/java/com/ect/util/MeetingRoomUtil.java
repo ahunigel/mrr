@@ -15,6 +15,7 @@ import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.TimeInterval;
 import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
+import com.ect.vo.ReservationTimeIntervalItemVO;
 
 public class MeetingRoomUtil
 {
@@ -40,6 +41,26 @@ public class MeetingRoomUtil
 		return mrr;
 	}
 	
+	public static List<ReservationTimeIntervalItemVO> convertReservationTimeIntervalItemForUI(List<ReservationTimeIntervalItemBean> items)
+	{
+		List<ReservationTimeIntervalItemVO> result = new ArrayList<ReservationTimeIntervalItemVO>();
+		if (items == null)
+		{
+			return result;
+		}
+		ReservationTimeIntervalItemVO itemVO = null;
+		for (ReservationTimeIntervalItemBean it : items)
+		{
+			itemVO = new ReservationTimeIntervalItemVO();
+			BeanUtils.copyProperties(it, itemVO);
+			itemVO.setMrId(it.getMeetingRoom().getId());
+			itemVO.setMrrId(it.getReservation().getId());
+			result.add(itemVO);
+		}
+		
+		return result;
+	}
+	
 	public static List<MeetingRoomReservationVO> convertMeetingRoomResult(
 			List<MeetingRoomReservation> rem)
 	{
@@ -58,7 +79,7 @@ public class MeetingRoomUtil
 		return result;
 	}
 	
-	public static List<MeetingRoomReservationVO> getMeetingRoomReservationVo(List<ReservationTimeIntervalItemBean> items)
+	public static List<MeetingRoomReservationVO> getMeetingRoomReservationVo(List<ReservationTimeIntervalItemBean> items, boolean isItemsNeeded)
 	{
 		List<MeetingRoomReservationVO> mrr = new ArrayList<MeetingRoomReservationVO>();
 		if (items == null)
@@ -70,11 +91,13 @@ public class MeetingRoomUtil
 		MeetingRoomReservationVO mrVo = null;
 		for (MeetingRoomReservation item : mrItems)
 		{
-			List<MeetingRoomReservationVO> resItems = new ArrayList<MeetingRoomReservationVO>();
 			mrVo = new MeetingRoomReservationVO();
 			BeanUtils.copyProperties(item, mrVo);
-			mrVo.setItems(tempData.get(item));
-			resItems.add(mrVo);
+			if (isItemsNeeded)
+			{
+				mrVo.setItems(convertReservationTimeIntervalItemForUI(tempData.get(item)));
+			}
+			mrr.add(mrVo);
 		}
 		
 		return mrr;
@@ -163,7 +186,7 @@ public class MeetingRoomUtil
 			{
 				mrVo = new MeetingRoomReservationVO();
 				BeanUtils.copyProperties(item, mrVo);
-				mrVo.setItems(tempData.get(item));
+				mrVo.setItems(convertReservationTimeIntervalItemForUI(tempData.get(item)));
 				mrr.get(item.getMeetingRoom()).add(mrVo);
 			}
 			else
@@ -171,7 +194,7 @@ public class MeetingRoomUtil
 				List<MeetingRoomReservationVO> resItems = new ArrayList<MeetingRoomReservationVO>();
 				mrVo = new MeetingRoomReservationVO();
 				BeanUtils.copyProperties(item, mrVo);
-				mrVo.setItems(tempData.get(item));
+				mrVo.setItems(convertReservationTimeIntervalItemForUI(tempData.get(item)));
 				resItems.add(mrVo);
 				mrr.put(item.getMeetingRoom(), resItems);
 			}

@@ -1,6 +1,8 @@
 package com.ect.domainobject;
 
-public enum RecurrentType {
+import java.io.Serializable;
+
+public enum RecurrentType implements Serializable{
 	DAILY,
 	DAILY_WORKDAY,
 	WEEKLY,

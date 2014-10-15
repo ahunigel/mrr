@@ -1,11 +1,17 @@
 package com.ect.vo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 
-public class MeetingRoomStatusVO {
+public class MeetingRoomStatusVO implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private Integer id;
 		
 	/**
@@ -24,7 +30,9 @@ public class MeetingRoomStatusVO {
 	
 	private MeetingRoomVO meetingRoom;
 	
-	private List<MeetingRoomReservationVO> items;
+	private List<MeetingRoomReservationVO> reservationItems;
+	
+	private List<ReservationTimeIntervalItemVO> timeIntervalItems;
 
 	
 	public Integer getId()
@@ -67,16 +75,26 @@ public class MeetingRoomStatusVO {
 		this.meetingRoom = meetingRoom;
 	}
 
-	public List<MeetingRoomReservationVO> getItems()
+	public List<MeetingRoomReservationVO> getReservationItems()
 	{
-		return items;
+		return reservationItems;
 	}
 
-	public void setItems(List<MeetingRoomReservationVO> items)
+	public void setReservationItems(List<MeetingRoomReservationVO> reservationItems)
 	{
-		this.items = items;
+		this.reservationItems = reservationItems;
+	}
+
+	public List<ReservationTimeIntervalItemVO> getTimeIntervalItems()
+	{
+		return timeIntervalItems;
+	}
+
+	public void setTimeIntervalItems(
+			List<ReservationTimeIntervalItemVO> timeIntervalItems)
+	{
+		this.timeIntervalItems = timeIntervalItems;
 	}
 	
 	
-
 }
