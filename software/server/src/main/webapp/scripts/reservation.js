@@ -330,46 +330,50 @@ function submitMRR(e)
 		resData.recurrentStartTime = getTimeMinutesWithoutDate($('#recStartTime').val());
 		resData.recurrentEndTime = getTimeMinutesWithoutDate($('#recEndTime').val());
 	}
-	var xhr = new XMLHttpRequest();
+	
+	var urlType = "PUT";
 	if (resData.id)
 	{
-		xhr.open('POST', "ws/meetingroomReservation/reservation", true);
+		urlType = "POST";
 	}
-	else
-	{
-		xhr.open('PUT', "ws/meetingroomReservation/reservation", true);
-	}
-	xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+	
+	$.ajax({ 
+		type: urlType, 
+		url: "ws/meetingroomReservation/reservation", 
+		data: JSON.stringify(resData), 
+		contentType: "application/json; charset=utf-8", 
+		dataType: "json", 
+		success: function (data) {handleResult(data); }, 
+		error: function (msg) { 
+		alert(msg.responseText); 
+		} 
+		});
+	
 
-	// send the collected data as JSON
- 
-	xhr.onreadystatechange=function()
+	function handleResult(data)
 	{
-		if (xhr.readyState==4 && xhr.status==200)
+		$("#cancelMRR").click();
+		
+		if (!data.id)
 		{
-			$("#cancelMRR").click();
-			
-			if (xhr.responseText != "true")
+			alert("The date time range of the meeting room reservation in conflict with others ,please rebook!");
+		}
+		else
+		{
+			var row = null;
+			if ($("#myReservation").find("#"+data.id).length > 0)
 			{
-				alert("The date time range of the meeting room reservation in conflict with others ,please rebook!");
+				row = $("#myReservation").find("#"+data.id);
+				fillOrCreateTableCell(row, data, false);
 			}
 			else
 			{
-				/*var row = null;
-				if ($("#myReservation").find("#"+data.id).length > 0)
-				{
-					row = $("#myReservation").find("#"+data.id);
-					fillOrCreateTableCell(row, data, false);
-				}
-				else
-				{
-					row =$("#myReservation").get(0).insertRow(0);
-					fillOrCreateTableCell(row, data, false);
-				}*/
+				row =$("#myReservation").get(0).insertRow(0);
+				fillOrCreateTableCell(row, data, true);
 			}
 		}
+	
 	}
-	xhr.send(JSON.stringify(resData));
 }
 
 function getRecurrentType(recValue)
@@ -444,22 +448,21 @@ function addMRR()
 
 function deleteMRR(mrrId)
 {
-	$("#delMRBtn").click(function(){
-		var xhr = new XMLHttpRequest();
-		 xhr.open("DELETE", "ws/meetingroomReservation/meetingRoom/"+mrrId, true);
-		 xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
-
-		 // send the collected data as JSON
-		 xhr.onreadystatechange=function()
-		{
-			if (xhr.readyState==4)
-			{
+	$("#delMRBtn").click(function()
+	{
+		$.ajax({ 
+			type: "DELETE", 
+			url: "ws/meetingroomReservation/meetingRoom/" + mrrId, 
+			contentType: "application/json; charset=utf-8", 
+			async:false,
+			dataType: "json", 
+			success: function (data) {
 				$("#myReservation").find("#"+mrrId).remove();
-				
-			}
-		}
-		 xhr.send();
-	
+			}, 
+			error: function (msg) { 
+			alert(msg.responseText);
+			} 
+			});
 	});
 }
 
@@ -694,12 +697,10 @@ function getDateStrWithGivenTime(date, minutes)
 	dateStr += "/" + formatTimeStr(date.getDate());
 	if (minutes != null)
 	{
-		var hours = parseInt(minutes / 60);
-		minutes = minutes % 60;
-		date.setHours(hours);
-		date.setMinutes(minutes);
+		date.setHours(parseInt(minutes / 60));
+		date.setMinutes(minutes % 60);
 	}
-	var tm = hours < 12 ? "AM" : "PM";
+	var tm = date.getHours() < 12 ? "AM" : "PM";
 	dateStr += "  " + formatTimeStr(date.getHours()%12);
 	dateStr += ":" + formatTimeStr(date.getMinutes());
 	dateStr += " " + tm;

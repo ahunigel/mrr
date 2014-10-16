@@ -57,24 +57,25 @@ public class MeetingRoomReservationResource {
 	
 	@PUT
 	@Produces({ "application/json;charset=UTF-8" })
-	@Consumes({ "application/xml"})
+	@Consumes({ "application/json;charset=UTF-8" })
 	@Path("/reservation")
-	public boolean createMeetingRoomReservation (MeetingRoomReservationVO mrr){
+	public MeetingRoomReservationVO createMeetingRoomReservation (MeetingRoomReservationVO mrr){
 		return service.saveMeetingRoomReservation(mrr);
 	}
 	
 	@POST
 	@Produces({ "application/json;charset=UTF-8" })
-	@Consumes({ "application/xml"})
+	@Consumes({ "application/json;charset=UTF-8" })
 	@Path("/reservation")
-	public boolean updateMeetingRoomReservation(MeetingRoomReservationVO mrr){
+	public MeetingRoomReservationVO updateMeetingRoomReservation(MeetingRoomReservationVO mrr){
 		return service.updateMeetingRoomReservation(mrr);
 	}
 	
 	@DELETE
+	@Produces({ "application/json;charset=UTF-8" })
 	@Path("/meetingRoom/{id}")
-	public void deleteReservationByMeetingRoom(@PathParam("id") Integer id){
-		service.deleteOrCancelMeetingRoomReservation(id);
+	public boolean deleteReservationByMeetingRoom(@PathParam("id") Integer id){
+		return service.deleteOrCancelMeetingRoomReservation(id);
 	}
 
 }

@@ -97,7 +97,7 @@ public class MeetingRoomReservationService
 		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
 
-	public boolean saveMeetingRoomReservation(
+	public MeetingRoomReservationVO saveMeetingRoomReservation(
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
@@ -112,14 +112,18 @@ public class MeetingRoomReservationService
 		{
 			reservationDao.saveReservationTimeIntervalItems(reservationItems,
 					false);
-			return true;
+			mrt = dao.getMeetingRoomById(mrt.getId());
+			MeetingRoomVO mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(mrt, mrVo);
+			mrr.setMeetingRoom(mrVo);
+			mrr.setId(mr.getId());
 		}
 		else
 		{
 			reservationDao.deleteMeetingRoomReservation(mr.getId());
 		}
 		
-		return false;
+		return mrr;
 	}
 
 	public boolean deleteOrCancelMeetingRoomReservation(Integer id)
@@ -127,7 +131,7 @@ public class MeetingRoomReservationService
 		return reservationDao.deleteMeetingRoomReservation(id);
 	}
 		
-	public boolean updateMeetingRoomReservation(
+	public MeetingRoomReservationVO updateMeetingRoomReservation(
 			MeetingRoomReservationVO mrr)
 	{
 		MeetingRoomReservation mr = new MeetingRoomReservation();
@@ -146,10 +150,17 @@ public class MeetingRoomReservationService
 						false);
 			}
 			
-			return true;
+			mrt = dao.getMeetingRoomById(mrt.getId());
+			MeetingRoomVO mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(mrt, mrVo);
+			mrr.setMeetingRoom(mrVo);
+		}
+		else
+		{
+			mrr.setId(null);
 		}
 		
-		return false;
+		return mrr;
 	}
 
 	private boolean isValidReservation(MeetingRoomReservation mrRes,

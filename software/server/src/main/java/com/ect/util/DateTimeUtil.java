@@ -195,7 +195,7 @@ public class DateTimeUtil
 		if (!res.getReservationType().equals(ReservationType.SINGLE))
 		{
 			nextRunStartTime = getAddedTimeDate(nextRunStartTime,res.getRecurrentStartTime());
-			nextRunEndtime = getAddedTimeDate(nextRunEndtime,res.getRecurrentEndTime());
+			nextRunEndtime = getAddedTimeDate(nextRunStartTime,res.getRecurrentEndTime());
 		}
 		
 		ReservationTimeIntervalItemBean reservartionItem = new ReservationTimeIntervalItemBean();
@@ -310,14 +310,14 @@ public class DateTimeUtil
 	private static int getRepeatCountForReservation(MeetingRoomReservation res)
 	{
 		int intervalDays = getIntervalDaysBetweenDates(res.getStartTime(), res.getEndTime());
-		int repeatCount = 0;
+		int repeatCount = 1;
 		switch (res.getRecurrentType()) {
 		case DAILY:
 		case DAILY_WORKDAY:	
-			repeatCount = intervalDays / res.getRecurrentInterval();
+			repeatCount += intervalDays / res.getRecurrentInterval();
 			break;
 		case WEEKLY:
-			repeatCount = intervalDays / (res.getRecurrentInterval()*7);
+			repeatCount += intervalDays / (res.getRecurrentInterval()*7);
 			break;
 		case MONTHLY:
 			repeatCount = -1;
