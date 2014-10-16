@@ -1,3 +1,12 @@
 software/server/.classpath
 software/server/.project
 software/server/.settings/org.eclipse.jdt.core.prefs
+*.prefs
+*.class
+*.jar
+*.MF
+*.properties
+*.xml
+*.css
+*.css
+*.css
