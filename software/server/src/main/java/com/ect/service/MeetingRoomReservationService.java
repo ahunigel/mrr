@@ -39,8 +39,8 @@ public class MeetingRoomReservationService
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByDateRange(
 			Date startDate, Date endDate)
 	{
-		startDate = DateTimeUtil.getGMTDateTime(startDate);
-		endDate = DateTimeUtil.getGMTDateTime(endDate);
+		//startDate = DateTimeUtil.getGMTDateTime(startDate);
+		//endDate = DateTimeUtil.getGMTDateTime(endDate);
 		List<ReservationTimeIntervalItemBean> items = reservationDao
 				.getAllReservationItemsByDateRange(startDate, endDate);
 		
@@ -50,7 +50,7 @@ public class MeetingRoomReservationService
 	public List<MeetingRoomStatusVO> getCurrentDateAvaliableMeetingRoom()
 	{
 		List<MeetingRoom> meetingRooms = dao.findAll();
-		Date startDate = DateTimeUtil.getCurrentGMTDateWithoutTime();
+		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
 		Date endDate = DateTimeUtil.getAddedDaysDate(startDate, 1);
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = reservationDao
 				.getMeetingRoomReservationByDateRange(startDate, endDate);

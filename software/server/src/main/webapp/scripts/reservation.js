@@ -28,9 +28,11 @@ var errMsgs = {
 		recurrentEndDate5:"The recurrent type of end date cannot be the same day as start date, it should be more than one day!",
 		recurrentEndDate6:"The end date is depend on start date, please make sure start date is correct !",
 }
-var dateTimePattern = /2\d{3}\/[0-1]\d\/[0-3]\d\s\d{2}:\d{2}\s(a|A|p|P)(M|m)/;
+var dateTimePattern = /2\d{3}\/[0-1]\d\/[0-3]\d\s+\d{2}:\d{2}\s(a|A|p|P)(M|m)/;
 var datePattern = /2\d{3}\/[0-1]\d\/[0-3]\d/;
 var timePattern = /\d{2}:\d{2}\s(a|A|p|P)(M|m)/;
+var timeRangeData = {};
+
 /**
  * The function for load meeting rooms and 
  * initial floor and meeting room options for add or edit reservation.
@@ -139,9 +141,9 @@ function getReservationType()
 		$("#ReservationPt").change(function(){
 			 var recValue = $("#ReservationPt input:checked").val();
 			getRecurrentType(recValue)});
-		$("#recStartTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", false, true)});
+		$("#recStartTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", "#recEndTime", false, true)});
 		$("#recEndTimeContainer input[type='text']").change(function(){endTimeValidate("#recEndTime", "#recStartTime", false, true)});
-		$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", false, false)});
+		$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", "#recEndDate", false, false)});
 		$("#recEndDateContainer input[type='text']").change(function(){endTimeValidate("#recEndDate", "#recStartDate", false, false)});
 		$("#singleChoice").children().removeClass("has-error");
 		$("#singleChoice").children().find(".help-block").html("");
@@ -237,6 +239,12 @@ function editMRR(mrrId)
 	addMRR();
 }
 
+/**
+ * Get the formated date or time string.
+ * @param date the date to process.
+ * @param minutes the minutes to process.
+ * @returns {String} the formated date or time string.
+ */
 function getDateStrOrtTimeStr(date, minutes)
 {
 	var dateStr = "";
@@ -245,6 +253,7 @@ function getDateStrOrtTimeStr(date, minutes)
 		if (typeof date=="string")
 		{
 			date = new Date(Date.parse(date));
+			date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 		}
 		dateStr = date.getFullYear();
 		dateStr += "/" + formatTimeStr(date.getMonth() + 1);
@@ -312,15 +321,15 @@ function submitMRR(e)
 	var reservationType = $("#reservationType input:checked").val();
 	if(reservationType == "SINGLE")
 	{
-	    startTimeValidate("#startTime", true, false);
+	    startTimeValidate("#startTime", "#endTime", true, false);
 	    endTimeValidate("#endTime", "#startTime", true, false);
 	}
 	else
 	{
 	    checkRecInterval();
-	    startTimeValidate("#recStartTime", false, true);
+	    startTimeValidate("#recStartTime", "#recEndTime", false, true);
 	    endTimeValidate("#recEndTime", "#recStartTime", false, true);
-	    startTimeValidate("#recStartDate", false, false);
+	    startTimeValidate("#recStartDate", "#recEndDate", false, false);
 	    endTimeValidate("#recEndDate", "#recStartDate", false, false);
 	}
 	if ($('#editMRRForm .has-error').length > 0)
@@ -341,18 +350,18 @@ function submitMRR(e)
 	if (reservationType == "SINGLE")
 	{
 		resData.startTime = new Date(Date.parse($("#startTimeContainer input[type='text']").val()));
-		resData.startTime.setMinutes(resData.startTime.getMinutes()+resData.startTime.getTimezoneOffset());
+		//resData.startTime.setMinutes(resData.startTime.getMinutes()+resData.startTime.getTimezoneOffset());
 		resData.endTime = new Date(Date.parse($("#endTimeContainer input[type='text']").val()));
-		resData.endTime.setMinutes(resData.endTime.getMinutes()+resData.endTime.getTimezoneOffset());
+		//resData.endTime.setMinutes(resData.endTime.getMinutes()+resData.endTime.getTimezoneOffset());
 
 	}
 	else
 	{
 
 		resData.startTime = getDateWithoutTime($("#recStartDateContainer input[type='text']").val());
-		resData.startTime.setMinutes(resData.startTime.getMinutes()+resData.startTime.getTimezoneOffset());
+		//resData.startTime.setMinutes(resData.startTime.getMinutes()+resData.startTime.getTimezoneOffset());
 		resData.endTime = getDateWithoutTime($("#recEndDateContainer input[type='text']").val());
-		resData.endTime.setMinutes(resData.endTime.getMinutes()+resData.endTime.getTimezoneOffset());
+		//resData.endTime.setMinutes(resData.endTime.getMinutes()+resData.endTime.getTimezoneOffset());
 		resData.recurrentType=$("#ReservationPt input:checked").val();
 		resData.recurrentInterval=$("#resInterval").val();
 		resData.recurrentStartTime = getTimeMinutesWithoutDate($("#recStartTimeContainer input[type='text']").val());
@@ -404,6 +413,10 @@ function submitMRR(e)
 	}
 }
 
+/**
+ * Get the recurrent type and change the message of interval label.
+ * @param recValue
+ */
 function getRecurrentType(recValue)
 {
   if (recValue == "DAILY" || recValue == "DAILY_WORKDAY")
@@ -524,15 +537,16 @@ function checkRecInterval()
 
 /**
  * The function for check the start time/date is valid or not.
- * @param resEl the start time/date element of reservation for process.
+ * @param startEl the start time/date element of reservation for process.
+ * @param endEl the end time/date element of reservation for process.
  * @param isSingle the flag for if it is single reservation.
  * @param isTime the flag for if it is time filed.
  */
 
-function startTimeValidate(resEl, isSingle, isTime)
+function startTimeValidate(startEl, endEl, isSingle, isTime)
 {
 	var isStartTimeValid = true;
-	var startTimeValue = $(resEl +"Container input[type='text']").val();
+	var startTimeValue = $(startEl +"Container input[type='text']").val();
 	if (isTime && timePattern.test(startTimeValue))
 	{
 		startTimeValue = "2014/10/10 " + startTimeValue;
@@ -588,8 +602,13 @@ function startTimeValidate(resEl, isSingle, isTime)
 		}
 	}
 	
-	addOrRemoveErrorMsg(isStartTimeValid, resEl, msg);
+	addOrRemoveErrorMsg(isStartTimeValid, startEl, msg);
 	enableOrDisableSubmit(isStartTimeValid);
+	
+	if (isStartTimeValid && $(endEl+'Container').hasClass('has-error'))
+	{
+		endTimeValidate(endEl, startEl, isSingle, isTime);
+	}
 }
 
 
@@ -640,9 +659,9 @@ function endTimeValidate(endEl, startEl, isSingle, isTime)
 	}
 	else
 	{
-		if (!$(startEl+'Container').hasClass('has-error'))
+		if (!$(startEl+'Container').hasClass('has-error') && endTimeValue == "")
 		{
-			startTimeValidate(startEl, isSingle, isTime);
+			startTimeValidate(startEl, endEl, isSingle, isTime);
 		}
 		
 		var endTi = new Date(Date.parse(endTimeValue));
@@ -729,7 +748,7 @@ function endTimeValidate(endEl, startEl, isSingle, isTime)
 function initMRResElement()
 {
 	$("#mrSubject").change(mrrSubjectChange);
-	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", true, false);});
+	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "#endTime", true, false);});
 	$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", true, false)});
 	$("#saveEditMRRBtn").click(submitMRR);
 	$("#addMRR").click(addMRR);
@@ -767,6 +786,11 @@ function initMRResElement()
 	    });
 }
 
+/**
+ * Format the time string.
+ * @param value the value to process.
+ * @returns {String} the formated time string.
+ */
 function formatTimeStr(value)
 {
 	if (value < 10)
@@ -777,12 +801,19 @@ function formatTimeStr(value)
 	return value;
 }
 
+/**
+ * Get the formated date time string.
+ * @param date the date to process.
+ * @param minutes the minutes to process.
+ * @returns the formated date time string.
+ */
 function getDateStrWithGivenTime(date, minutes)
 {
 	
 	if (typeof date=="string")
 	{
 		date = new Date(Date.parse(date));
+		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 	}
 	var dateStr = date.getFullYear();
 	dateStr += "/" + formatTimeStr(date.getMonth() + 1);
@@ -799,6 +830,12 @@ function getDateStrWithGivenTime(date, minutes)
 	return dateStr;
 }
 
+/**
+ * Get the recurrent type message to display.
+ * @param recValue the value of recurrent type.
+ * @param intervalValue the value of interval.
+ * @returns {String} the recurrent type message to display.
+ */
 function getRecurrentTypeMsg(recValue, intervalValue)
 {
 	var msg = "Only once";
@@ -824,6 +861,11 @@ function getRecurrentTypeMsg(recValue, intervalValue)
 	return msg;
 }
 
+/**
+ * Book the meeting room.
+ * @param floor the floor of meeting room selected to set.
+ * @param mrId the meeting room id to set.
+ */
 function bookRoom(floor, mrId)
 {
 	$("#mrrFloor").val(floor);
@@ -832,12 +874,23 @@ function bookRoom(floor, mrId)
 	addMRR();
 }
 
+/**
+ * Get the meeting room status operation.
+ * @param floor the floor of meeting room selected to set. 
+ * @param mrId the meeting room id to set.
+ * @returns {String} the meeting room status operation.
+ */
 function getMrOperation(floor, mrId)
 {
 	return '<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" '
 		+ 'data-keyboard="false" data-target="#meetingRoomReservationEdit" id="bookRoom('+ floor +','+ mrId +')">Book It</button>';
 }
 
+/**
+ * Get the meeting room reservation operation.
+ * @param mrrId the meeting room reservation id to set.
+ * @returns {String} the meeting room reservation operation.
+ */
 function getReservationOperation(mrrId)
 {
 	return '<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomReservationEdit" '
@@ -845,16 +898,29 @@ function getReservationOperation(mrrId)
 		+ 'data-target="#MyModal1" value="delete" onclick="deleteMRR('+mrrId+')"/>';
 }
 
+/**
+ * Get the current day status of meeting room.
+ * @param items the time interval to be processed.
+ * @returns the current day status of meeting room.
+ */
 function getTodayStatus(items)
 {
-	var el = $("<canvas id='tmCanvas' width='288' height='30' ></canvas>");
+	var el = null;
+	if(items && items.length > 0)
+	{
+		el= $("<canvas  id='"+items[0].mrId+"' width='288' height='30' ></canvas>");
+	}
+	else
+	{
+		el= $("<canvas  width='288' height='30' ></canvas>");
+	}
 	var ctx = el.get(0).getContext("2d");
 	var y1 = 2;
 	var y2 = 16;
 	var x1 = 0;
 	var x2 = 0;
 	
-	function drawBox(x1, x2, isUsed)
+	function drawTimeStamp(x1, x2, isUsed)
 	{
 		if (isUsed)
 		{
@@ -873,6 +939,7 @@ function getTodayStatus(items)
 		if (typeof date=="string")
 		{
 			date = new Date(Date.parse(date));
+			date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 			minutes += date.getHours()*60 + date.getMinutes();
 			
 		}
@@ -880,15 +947,34 @@ function getTodayStatus(items)
 		return parseInt(minutes/5);
 	}
 	
+	function formatReservationInfo(item)
+	{
+		var msg = "The start date from " + getDateStrWithGivenTime(item.startTime);
+		msg += " to the end date " + getDateStrWithGivenTime(item.endTime);
+		return msg;
+	}
+	
 	x2 = 288;
-	drawBox(x1, x2, false);
+	drawTimeStamp(x1, x2, false);
 	if (items && items.length > 0)
 	{
+		el.get(0).id = items[0].mrId;
 		for (var i= 0; i < items.length; i++)
 		{
 			x1 = getXaxisValue(items[i].startTime);
 			x2 = getXaxisValue(items[i].endTime);
-			drawBox(x1, x2, true);
+			
+			if (!timeRangeData[items[i].mrId])
+			{
+				timeRangeData[items[i].mrId]={};
+				timeRangeData[items[i].mrId].data=[];
+			}
+			var itemInfo = {};
+			itemInfo.startPos = x1;
+			itemInfo.endPos = x2;
+			itemInfo.reservationInfo = formatReservationInfo(items[i]);
+			timeRangeData[items[i].mrId].data.push(itemInfo);
+			drawTimeStamp(x1, x2, true);
 		}
 		
 	}
@@ -897,12 +983,51 @@ function getTodayStatus(items)
 	ctx.fillStyle = "#0E0B0B";
 	ctx.fillText("00:00 AM", 0, 24);
 	ctx.fillText("12:00 PM", 240, 24);
-	  
+	
 	return el.get(0);
 }
 
+function getReservationInfo()
+{
+	if (this.id == "")
+	{
+		return;
+	}
+	var e = arguments[0];
+	var x = e.offsetX;
+	var data = timeRangeData[this.id].data;
+	var p = $(this).position();
+	for (var i = 0; i < data.length; i++)
+	{
+		if (data[i].startPos <= x && x <= data[i].endPos)
+		{
+			$("#expandcomment span").text(data[i].reservationInfo);
+			$("#expandcomment").css({
+				"position" : "absolute",
+				"top" : p.top- 30,
+				"left" : p.left+x,
+				"background-color":"#fcfcfc",
+				"border":"1px solid red",
+				"font-size" : "10px",
+				"width" : "200px",
+				"height" : "30px",
+				"z-index" : "9999"
+			});
+			$("#expandcomment").show();
+			break;
+		}
+	}
+	
+}
 
+function hideReservationInfo()
+{
+    $("#expandcomment").hide();
+}
 
+/**
+ * Load avaliable meeting room status.
+ */
 function loadAvaliableMeetingRoomStatus()
 {
 	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (mrData) {
@@ -922,10 +1047,15 @@ function loadAvaliableMeetingRoomStatus()
 			row.insertCell(index++).appendChild(getTodayStatus(mrData[i].timeIntervalItems));
 			row.insertCell(index++).innerHTML= getMrOperation(mrData[i].meetingRoom.floor, mrData[i].meetingRoom.id);
 		}
+		$("canvas").mouseover(getReservationInfo);
+		$("canvas").mouseout(hideReservationInfo);
 	  });
 
 }
 
+/**
+ * Load all meeting room status.
+ */
 function loadAllMeetingRoomStatus()
 {
 	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (mrData) {
@@ -946,6 +1076,9 @@ function loadAllMeetingRoomStatus()
 
 }
 
+/**
+ * Load my reservation status.
+ */
 function loadMyReservaion()
 {
 	$.get("ws/meetingroomReservation/user/"+1, function (mrrData) {
@@ -959,6 +1092,12 @@ function loadMyReservaion()
 	  });
 }
 
+/**
+ * Fill the table cell with  the given data.
+ * @param row the row to be filled.
+ * @param mrr the meeting room reservation to filled.
+ * @param isNewData if it is new data or updated data.
+ */
 function fillOrCreateTableCell(row, mrr, isNewData)
 {
 	var index = 0;

@@ -26,7 +26,7 @@ public class MeetingRoomUtil
 		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = new HashMap<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>>();
 		for (ReservationTimeIntervalItemBean item : items)
 		{
-			if (mrr.containsKey(item.getReservation()))
+			if (mrr.get(item.getReservation()) != null)
 			{
 				mrr.get(item.getReservation()).add(item);
 			}
@@ -182,7 +182,7 @@ public class MeetingRoomUtil
 		MeetingRoomReservationVO mrVo = null;
 		for (MeetingRoomReservation item : mrItems)
 		{
-			if (mrr.containsKey(item.getMeetingRoom()))
+			if (mrr.get(item.getMeetingRoom()) != null)
 			{
 				mrVo = new MeetingRoomReservationVO();
 				BeanUtils.copyProperties(item, mrVo);
@@ -210,7 +210,7 @@ public class MeetingRoomUtil
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = new HashMap<MeetingRoom, List<ReservationTimeIntervalItemBean>>();
 		for (ReservationTimeIntervalItemBean item : items)
 		{
-			if (mrr.containsKey(item.getReservation()))
+			if (mrr.get(item.getMeetingRoom()) != null)
 			{
 				mrr.get(item.getMeetingRoom()).add(item);
 			}
