@@ -16,6 +16,7 @@ import com.ect.domainobject.TimeInterval;
 import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomVO;
 import com.ect.vo.ReservationTimeIntervalItemVO;
+import com.ect.vo.UserVO;
 
 public class MeetingRoomUtil
 {
@@ -52,9 +53,14 @@ public class MeetingRoomUtil
 		for (ReservationTimeIntervalItemBean it : items)
 		{
 			itemVO = new ReservationTimeIntervalItemVO();
-			BeanUtils.copyProperties(it, itemVO);
+			itemVO.setId(it.getId());
+			itemVO.setStartTime(it.getStartTime());
+			itemVO.setEndTime(it.getEndTime());
+			UserVO user = new UserVO();
+			BeanUtils.copyProperties(it.getReservation().getReservedPerson(), user);
 			itemVO.setMrId(it.getMeetingRoom().getId());
 			itemVO.setMrrId(it.getReservation().getId());
+			itemVO.setUser(user); 
 			result.add(itemVO);
 		}
 		

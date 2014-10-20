@@ -30,6 +30,8 @@ public class ReservationTimeIntervalItemVO implements Serializable
 	 */
 	private Date endTime;
 	
+	private UserVO user;
+	
 	public long getId()
 	{
 		return id;
@@ -70,5 +72,12 @@ public class ReservationTimeIntervalItemVO implements Serializable
 	{
 		this.endTime = endTime;
 	}
-	
+	public UserVO getUser()
+	{
+		return user;
+	}
+	public void setUser(UserVO user)
+	{
+		this.user = user;
+	}        
 }

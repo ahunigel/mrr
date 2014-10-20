@@ -4,7 +4,6 @@ $("#logout").click(function(){
 });
 
 function initMain(){
-	currentUser = {name:"administrator",role:"ADMIN"};
 	$(".welcome").html("Welcome "+currentUser.name); 
 	 $("#lists li").click(function(){
             var index = $(this).index();

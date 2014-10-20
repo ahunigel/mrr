@@ -345,7 +345,7 @@ function submitMRR(e)
 	resData.meetingSubject = $("#mrSubject").val();
 	var mrValue = $("#mrrFloorMeetingRoom option:selected").val();
 	resData.meetingRoom = {id:mrValue};
-	resData.reservedPerson = {id:1};
+	resData.reservedPerson = currentUser;
 	resData.reservationType = reservationType;
 	if (reservationType == "SINGLE")
 	{
@@ -908,20 +908,27 @@ function getTodayStatus(items)
 	var el = null;
 	if(items && items.length > 0)
 	{
-		el= $("<canvas  id='"+items[0].mrId+"' width='288' height='30' ></canvas>");
+		el= $("<canvas  id='"+items[0].mrId+"' width='301' height='35' ></canvas>");
 	}
 	else
 	{
-		el= $("<canvas  width='288' height='30' ></canvas>");
+		el= $("<canvas  width='301' height='35' ></canvas>");
 	}
 	var ctx = el.get(0).getContext("2d");
 	var y1 = 2;
-	var y2 = 16;
+	var y2 = 20;
 	var x1 = 0;
 	var x2 = 0;
 	
-	function drawTimeStamp(x1, x2, isUsed)
+	function drawTimeStamp(x1, x2, isUsed, isCurrentUserItem)
 	{
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(x1-1, y1, 1, 17);
+		ctx.fillRect(x2-1, y1, 1, 17);
+		if (isUsed && isCurrentUserItem)
+		{
+			ctx.fillStyle = "#2E2EFE";
+		}
 		if (isUsed)
 		{
 			ctx.fillStyle = "#DF0101";
@@ -944,18 +951,18 @@ function getTodayStatus(items)
 			
 		}
 		
-		return parseInt(minutes/5);
+		return parseInt((minutes-480)/2);
 	}
 	
 	function formatReservationInfo(item)
 	{
-		var msg = "The start date from " + getDateStrWithGivenTime(item.startTime);
-		msg += " to the end date " + getDateStrWithGivenTime(item.endTime);
+		var msg = "Start date:" + getDateStrWithGivenTime(item.startTime);
+		msg += " End date " + getDateStrWithGivenTime(item.endTime);
+		msg += " Ordered by " + item.user.name;
 		return msg;
 	}
 	
-	x2 = 288;
-	drawTimeStamp(x1, x2, false);
+	drawTimeStamp(x1, 300, false, false);
 	if (items && items.length > 0)
 	{
 		el.get(0).id = items[0].mrId;
@@ -974,15 +981,29 @@ function getTodayStatus(items)
 			itemInfo.endPos = x2;
 			itemInfo.reservationInfo = formatReservationInfo(items[i]);
 			timeRangeData[items[i].mrId].data.push(itemInfo);
-			drawTimeStamp(x1, x2, true);
+			drawTimeStamp(x1, x2, true, currentUser.id == items[i].user.id);
 		}
 		
 	}
 	
-	// draw the time shaft.
-	ctx.fillStyle = "#0E0B0B";
-	ctx.fillText("00:00 AM", 0, 24);
-	ctx.fillText("12:00 PM", 240, 24);
+
+	function drawTimeTicks()
+	{
+		var start = 0;
+		y1 = 18;
+		ctx.fillStyle = "#140718";
+		start = 0;
+		for (var i = 0; i < 11; i++)
+		{
+			ctx.fillRect(start, y1, 1, y2 - y1);
+			start += 30;
+		}
+		ctx.fillRect(0, 20, 300, 1);
+		ctx.font = "15px bold";
+		ctx.fillText("8:00", 0, 33);
+		ctx.fillText("17:00", 260, 33);
+	}
+	drawTimeTicks();
 	
 	return el.get(0);
 }
