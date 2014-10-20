@@ -74,7 +74,7 @@ public class UserService {
 		  	result.setName(activeUser.getGivenName()+" "+activeUser.getSurenName());
 		  	result.setEmail(activeUser.getEmail());
 		  	result.setRole(Role.USER);
-		  	UserVO	puser=getUserByEmail(activeUser.getUserPrincipal());
+		  	UserVO	puser=getUserByEmail(activeUser.getEmail());
 			if(puser==null){
 				//user not exists
 				user=new User();
