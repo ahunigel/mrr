@@ -95,14 +95,18 @@ public class MeetingRoomUtil
 		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> tempData = classifyRerservationItemsByRerservation(items);
 		Set<MeetingRoomReservation>  mrItems = tempData.keySet();
 		MeetingRoomReservationVO mrVo = null;
+		MeetingRoomVO mr = null;
 		for (MeetingRoomReservation item : mrItems)
 		{
 			mrVo = new MeetingRoomReservationVO();
+			mr = new MeetingRoomVO();
 			BeanUtils.copyProperties(item, mrVo);
+			BeanUtils.copyProperties(item.getMeetingRoom(), mr);
 			if (isItemsNeeded)
 			{
 				mrVo.setItems(convertReservationTimeIntervalItemForUI(tempData.get(item)));
 			}
+			mrVo.setMeetingRoom(mr);
 			mrr.add(mrVo);
 		}
 		
@@ -112,19 +116,21 @@ public class MeetingRoomUtil
 	public static boolean isMeetingRoomAvaliable(List<ReservationTimeIntervalItemBean> items)
 	{
 		boolean isAvaliable = false;
-		if (items.size() == 0)
+		if (items == null || items.size() == 0)
 		{
 			return true;
 		}
 		List<TimeInterval> result = new ArrayList<TimeInterval>();
 		TimeInterval ti = new TimeInterval();
-		ti.setStartDate(DateTimeUtil.getDateWithoutTime(new Date()));
-		ti.setEndDate(DateTimeUtil.getAddedDaysDate(ti.getStartDate(), 1));
+		Date st = DateTimeUtil.getDateWithoutTime(new Date());
+
+		ti.setStartDate(DateTimeUtil.getAddedTimeDate(st, 8, 0));
+		ti.setEndDate(DateTimeUtil.getAddedTimeDate(st, 18, 0));
 		result.add(ti);
 		
 		for (ReservationTimeIntervalItemBean item : items)
 		{
-			getAvaliableTimeInterval(result, item);
+			result = getAvaliableTimeInterval(result, item);
 		}
 		
 		for (TimeInterval tm : result)

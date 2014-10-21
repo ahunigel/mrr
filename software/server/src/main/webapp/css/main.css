@@ -153,4 +153,8 @@ text-align: center;
   overflow-x: scroll;
   overflow-y: scroll;
 } 
+
+.align-bottom {
+   vertical-align: bottom !important;
+} 
     

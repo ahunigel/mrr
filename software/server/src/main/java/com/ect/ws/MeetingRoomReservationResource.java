@@ -29,7 +29,7 @@ public class MeetingRoomReservationResource {
 	@Produces({ "application/json;charset=UTF-8" })
 	public List<MeetingRoomStatusVO> getAllAvaliableMeetingRoomReservations()
 	{
-		return service.getCurrentDateAvaliableMeetingRoom();
+		return service.getCurrentDateMeetingRoom(true);
 	}
 	
 	@GET
@@ -42,9 +42,9 @@ public class MeetingRoomReservationResource {
 	
 	@GET
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomReservationVO> getAllMeetingRoomReservations()
+	public List<MeetingRoomStatusVO> getAllMeetingRoomReservations()
 	{
-		return service.getAllMeetingRoomReservation();
+		return service.getCurrentDateMeetingRoom(false);
 	}
 	
 	@GET

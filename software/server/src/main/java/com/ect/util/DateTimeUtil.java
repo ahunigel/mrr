@@ -63,7 +63,7 @@ public class DateTimeUtil
 	public static Date getCurrentGMTDateWithoutTime()
 	{
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
@@ -88,7 +88,7 @@ public class DateTimeUtil
 	{
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
@@ -106,6 +106,21 @@ public class DateTimeUtil
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		cal.add(Calendar.DAY_OF_MONTH, addDays);
+		return cal.getTime();
+	}
+	
+	/**
+	 * Get the date with added days.
+	 * @param date the date to process.
+	 * @param hours the number of hours to add.
+	 * @param minutes the number of hours to add.
+	 * @return the date with added days.
+	 */
+	public static Date getAddedTimeDate(Date date, int hours, int minutes){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.add(Calendar.HOUR_OF_DAY, hours);
+		cal.add(Calendar.MINUTE, minutes);
 		return cal.getTime();
 	}
 	
@@ -160,7 +175,7 @@ public class DateTimeUtil
 	{
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
-		cal.set(Calendar.HOUR, 0);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
 		cal.set(Calendar.MINUTE, 0);
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);

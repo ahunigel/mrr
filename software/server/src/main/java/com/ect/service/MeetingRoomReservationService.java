@@ -39,15 +39,13 @@ public class MeetingRoomReservationService
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByDateRange(
 			Date startDate, Date endDate)
 	{
-		//startDate = DateTimeUtil.getGMTDateTime(startDate);
-		//endDate = DateTimeUtil.getGMTDateTime(endDate);
 		List<ReservationTimeIntervalItemBean> items = reservationDao
 				.getAllReservationItemsByDateRange(startDate, endDate);
 		
 		return MeetingRoomUtil.getMeetingRoomReservationVo(items, true);
 	}
 	
-	public List<MeetingRoomStatusVO> getCurrentDateAvaliableMeetingRoom()
+	public List<MeetingRoomStatusVO> getCurrentDateMeetingRoom(boolean isOnlyAvaliable)
 	{
 		List<MeetingRoom> meetingRooms = dao.findAll();
 		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
@@ -59,10 +57,10 @@ public class MeetingRoomReservationService
 		MeetingRoomStatusVO  mrStatusVo = null;
 		for (MeetingRoom mr : meetingRooms)
 		{
-			/*if (!MeetingRoomUtil.isMeetingRoomAvaliable(mrr.get(mr)))
+			if (isOnlyAvaliable && !MeetingRoomUtil.isMeetingRoomAvaliable(mrr.get(mr)))
 			{
 				continue;
-			}*/
+			}
 			mrStatusVo = new MeetingRoomStatusVO();
 			mrVo = new MeetingRoomVO();
 			BeanUtils.copyProperties(mr, mrVo);

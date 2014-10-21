@@ -10,6 +10,8 @@
     <link href="css/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/main.css" rel="stylesheet"/>
     <link href="css/bootstrap-datetimepicker.min.css" rel="stylesheet"/>
+    <link href='css/fullcalendar.min.css' rel='stylesheet' />
+    <link href='css/fullcalendar.print.css' rel='stylesheet' media='print' />
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -55,18 +57,6 @@
       <div class="tab-pane fade in active" id="available">
 		<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
 		<table class="table table-hover">
-			<thead>
-				<tr>
-					<td>Meeting Room Name</td>
-					<td>floor</td>
-					<td>Location</td>
-					<td>Seats</td>
-					<td>Has Phone</td>
-					<td>Has Projector</td>
-					<td>Today Status</td>
-					<td>operation</td>
-				</tr>
-			</thead>
 			<tbody id="mrReservation">
 			</tbody>
 		</table>
@@ -75,18 +65,6 @@
 <div class="tab-pane fade" id="all">
 <button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
 		<table class="table table-hover">
-			<thead>
-				<tr>
-					<td>Meeting Room Name</td>
-					<td>floor</td>
-					<td>Location</td>
-					<td>Seats</td>
-					<td>Has Phone</td>
-					<td>Has Projector</td>
-					<td>Today Status</td>
-					<td>operation</td>
-				</tr>
-			</thead>
 			<tbody id="allMeetingRoomStatus">
 			</tbody>
 		</table>
@@ -94,22 +72,6 @@
 <div class="tab-pane fade" id="maps">
 <button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" id="addMRR">Add Meeting Room Reservation</button>
 		<table class="table table-hover">
-			<thead>
-				<tr>
-					<td>Reservation Subject</td>
-					<td>Start Time</td>
-					<td>End Time</td>
-					<td>Reservation Type</td>
-					<td>Recurrent Type</td>
-					<td>Meeting Room Name</td>
-					<td>floor</td>
-					<td>Location</td>
-					<td>Seats</td>
-					<td>Has Phone</td>
-					<td>Has Projector</td>
-					<td>operation</td>
-				</tr>
-			</thead>
 			<tbody id="myReservation">
 			</tbody>
 		</table>
@@ -520,6 +482,9 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->     
     <script src="scripts/main.js"></script>
     <script type="text/javascript" src="scripts/bootstrap-datetimepicker.min.js"></script>
+	<script src='js/moment.min.js'></script>
+	<script src='js/jquery-ui.custom.min.js'></script>
+	<script src='js/fullcalendar.min.js'></script>
     <script type="text/javascript" src="scripts/reservation.js"></script> 
     <!-- <script src="js/bootstrap.min.js"></script>-->
   </body>
