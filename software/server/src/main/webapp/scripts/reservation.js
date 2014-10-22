@@ -28,6 +28,11 @@ var errMsgs = {
 		recurrentEndDate4:"The date range of recurrent reservation cannot be more than three months!",
 		recurrentEndDate5:"The recurrent type of end date cannot be the same day as start date, it should be more than one day!",
 		recurrentEndDate6:"The end date is depend on start date, please make sure start date is correct !",
+		warnMsgTitle:"Special meeting room Warning!",
+		warnMsg:"The meeting room reservation can be canceled by admin officer If admin officer also want to use" +
+				"the meeting room at the same time, press ok to continue, press cancel to select other meeting room.",
+		addMRRWarnMsgTitle:"Failed Message",
+		addMRRWarnMsg:"The date time range of the meeting room reservation in conflict with others ,please rebook!"
 }
 var dateTimePattern = /2\d{3}\/[0-1]\d\/[0-3]\d\s+\d{2}:\d{2}\s+(a|A|p|P)(M|m)/;
 var datePattern = /2\d{3}\/[0-1]\d\/[0-3]\d/;
@@ -338,7 +343,25 @@ function submitMRR(e)
 	{
 		return;
 	}
+	
+	if (meetingRooms[$("#mrrFloorMeetingRoom option:selected").val()].specailRoom)
+	{
+		$("#errorDialog .modal-header h4").html(errMsgs.warnMsgTitle);
+		  $("#errorDialog .container h5").html(errMsgs.warnMsg).css({"height":"30px","width":"550px"});
+		  	$("#errorDialog").modal("show");
+		  	$("#errorDialog #confirmBtn").click(function(){
+		  		 processDataAfterVerified();
+		  	});
+	}
+	else
+	{
+		 processDataAfterVerified();
+	}
+	
+}
 
+function processDataAfterVerified()
+{
 	var resData = {};
 	if ($("#mrrId").val() != null && $("#mrrId").val().length > 0)
 	{
@@ -346,6 +369,7 @@ function submitMRR(e)
 	}
 	resData.meetingSubject = $("#mrSubject").val();
 	var mrValue = $("#mrrFloorMeetingRoom option:selected").val();
+	var reservationType = $("#reservationType input:checked").val();
 	resData.meetingRoom = meetingRooms[mrValue];
 	resData.reservedPerson = currentUser;
 	resData.reservationType = reservationType;
@@ -391,7 +415,13 @@ function submitMRR(e)
 		
 		if (!data.id)
 		{
-			alert("The date time range of the meeting room reservation in conflict with others ,please rebook!");
+			$("#errorDialog .modal-header h4").html(errMsgs.addMRRWarnMsgTitle);
+			  $("#errorDialog .container h5").html(errMsgs.addMRRWarnMsg).css({"height":"30px","width":"550px"});
+			  	$("#errorDialog").modal("show");
+			  	$("#errorDialog .btn-default").hide();
+			  	$("#errorDialog #confirmBtn").click(function(){
+			  		$("#errorDialog .btn-default").show();
+			  	});
 		}
 		else
 		{
@@ -1074,13 +1104,42 @@ function cacheReservationItems(items)
 	}
 }
 
+function getMRCalender()
+{
+	//var e = arguments[0];
+	//var x = e.offsetX;
+	$('#calendar').show();
+	$('#calendar').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,agendaWeek,agendaDay'
+			},
+			defaultView: 'agendaWeek',
+			editable: true,
+			eventLimit: true, // allow "more" link when too many events
+			loading: function(bool) {
+
+			}
+		});
+	$( "#calendar" ).dialog({ width: 600,height:500,show: {
+        effect: "blind",
+        duration: 1000
+      },
+      hide: {
+        effect: "explode",
+        duration: 1000
+      } });
+	
+}
+
 /**
  * Load avaliable meeting room status.
  */
 function loadAvaliableMeetingRoomStatus()
 {
 	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (mrData) {
-		var mrTab=document.getElementById("mrReservation");
+		var mrTab=document.getElementById("avaliableMeetingRoomStatus");
 		mrTab.innerHTML="";
 		var index = null;
 		var row = null;
@@ -1090,7 +1149,7 @@ function loadAvaliableMeetingRoomStatus()
 			row=mrTab.insertRow(i);
 			index = 0;
 			var cel = row.insertCell(index++);
-			cel.appendChild($("<img class = 'pull-left' src='img/mr.png' width='45' height='45' />").get(0));
+			cel.appendChild($("<img class = 'pull-left mrr-image' src='img/mr.png' width='45' height='45' />").get(0));
 			cel.appendChild($("<div> Name: "+mrData[i].meetingRoom.name+"</div>").get(0));
 			cel.appendChild($("<div> Location: "+mrData[i].meetingRoom.location+"</div>").get(0));
 			cel = row.insertCell(index++);
@@ -1111,9 +1170,10 @@ function loadAvaliableMeetingRoomStatus()
 			row.insertCell(index++).innerHTML= getMrOperation(mrData[i].meetingRoom.floor, mrData[i].meetingRoom.id);
 			cacheReservationItems(mrData[i].reservationItems);
 		}
-		$("#mrReservation canvas").mouseover(getReservationInfo);
-		$("#mrReservation canvas").mouseout(hideReservationInfo);
-		$("#mrReservation canvas").click(editReservation);
+		$("#avaliableMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
+		$("#avaliableMeetingRoomStatus canvas").mouseover(getReservationInfo);
+		$("#avaliableMeetingRoomStatus canvas").mouseout(hideReservationInfo);
+		$("#avaliableMeetingRoomStatus canvas").click(editReservation);
 	  });
 
 }
