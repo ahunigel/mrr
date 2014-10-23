@@ -55,6 +55,13 @@ public class MeetingRoomReservationResource {
 		return service.getReservationByMeetingRoom(id);
 	}
 	
+	@GET
+	@Produces({ "application/json;charset=UTF-8" })
+	@Path("/meetingroomStatus")
+	public MeetingRoomStatusVO getReservationByDateRangeAndMrId (MeetingRoomStatusVO mrr){
+		return service.getReservationByDateRangeAndMrId(mrr);
+	}
+	
 	@PUT
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8" })

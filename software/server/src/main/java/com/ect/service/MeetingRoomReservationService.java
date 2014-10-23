@@ -81,6 +81,24 @@ public class MeetingRoomReservationService
 
 		return MeetingRoomUtil.convertMeetingRoomResult(rem);
 	}
+	
+	public MeetingRoomStatusVO getReservationByDateRangeAndMrId(MeetingRoomStatusVO mrr)
+	{
+		List<ReservationTimeIntervalItemBean> result = reservationDao.getReservationByDateRangeAndMrId(mrr.getStartTime(), mrr.getEndTime(), mrr.getId());
+		MeetingRoomStatusVO mrStatusVo = new MeetingRoomStatusVO();
+		mrStatusVo.setStartTime(mrr.getStartTime());
+		mrStatusVo.setEndTime(mrr.getEndTime());
+		if (result != null && result.size() > 0)
+		{
+			ReservationTimeIntervalItemBean item = result.get(0);
+			MeetingRoomVO mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(item.getMeetingRoom(), mrVo);
+			mrStatusVo.setTimeIntervalItems(MeetingRoomUtil.convertReservationTimeIntervalItemForUI(result));
+			mrStatusVo.setMeetingRoom(mrVo);
+		}
+		
+		return mrStatusVo;
+	}
 
 	public List<MeetingRoomReservationVO> getAllMeetingRoomReservation()
 	{

@@ -61,6 +61,7 @@ public class MeetingRoomUtil
 			itemVO.setMrId(it.getMeetingRoom().getId());
 			itemVO.setMrrId(it.getReservation().getId());
 			itemVO.setUser(user); 
+			itemVO.setResSubject(it.getReservation().getMeetingSubject());
 			result.add(itemVO);
 		}
 		
