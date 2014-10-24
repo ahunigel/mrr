@@ -127,7 +127,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 	public List<ReservationTimeIntervalItemBean> getReservationByDateRangeAndMrId(
 			Date startDate, Date endDate, Integer mrId)
 	{
-		String[] params = new String[] { "startTime", "endTime", "userId" };
+		String[] params = new String[] { "startTime", "endTime", "mrId" };
 		Object[] values = new Object[] { startDate, endDate, mrId };
 		List<ReservationTimeIntervalItemBean> items = (List<ReservationTimeIntervalItemBean>) this.getHibernateTemplate()
 				.findByNamedQueryAndNamedParam("getItemsByTimeIntervalAndMeetingRoom", params,

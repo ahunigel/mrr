@@ -150,87 +150,30 @@
 								type="radio" value="SINGLE">SINGLE <input
 								 name="ReservationType" type="radio" value="RECURRENT">RECURRENT
 						</div>
-					</div>
-					<div id="singleChoice">
-					<div class="form-group" id = "startTimeContainer">
-						<label  class="col-sm-3 control-label">Start
-							DateTime</label>
-						<div class="col-sm-9">
-						<div class="input-group date form_datetime"
-							data-date-format="yyyy/mm/dd   HH:ii P"
-							data-link-field="startTime">
-							<input class="form-control" size="16"
-								type="text" value="" title="the date format should be yyyy/mm/dd HH:ii P, such as 2014/10/10 05:06 AM"> <span
-								class="input-group-addon"><span
-								class="glyphicon glyphicon-remove"></span></span> <span
-								class="input-group-addon"><span
-								class="glyphicon glyphicon-th"></span></span>
-						</div>
-						<input type="hidden" id="startTime" value="" />
-						<div  >
-			           		 <small id = "startTimeErrorMsg" class="help-block" ></small>
-			            </div>
-						</div>
-						</div>
-						<div class="form-group" id = "endTimeContainer">
-						 <label  class="col-sm-3 control-label">End
-							DateTime</label>
-						<div class="col-sm-9">
-						<div class="input-group date form_datetime"
-							data-date-format="yyyy/mm/dd   HH:ii P"
-							data-link-field="endTime">
-							<input class="form-control" size="16"
-								type="text" value="" title="the date format should be yyyy/mm/dd HH:ii P, such as 2014/10/10 05:06 AM"> <span
-								class="input-group-addon"><span
-								class="glyphicon glyphicon-remove"></span></span> <span
-								class="input-group-addon"><span
-								class="glyphicon glyphicon-th"></span></span>
-						</div>
-						<input type="hidden" id="endTime" value="" />
-						<div>
-			           		 <small id = "endTimeErrorMsg" class="help-block" ></small>
-			            </div>
-						</div>
-					</div>
-					</div>
-						<div id="recurrentChoice" class="hide">
+					</div>				
 							<div class="form-group">
 								<label class="col-md-4 control-label">Appointment Time</label>
 							</div>
-							<div class="form-group" id = "recStartTimeContainer">
-								<label class="col-sm-3 control-label">Start Time</label>
+							<div class="form-group" id = "startTimeContainer">
+								<label class="col-sm-3 control-label">Time Range</label>
 								<div class="col-sm-9">
-									<div class="input-group date form_time"
-										data-date-format="HH:ii P" data-link-field="recStartTime">
-										<input class="form-control" size="16" type="text" value=""
-											title="the date format should be HH:ii P, such as 05:06 AM"> <span class="input-group-addon"><span
-											class="glyphicon glyphicon-remove"></span></span> <span
-											class="input-group-addon"><span
-											class="glyphicon glyphicon-th"></span></span>
+									<label class="control-label">Start Time:</label>
+					                <label id = "startTime" class="control-label">08:00</label>
+					                <label class="col-sm-offset-3 control-label">end Time:</label> 
+									<label id = "endTime" class="control-label">18:00</label>
+									<div id="dragbar">
+									    <div id="long_bar">
+									        <div id="small_bar"></div>
+									        <span id = "minTimeBtn" class="btn"></span>
+									        <span id = "maxTimeBtn" class="btn"></span>
+									    </div>
 									</div>
-									<input type="hidden" id="recStartTime" value="" />
 									<div>
-										<small id="recStartTimeErrorMsg" class="help-block"></small>
+										<small id="startTimeErrorMsg" class="help-block"></small>
 									</div>
 								</div>
 								</div>
-								<div class="form-group" id = "recEndTimeContainer">
-								<label class="col-sm-3 control-label">End Time</label>
-								<div class="col-sm-9">
-									<div class="input-group date form_time"
-										data-date-format="HH:ii P" data-link-field="recEndTime">
-										<input class="form-control" size="16" type="text" value=""
-											title="the date format should be HH:ii P, such as 05:06 AM"> <span class="input-group-addon"><span
-											class="glyphicon glyphicon-remove"></span></span> <span
-											class="input-group-addon"><span
-											class="glyphicon glyphicon-th"></span></span>
-									</div>
-									<input type="hidden" id="recEndTime" value="" />
-									<div>
-										<small id="recEndTimeErrorMsg" class="help-block"></small>
-									</div>
-								</div>
-							</div>
+							<div class="recurrent-group hide">
 							<div class="form-group">
 								<label class="col-md-4 control-label">Recurrent pattern</label>
 							</div>
@@ -256,27 +199,28 @@
 								</div>
 								
 							</div>
-							<div class="form-group">
-								<label class="col-md-4 control-label">Range of Recurrent</label>
 							</div>
-							<div class="form-group" id="recStartDateContainer">
+							<div class="form-group">
+								<label class="col-md-4 control-label">Range of Appointment</label>
+							</div>
+							<div class="form-group" id="startDateContainer">
 								<label class="col-sm-3 control-label">Start Date</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_date"
-										data-date-format="yyyy/mm/dd" data-link-field="recStartDate">
+										data-date-format="yyyy/mm/dd" data-link-field="startDate">
 										<input class="form-control" size="16" type="text" value=""
 											title="the date format should be yyyy/mm/dd, such as 2014/10/10"> <span class="input-group-addon"><span
 											class="glyphicon glyphicon-remove"></span></span> <span
 											class="input-group-addon"><span
 											class="glyphicon glyphicon-th"></span></span>
 									</div>
-									<input type="hidden" id="recStartDate" value="" />
+									<input type="hidden" id="startDate" value="" />
 									<div>
-										<small id="recStartDateErrorMsg" class="help-block"></small>
+										<small id="startDateErrorMsg" class="help-block"></small>
 									</div>
 								</div>
 								</div>
-								<div class="form-group" id="recEndDateContainer">
+								<div class="form-group recurrent-group hide" id="recEndDateContainer">
 								<label class="col-sm-3 control-label">End Date</label>
 								<div class="col-sm-9">
 									<div class="input-group date form_date"
@@ -292,8 +236,7 @@
 										<small id="recEndDateErrorMsg" class="help-block"></small>
 									</div>
 								</div>
-							</div>
-						</div>
+							</div>		
 
 						<div class="form-group">
 						<div class="col-sm-offset-3 col-sm-9">

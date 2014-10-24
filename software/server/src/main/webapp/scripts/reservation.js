@@ -38,14 +38,15 @@ var errMsgs = {
 		addMRRWarnMsgTitle:"Failed Message",
 		addMRRWarnMsg:"The date time range of the meeting room reservation in conflict with others ,please rebook!",
 		mrUnvaliableWarnMsg:"The reservation cannot be shown due to there is no meeting room to choice, please contact administrator !",
-		mrNoPrivilegeWarnMsg:"You don't have the privilege to do this operation!"
+		mrNoPrivilegeWarnMsg:"You don't have the privilege to do this operation!",
+		mrEditWarnMsg:"The reservation is going/expired, you cannot edit it!",
 }
 var dateTimePattern = /2\d{3}\/[0-1]\d\/[0-3]\d\s+\d{2}:\d{2}\s+(a|A|p|P)(M|m)/;
 var datePattern = /2\d{3}\/[0-1]\d\/[0-3]\d/;
 var timePattern = /\d{2}:\d{2}\s+(a|A|p|P)(M|m)/;
 var timeRangeData = {};
 var colorArr = {blue:"#00FF00", green:"#2E2EFE",red:"#DF0101",grey:"#BDBDBD",black:"#000000",white:"#FFFFFF",yellow:"#FFFF00",lightGreen:"#2EFEF7"};
-
+var calMrId = null;
 
 /**
  * The function for load meeting rooms and 
@@ -160,25 +161,21 @@ function getReservationType()
 	var reservationType = $("input[name='ReservationType']:checked").val();
 	if (reservationType == "SINGLE")
 	{
-		$("#recurrentChoice").addClass("hide");
-		$("#singleChoice").removeClass("hide");
-		$("#recurrentChoice").children().removeClass("has-error");
-		$("#recurrentChoice").children().find(".help-block").html("");
+		$(".recurrent-group").addClass("hide");
+		$(".recurrent-group").children().removeClass("has-error");
+		$(".recurrent-group").children().find(".help-block").html("");
 	}
 	else
 	{
-		$("#singleChoice").addClass("hide");
-		$("#recurrentChoice").removeClass("hide");
+		$(".recurrent-group").removeClass("hide");
 		$("#resInterval").change(checkRecInterval);
 		$("#ReservationPt").change(function(){
 			 var recValue = $("#ReservationPt input:checked").val();
 			getRecurrentType(recValue)});
-		$("#recStartTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", "#recEndTime", false, true)});
-		$("#recEndTimeContainer input[type='text']").change(function(){endTimeValidate("#recEndTime", "#recStartTime", false, true)});
-		$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", "#recEndDate", false, false)});
+		//$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", "#recEndTime", false, true)});
+		//$("#recEndTimeContainer input[type='text']").change(function(){endTimeValidate("#recEndTime", "#recStartTime", false, true)});
+		//$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", "#recEndDate", false, false)});
 		$("#recEndDateContainer input[type='text']").change(function(){endTimeValidate("#recEndDate", "#recStartDate", false, false)});
-		$("#singleChoice").children().removeClass("has-error");
-		$("#singleChoice").children().find(".help-block").html("");
 	}
 	
 	enableOrDisableSubmit(!$("#mrSubjectContainer").hasClass('has-error'));
@@ -813,8 +810,8 @@ function endTimeValidate(endEl, startEl, isSingle, isTime)
 function initMRResElement()
 {
 	$("#mrSubject").change(mrrSubjectChange);
-	$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "#endTime", true, false);});
-	$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", true, false)});
+	//$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "#endTime", true, false);});
+	//$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", true, false)});
 	$("#saveEditMRRBtn").click(submitMRR);
 	$("#addMRR").click(addMRR);
 	$("#cancelMRR").click(resetReservation);
@@ -982,12 +979,12 @@ function getTodayStatus(items, mrId)
 	{
 		ctx.fillStyle = colorArr.white;
 		ctx.fillRect(x1-1, y1, 1, 17);
-		ctx.fillRect(x2-1, y1, 1, 17);
+		ctx.fillRect(x2+1, y1, 1, 17);
 		if (isUsed && isCurrentUserItem)
 		{
 			ctx.fillStyle = colorArr.green;
 		}
-		if (isUsed)
+		else if (isUsed)
 		{
 			ctx.fillStyle = colorArr.red;
 		}
@@ -998,19 +995,7 @@ function getTodayStatus(items, mrId)
 		ctx.fillRect(x1, y1, x2 - x1, y2 - y1);
 	}
 	
-	function getXaxisValue(date)
-	{
-		var minutes = 0;
-		if (typeof date=="string")
-		{
-			date = new Date(Date.parse(date));
-			date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
-			minutes += date.getHours()*60 + date.getMinutes();
-			
-		}
-		
-		return parseInt((minutes-480)/2);
-	}
+	
 	
 	function formatReservationInfo(item)
 	{
@@ -1067,6 +1052,19 @@ function getTodayStatus(items, mrId)
 	return el.get(0);
 }
 
+function getXaxisValue(date)
+{
+	var minutes = 0;
+	if (typeof date=="string")
+	{
+		date = new Date(Date.parse(date));
+		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+	}
+	minutes += date.getHours()*60 + date.getMinutes();
+	
+	return parseInt((minutes-480)/2);
+}
+
 function getReservationInfo()
 {
 	if (!timeRangeData[this.id])
@@ -1108,36 +1106,46 @@ function hideReservationInfo()
 
 function editReservation()
 {
+	var e = arguments[0];
+	e.preventDefault();
 	hideReservationInfo();
 	if (!timeRangeData[this.id])
 	{
+		$(this).attr("data-toggle","modal");
 		bookRoom(mrData[this.id].floor, mrData[this.id].id);
 		return;
 	}
 	
-	var e = arguments[0];
 	var x = e.offsetX;
 	var data = timeRangeData[this.id].data;
-	var p = $(this).position();
+	var currentDateX = getXaxisValue(new Date());
 	for (var i = 0; i < data.length; i++)
 	{
 		if (data[i].startPos <= x && x <= data[i].endPos)
 		{
+			var msg = errMsgs.mrNoPrivilegeWarnMsg;
 			if (data[i].isCurrentUserItem)
 			{
-				editMRR(data[i].mrrId);
-				$(this).attr("data-toggle","show");
+				if (currentDateX < data[i].startPos)
+				{
+					editMRR(data[i].mrrId);
+					$(this).attr("data-toggle","modal");
+					return;
+				}
+				else
+				{
+					msg = errMsgs.mrEditWarnMsg;
+				}
 			}
-			else
-			{
-				$(this).attr("data-toggle","hide");
-				showDialog(errMsgs.commonWarnTitle, errMsgs.mrNoPrivilegeWarnMsg, true);
 			
-			}
-			break;
+			$(this).attr("data-toggle","hide");
+			showDialog(errMsgs.commonWarnTitle, msg, true);
+			return;
 		}
 	}
 	
+	$(this).attr("data-toggle","modal");
+	bookRoom(mrData[this.id].floor, mrData[this.id].id);
 
 }
 
@@ -1154,9 +1162,11 @@ function cacheReservationItems(items)
 
 function getReservationByDateRangeAndMrId(start, end, mrId, callback)
 {
-	var queryData = {startTime:start,endTime:end,id:mrId};
+	var startDate = new Date(start.valueOf());
+	var endDate = new Date(end.valueOf());
+	var queryData = {startTime:startDate,endTime:endDate,id:mrId};
 	$.ajax({ 
-		type: "GET", 
+		type: "POST", 
 		url: "ws/meetingroomReservation/meetingroomStatus", 
 		data: JSON.stringify(queryData), 
 		contentType: "application/json; charset=utf-8", 
@@ -1187,11 +1197,12 @@ function processDataForCalender(items)
 			endDate.setMinutes(endDate.getMinutes()+endDate.getTimezoneOffset());
 			if (startDate.getTime() > currentDate.getTime())
 			{
-				data.color= colorArr.grey;
+				data.color= colorArr.lightGreen;
+				data.editable = true;
 			}
 			else if (endDate.getTime() < currentDate.getTime())
 			{
-				data.color= colorArr.lightGreen;
+				data.color= colorArr.grey;
 			}
 			else
 			{
@@ -1202,12 +1213,12 @@ function processDataForCalender(items)
 		}
 	}
 	
-	
+	return result;
 }
 
 function getMRCalender()
 {
-	var mrId = this.id;
+	calMrId = this.id;
 	$('#calendar').show();
 	$('#calendar').fullCalendar({
 			header: {
@@ -1216,14 +1227,19 @@ function getMRCalender()
 				right: 'month,agendaWeek,agendaDay'
 			},
 			defaultView: 'agendaWeek',
-			editable: true,
+			editable: false,
+			allDaySlot:false,
+			eventTextColor: 'black',
+			minTime:"08:00:00",
+			maxTime:"18:00:00",
+			hiddenDays: [ 0, 6 ],
 			eventLimit: true, // allow "more" link when too many events
 			loading: function(bool) {
 
-			}/*,
+			},
 			events: function(start, end, timezone, callback) {
-				getReservationByDateRangeAndMrId(start, end, mrId,callback);
-			}*/
+				getReservationByDateRangeAndMrId(start, end, calMrId,callback);
+			}
 		});
 	$( "#calendar" ).dialog({ width: 600,height:500,show: {
         effect: "blind",
@@ -1232,7 +1248,13 @@ function getMRCalender()
       hide: {
         effect: "explode",
         duration: 1000
-      } });	
+      },
+      beforeClose: function( event, ui ) {
+    	// $('#calendar').fullCalendar('removeEvents');
+    	 },
+	  open: function( event, ui ) {
+	   $('#calendar').fullCalendar('refetchEvents');}  
+	});	
 }
 
 function processMeetingRooomStatusData(mrTab,result)
@@ -1367,7 +1389,153 @@ function fillOrCreateTableCell(row, mrr, isNewData)
 	}
 }
 
-loadAvaliableMeetingRoomStatus();
+function parseTimeStr(timeStr)
+{
+	var ti = 0;
+	if (timeStr && timeStr.length > 0)
+	{
+		var t = timeStr.split(":");
+		ti += parseInt(t[0])*60;
+		ti += parseInt(t[1]);
+	}
+	
+	return ti;
+}
+function dragTime()
+{
+	var smallbar = $("#small_bar");
+	var arrbtn = $("#long_bar span");
+	var minP = $("#startTime");
+	var maxP = $("#endTime");
+	var minTime = parseInt(parseTimeStr(minP.text()));
+	var maxTime = parseInt(parseTimeStr(maxP.text()));
+	var total = maxTime - minTime, Isclick = false, zindex = 2;
+	smallbar.css({"width":"100%","left":0});
+	arrbtn.get(0).style.left = 0;
+	arrbtn.get(1).style.left = 100 + "%";
+	var maxwidth = $("#dragbar").prop("offsetWidth");
+	var isMinTimeBtn,maxlenght,lenght, startX,btnlenght;
+	arrbtn.mousedown(timeMouseDown);
+	
+	function timeMouseDown()
+	{
+		isMinTimeBtn = this.id == "minTimeBtn";
+		if (!maxwidth)
+		{
+			maxwidth = $("#dragbar").prop("offsetWidth");
+		}
+		var e = arguments[0];
+		Isclick = true;
+		this.style.zIndex = ++zindex;
+		startX = e.clientX;
+		lenght = this.offsetLeft + (this.offsetWidth / 2 - 1);
+		if (isMinTimeBtn)
+		{
+			btnlenght = arrbtn.get(1).offsetLeft + (arrbtn.get(1).offsetWidth / 2 - 1);
+			maxlenght = Math.min(maxwidth, btnlenght);
+		}
+		else
+		{
+			btnlenght = arrbtn.get(0).offsetLeft + (arrbtn.get(0).offsetWidth / 2 - 1);
+			maxlenght = Math.max(maxwidth, btnlenght);
+		}
+			
+		if (isMinTimeBtn)
+		{
+			arrbtn.get(0).onmousemove = document.onmousemove=timeMouseMove;
+		}
+		else
+		{
+			arrbtn.get(1).onmousemove = document.onmousemove=timeMouseMove;
+		}
+		
+		this.setCapture && this.setCapture();
+	}
+	
+	function timeMouseMove()
+	{
+		var e = arguments[0];
+		if (Isclick)
+		{
+			var thisX = e.clientX;
+			var golenght = 0;
+			if (isMinTimeBtn)
+			{
+				golenght = Math.min(maxlenght, Math.max(0, lenght
+						+ (thisX - startX)));
+			}
+			else
+			{
+				golenght = Math.max(btnlenght, Math.min(maxwidth, lenght
+						+ (thisX - startX)));
+			}
+			var leftVal = (golenght / maxwidth) * 100;
+			if (isMinTimeBtn)
+			{
+				arrbtn.get(0).style.left = leftVal + "%";
+				smallbar.css({"left": leftVal + "%"});
+				smallwidth();
+				updateTime(minP, leftVal);
+			}
+			else
+			{
+				arrbtn.get(1).style.left = leftVal + "%";
+				smallwidth();
+				updateTime(maxP, leftVal);
+			}
+			
+			
+			if (isMinTimeBtn)
+			{
+				document.onmouseup = arrbtn.get(0).onmouseup = timeMouseUp;
+			}
+			else
+			{
+				document.onmouseup = arrbtn.get(1).onmouseup = timeMouseUp;
+			}
 
+		}
+		else
+		{
+			return false;
+		}
+
+	}
+	
+	function timeMouseUp()
+    {
+		Isclick = false;
+		if (isMinTimeBtn)
+		{
+			arrbtn.get(0).releaseCapture && arrbtn.get(0).releaseCapture();
+		}
+		else
+		{
+			document.onmouseup = arrbtn.get(1).onmouseup = timeMouseUp;
+			arrbtn.get(1).releaseCapture && arrbtn.get(1).releaseCapture();
+		}
+    }
+	
+	function smallwidth()
+	{
+		var left = parseFloat(arrbtn.get(0).style.left);
+		var right = parseFloat(arrbtn.get(1).style.left);
+		smallbar.get(0).style.width = (right - left > 0 ? Math.floor(right - left) : 0)
+				+ "%";
+	}
+	
+	function updateTime(obj, leftVal)
+	{
+		var p = parseInt((total / 100) * leftVal) + minTime;
+		if (p > minTime && p < maxTime)
+		{
+			p = p % 5 > 3 ? p + (5 - (p % 5)) : p - (p % 5);
+		}
+		obj.text(formatTimeStr(parseInt(p/60)) + ":" +formatTimeStr(p%60));
+	}
+}
+
+loadAvaliableMeetingRoomStatus();
+dragTime();
 initMRResElement();
 loadMeetingRooms();

@@ -157,4 +157,36 @@ text-align: center;
 .align-bottom {
    vertical-align: bottom !important;
 } 
+
+#dragbar{
+	position:relative; 
+	width:400px; 
+	top:10px; 
+	float:left;
+}
+#long_bar{ 
+	height:24px; 
+	border:1px solid #aaa; 
+	border-radius:4px;
+}
+#small_bar{ 
+	background:#ccc; 
+	position:absolute; 
+	z-index:1; 
+	top:1px; 
+	height:24px; 
+	overflow:hidden;
+}
+#long_bar .btn{ 
+	width:20px; 
+	z-index:2; 
+	position:absolute; 
+	height:30px; 
+	cursor:pointer; 
+	top:-4px; 
+	margin-left:-12px; 
+	background:#A4A4A4; 
+	border-radius:4px; 
+	border:1px solid #FAFAFA;
+}  
     
