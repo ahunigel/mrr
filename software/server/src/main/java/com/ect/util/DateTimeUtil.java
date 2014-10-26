@@ -297,7 +297,7 @@ public class DateTimeUtil
 		if (repeatCount > 0)
 		{
 			int addDays = res.getRecurrentInterval();
-			for (int i = 1; i < repeatCount; i++)
+			for (int i = 0; i < repeatCount; i++)
 			{
 				resItem = getCopiedReservationItem(resItem, addDays, -1);
 				if (!isDailyWorkingDay || isDailyWorkingDay && isWorkingDay(resItem.getStartTime()))
@@ -325,14 +325,14 @@ public class DateTimeUtil
 	private static int getRepeatCountForReservation(MeetingRoomReservation res)
 	{
 		int intervalDays = getIntervalDaysBetweenDates(res.getStartTime(), res.getEndTime());
-		int repeatCount = 1;
+		int repeatCount = 0;
 		switch (res.getRecurrentType()) {
 		case DAILY:
 		case DAILY_WORKDAY:	
-			repeatCount += intervalDays / res.getRecurrentInterval();
+			repeatCount = intervalDays / res.getRecurrentInterval();
 			break;
 		case WEEKLY:
-			repeatCount += intervalDays / (res.getRecurrentInterval()*7);
+			repeatCount = intervalDays / (res.getRecurrentInterval()*7);
 			break;
 		case MONTHLY:
 			repeatCount = -1;

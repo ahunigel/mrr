@@ -45,10 +45,10 @@ public class MeetingRoomReservationService
 		return MeetingRoomUtil.getMeetingRoomReservationVo(items, true);
 	}
 	
-	public List<MeetingRoomStatusVO> getCurrentDateMeetingRoom(boolean isOnlyAvaliable)
+	public List<MeetingRoomStatusVO> getCurrentDateMeetingRoom(Date selectedDate, boolean isOnlyAvaliable)
 	{
 		List<MeetingRoom> meetingRooms = dao.findAll();
-		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
+		Date startDate = DateTimeUtil.getDateWithoutTime(selectedDate);
 		Date endDate = DateTimeUtil.getAddedDaysDate(startDate, 1);
 		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = reservationDao
 				.getMeetingRoomReservationByDateRange(startDate, endDate);
@@ -123,6 +123,10 @@ public class MeetingRoomReservationService
 		mr.setMeetingRoom(mrt);
 		List<ITimeIntervalRecord> reservationItems = DateTimeUtil
 				.getReservationTimeIntervalRecords(mr);
+		if (reservationItems.size() == 0)
+		{
+			return mrr;
+		}
 		mr = reservationDao.saveMeetingRoomReservation(mr);
 		if (isValidReservation(mr, reservationItems))
 		{

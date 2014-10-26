@@ -4,20 +4,11 @@ var floorOptions = [];
 var numPattern = /^\d+$/;
 var myReservations = null;
 var errMsgs = {
-		singleStartTime1:"The start date time is required",
-		singleStartTime2:"The start date time is invalid",
-		singleStartTime3:"The start date time should be older than current date time!",
-		singleEndTime1:"The end date time is required",
-		singleEndTime2:"The end date time is invalid",
-		singleEndTime3:"The end date time cannot be equals or early than start date time!",
-		singleEndTime4:"The date range of single reservation cannot be more than one day!",
-		singleEndTime5:"The end date time is depend on start date time, please make sure start date time is correct !",
-		recurrentStartTime1:"The start time is required",
-		recurrentStartTime2:"The start time is invalid",
-		recurrentEndTime1:"The end time is required",
-		recurrentEndTime2:"The end time is invalid",
-		recurrentEndTime3:"The end time cannot be equals or early than start time!",
-		recurrentEndTime4:"The end time is depend on start time, please make sure start time is correct !",
+		singleStartTime1:"The appointment date is required",
+		singleStartTime2:"The appointment date is invalid",
+		singleStartTime3:"The appointment date cannot be earlier than current date!",
+		timeRangeError:"The start time cannot be equals end date time!",
+		startTimeError:"The start date time cannot be equals or earlier than current date time!",
 		recurrentStartDate1:"The start date is required",
 		recurrentStartDate2:"The start date is invalid",
 		recurrentStartDate3:"The start date should be older than current date!",
@@ -25,8 +16,7 @@ var errMsgs = {
 		recurrentEndDate2:"The end date is invalid",
 		recurrentEndDate3:"The end date cannot be equals or early than start date!",
 		recurrentEndDate4:"The date range of recurrent reservation cannot be more than three months!",
-		recurrentEndDate5:"The recurrent type of end date cannot be the same day as start date, it should be more than one day!",
-		recurrentEndDate6:"The end date is depend on start date, please make sure start date is correct !",
+		recurrentEndDate5:"The end date is depend on start date, please make sure start date is correct !",
 		intervalInvalid:"The value of time range is should be in 1 to 100 !",
 		integerInvalid:"The value of time range is inValid, it should be integer type!",
 		commonWarnTitle:"Warning",
@@ -40,14 +30,23 @@ var errMsgs = {
 		mrUnvaliableWarnMsg:"The reservation cannot be shown due to there is no meeting room to choice, please contact administrator !",
 		mrNoPrivilegeWarnMsg:"You don't have the privilege to do this operation!",
 		mrEditWarnMsg:"The reservation is going/expired, you cannot edit it!",
+		mrEditOldDayWarnMsg:"Yon cannot add or edit reservation the day before today!",
+		mrEditUnvaliableTodayWarnMsg:"There is no avaliable time range for add reservation today!"
 }
-var dateTimePattern = /2\d{3}\/[0-1]\d\/[0-3]\d\s+\d{2}:\d{2}\s+(a|A|p|P)(M|m)/;
 var datePattern = /2\d{3}\/[0-1]\d\/[0-3]\d/;
-var timePattern = /\d{2}:\d{2}\s+(a|A|p|P)(M|m)/;
 var timeRangeData = {};
 var colorArr = {blue:"#00FF00", green:"#2E2EFE",red:"#DF0101",grey:"#BDBDBD",black:"#000000",white:"#FFFFFF",yellow:"#FFFF00",lightGreen:"#2EFEF7"};
 var calMrId = null;
-
+var selectedDate = null;
+var smallbar = $("#small_bar");
+var arrbtn = $("#long_bar span");
+var minP = $("#startTime");
+var maxP = $("#endTime");
+var minTime = parseInt(parseTimeStr(minP.text()));
+var maxTime = parseInt(parseTimeStr(maxP.text()));
+var total = maxTime - minTime;
+var maxwidth = 400;
+var isAvaliableView = true;
 /**
  * The function for load meeting rooms and 
  * initial floor and meeting room options for add or edit reservation.
@@ -161,21 +160,22 @@ function getReservationType()
 	var reservationType = $("input[name='ReservationType']:checked").val();
 	if (reservationType == "SINGLE")
 	{
-		$(".recurrent-group").addClass("hide");
-		$(".recurrent-group").children().removeClass("has-error");
+		$(".recurrent-group").removeClass("has-error");
 		$(".recurrent-group").children().find(".help-block").html("");
+		$(".recurrent-group").addClass("hide");
+		$("#dateLabel").text("Date");
+		$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#startDate", null, true)});
 	}
 	else
 	{
+		$("#dateLabel").text("Start Date");
 		$(".recurrent-group").removeClass("hide");
 		$("#resInterval").change(checkRecInterval);
 		$("#ReservationPt").change(function(){
 			 var recValue = $("#ReservationPt input:checked").val();
 			getRecurrentType(recValue)});
-		//$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#recStartTime", "#recEndTime", false, true)});
-		//$("#recEndTimeContainer input[type='text']").change(function(){endTimeValidate("#recEndTime", "#recStartTime", false, true)});
-		//$("#recStartDateContainer input[type='text']").change(function(){startTimeValidate("#recStartDate", "#recEndDate", false, false)});
-		$("#recEndDateContainer input[type='text']").change(function(){endTimeValidate("#recEndDate", "#recStartDate", false, false)});
+		$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#recEndDate", "#startDate", false)});
+
 	}
 	
 	enableOrDisableSubmit(!$("#mrSubjectContainer").hasClass('has-error'));
@@ -196,9 +196,8 @@ function resetReservation()
 		{
 			if (input.value == "SINGLE")
 			{
-				$("#recurrentChoice").addClass("hide");
-				$("#singleChoice").removeClass("hide");
 				input.checked = true;
+				getReservationType();
 			}
 			else if (input.value == "DAILY")
 			{
@@ -219,15 +218,12 @@ function resetReservation()
 		}
 
 	}
-	
-	$("#singleChoice").children().removeClass("has-error");
-	$("#singleChoice").children().find(".help-block").html("");
-	$("#recurrentChoice").children().removeClass("has-error");
-	$("#recurrentChoice").children().find(".help-block").html("");
+	setStartOrEndTime(480,true);
+	setStartOrEndTime(1080,false);
 	$("#editMRRForm").children().find(".help-block").html("");
 	$("#editMRRForm").children().removeClass("has-error");
 	$("#editMRRForm").children().find(".help-block").html("");
-	$("#saveEditMRRBtn").attr("disabled",false);
+	$("#saveEditMRRBtn").prop("disabled",false);
 }
 
 /**
@@ -243,26 +239,23 @@ function editMRR(mrrId)
 	$("#mrrFloor").val(res.meetingRoom.floor);
 	$("#mrrFloorMeetingRoom").html(mrObj[res.meetingRoom.floor].data);
 	$("#mrrFloorMeetingRoom").val(res.meetingRoom.id);
+	$("#startDateContainer input").val(getDateStrOrTimeStr(res.startTime, null));
 	if (res.reservationType == "SINGLE")
 	{
-		$("input:radio[value='SINGLE']").prop("checked","checked");
-		$("#recurrentChoice").addClass("hide");
-		$("#singleChoice").removeClass("hide");
-		$("#startTimeContainer input").val(getDateStrWithGivenTime(res.startTime, null));
-		$("#endTimeContainer input").val(getDateStrWithGivenTime(res.endTime, null));
+		setStartOrEndTime(getTimeMinutesWithoutDate(res.startTime), true);
+		setStartOrEndTime(getTimeMinutesWithoutDate(res.endTime), false);
 	}
 	else
 	{
 		$("input:radio[value='RECURRENT']").prop("checked","checked");
-		$("#singleChoice").addClass("hide");
-		$("#recurrentChoice").removeClass("hide");
-		$("#recStartTimeContainer input").val(getDateStrOrtTimeStr(null, res.recurrentStartTime));
-		$("#recEndTimeContainer input").val(getDateStrOrtTimeStr(null, res.recurrentEndTime));
+		setStartOrEndTime(res.recurrentStartTime, true);
+		setStartOrEndTime(res.recurrentEndTime, false);
+		getReservationType();
 		getRecurrentType(res.recurrentType);
 		$("input:radio[value='" +res.recurrentType+ "']").prop("checked","checked");
 		$('#resInterval').val(res.recurrentInterval);
-		$("#recStartDateContainer input").val(getDateStrOrtTimeStr(res.startTime, null));
-		$("#recEndDateContainer input").val(getDateStrOrtTimeStr(res.endTime, null));
+		$("#recEndDateContainer input").val(getDateStrOrTimeStr(res.endTime, null));
+		
 	}
 	
 	addMRR();
@@ -274,19 +267,25 @@ function editMRR(mrrId)
  * @param minutes the minutes to process.
  * @returns {String} the formated date or time string.
  */
-function getDateStrOrtTimeStr(date, minutes)
+function getDateStrOrTimeStr(date, minutes)
 {
 	var dateStr = "";
 	if (date != null)
 	{
+		var tempDate = date;
 		if (typeof date=="string")
 		{
-			date = new Date(Date.parse(date));
-			date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+			tempDate = new Date(Date.parse(date));
+			tempDate.setMinutes(tempDate.getMinutes()+tempDate.getTimezoneOffset());
 		}
-		dateStr = date.getFullYear();
-		dateStr += "/" + formatTimeStr(date.getMonth() + 1);
-		dateStr += "/" + formatTimeStr(date.getDate());
+		else if (typeof date == "number")
+		{
+			tempDate = new Date(date);
+		}
+		
+		dateStr = tempDate.getFullYear();
+		dateStr += "/" + formatTimeStr(tempDate.getMonth() + 1);
+		dateStr += "/" + formatTimeStr(tempDate.getDate());
 	}
 	else if (minutes != null)
 	{
@@ -309,11 +308,11 @@ function enableOrDisableSubmit(isValid)
 {
 	if (isValid && $('#editMRRForm .has-error').length == 0)
 	{
-		$("#saveEditMRRBtn").attr("disabled",false);
+		$("#saveEditMRRBtn").prop("disabled",false);
 	}
 	else
 	{
-		$("#saveEditMRRBtn").attr("disabled",true);
+		$("#saveEditMRRBtn").prop("disabled",true);
 	}
 }
 
@@ -350,16 +349,13 @@ function submitMRR(e)
 	var reservationType = $("#reservationType input:checked").val();
 	if(reservationType == "SINGLE")
 	{
-	    startTimeValidate("#startTime", "#endTime", true, false);
-	    endTimeValidate("#endTime", "#startTime", true, false);
+	    startTimeValidate("#startDate", null, true);
 	}
 	else
 	{
 	    checkRecInterval();
-	    startTimeValidate("#recStartTime", "#recEndTime", false, true);
-	    endTimeValidate("#recEndTime", "#recStartTime", false, true);
-	    startTimeValidate("#recStartDate", "#recEndDate", false, false);
-	    endTimeValidate("#recEndDate", "#recStartDate", false, false);
+	    startTimeValidate("#startDate", "#recEndDate", false);
+	    endTimeValidate("#recEndDate", "#startDate");
 	}
 	if ($('#editMRRForm .has-error').length > 0)
 	{
@@ -397,7 +393,7 @@ function showDialog(title, msg, isHiddenCancelBtn)
 			$("#errorDialog .btn-default").show();
 	  	});
 	}
-	$("#errorDialog").modal("show");
+	$("#errorDialog").modal('show');
 }
 
 function processDataAfterVerified()
@@ -415,19 +411,21 @@ function processDataAfterVerified()
 	resData.reservationType = reservationType;
 	if (reservationType == "SINGLE")
 	{
-		resData.startTime = new Date(Date.parse($("#startTimeContainer input[type='text']").val()));
-		resData.endTime = new Date(Date.parse($("#endTimeContainer input[type='text']").val()));
+		var startDateTimeStr = $("#startDateContainer input[type='text']").val() + " "+ $("#startTime").text();
+		var endDateTimeStr = $("#startDateContainer input[type='text']").val() +" " +$("#endTime").text();
+		resData.startTime = new Date(Date.parse(startDateTimeStr));
+		resData.endTime = new Date(Date.parse(endDateTimeStr));
 
 	}
 	else
 	{
 
-		resData.startTime = getDateWithoutTime($("#recStartDateContainer input[type='text']").val());
+		resData.startTime = getDateWithoutTime($("#startDateContainer input[type='text']").val());
 		resData.endTime = getDateWithoutTime($("#recEndDateContainer input[type='text']").val());
 		resData.recurrentType=$("#ReservationPt input:checked").val();
 		resData.recurrentInterval=$("#resInterval").val();
-		resData.recurrentStartTime = getTimeMinutesWithoutDate($("#recStartTimeContainer input[type='text']").val());
-		resData.recurrentEndTime = getTimeMinutesWithoutDate($("#recEndTimeContainer input[type='text']").val());
+		resData.recurrentStartTime = parseTimeStr($("#startTime").text());
+		resData.recurrentEndTime = parseTimeStr($("#endTime").text());
 	}
 	
 	var urlType = "PUT";
@@ -451,25 +449,14 @@ function processDataAfterVerified()
 
 	function handleResult(data)
 	{
-		$("#cancelMRR").click();
-		
 		if (!data.id)
 		{
 		  	showDialog(errMsgs.addMRRWarnMsgTitle, errMsgs.addMRRWarnMsg, true);
 		}
 		else
 		{
-			var row = null;
-			if ($("#myReservation").find("#"+data.id).length > 0)
-			{
-				row = $("#myReservation").find("#"+data.id);
-				fillOrCreateTableCell(row, data, false);
-			}
-			else
-			{
-				row =$("#myReservation").get(0).insertRow(0);
-				fillOrCreateTableCell(row, data, true);
-			}
+			$("#cancelMRR").click();
+			loadAvaliableMeetingRoomStatus();
 		}
 	
 	}
@@ -503,9 +490,17 @@ function getRecurrentType(recValue)
 function getDateWithoutTime(dateStr)
 {
 	var date = null;
-	if (dateStr != null && dateStr.length > 0)
+	if (dateStr != null)
 	{
-		date = new Date(Date.parse(dateStr));
+		if (typeof dateStr=="string")
+		{
+			date = new Date(Date.parse(dateStr));
+		}
+		else if (typeof dateStr == "number")
+		{
+			date = new Date(dateStr);
+		}
+		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 	}
 	else
 	{
@@ -526,7 +521,17 @@ function getDateWithoutTime(dateStr)
  */
 function getTimeMinutesWithoutDate(dateStr)
 {
-	var date = new Date(Date.parse(dateStr));
+	var date = null;
+	
+	if (dateStr)
+	{
+		date = new Date(Date.parse(dateStr));
+		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+	}
+	else
+	{
+		date = new Date();
+	}
 	var minutes = date.getHours()*60;
 	minutes+=date.getMinutes();
 	
@@ -542,7 +547,7 @@ function addMRR()
 	{
 		showDialog(errMsgs.commonWarnTitle, errMsgs.mrUnvaliableWarnMsg, true);
 		$("#addMRR").attr("data-toggle","hide");
-		$("#addMRR").attr("disabled",true);
+		$("#addMRR").prop("disabled",true);
 		return;
 	}
 	
@@ -602,43 +607,35 @@ function checkRecInterval()
  * @param startEl the start time/date element of reservation for process.
  * @param endEl the end time/date element of reservation for process.
  * @param isSingle the flag for if it is single reservation.
- * @param isTime the flag for if it is time filed.
  */
 
-function startTimeValidate(startEl, endEl, isSingle, isTime)
+function startTimeValidate(startEl, endEl, isSingle)
 {
 	var isStartTimeValid = true;
-	var startTimeValue = $(startEl +"Container input[type='text']").val();
-	if (isTime && timePattern.test(startTimeValue))
-	{
-		startTimeValue = "2014/10/10 " + startTimeValue;
-	}
+	var startDateValue = $(startEl +"Container input[type='text']").val();
+	var startDateTimeStr = startDateValue + " " +$("#startTime").text();
 	var starTi = null;
 	var msg = "";
 	
-	if (!startTimeValue || startTimeValue == "")
+	if (!startDateValue || startDateValue == "")
 	{
-		msg = errMsgs.singleStartTime1;
-		if (isTime)
+		if (isSingle)
 		{
-			msg = errMsgs.recurrentStartTime1;
+			msg = errMsgs.singleStartTime1;	
 		}
-		else if (!isSingle&&!isTime)
+		else
 		{
-			msg = errMsgs.recurrentStartDate1;
+			msg = errMsgs.recurrentStartDate1;	
 		}
-		
 		isStartTimeValid = false;
 	}
-	else if (isNaN(Date.parse(startTimeValue))||isTime && !timePattern.test(startTimeValue)
-			|| isSingle && !dateTimePattern.test(startTimeValue) ||!isTime &&!isSingle && !datePattern.test(startTimeValue))
+	else if (isNaN(Date.parse(startDateValue))||!datePattern.test(startDateValue))
 	{
-		msg = errMsgs.singleStartTime2;
-		if (isTime)
+		if (isSingle)
 		{
-			msg = errMsgs.recurrentStartTime2;
+			msg = errMsgs.singleStartTime2;
 		}
-		else if (!isSingle&&!isTime)
+		else
 		{
 			msg = errMsgs.recurrentStartDate2;
 		}
@@ -647,29 +644,34 @@ function startTimeValidate(startEl, endEl, isSingle, isTime)
 	else
 	{	
 		var tempTi = new Date();
-		starTi = new Date(Date.parse(startTimeValue));
-		if (isSingle)
+		starTi = new Date(Date.parse(startDateTimeStr));
+		if (!(tempTi.getFullYear() <= starTi.getFullYear()&&tempTi.getMonth() <= starTi.getMonth()&&tempTi.getDate() <= starTi.getDate()))
 		{
-			tempTi.setSeconds(0);
-			if (starTi.getTime() < tempTi.getTime())
+			if (isSingle)
 			{
 				msg = errMsgs.singleStartTime3;
-				isStartTimeValid = false;
 			}
-		}
-		else if (!isTime && getDateWithoutTime(null).getTime() > starTi.getTime())
-		{
-			msg = errMsgs.recurrentStartDate3;
+			else
+			{
+				msg = errMsgs.recurrentStartDate3;
+			}
 			isStartTimeValid = false;
+		}
+		else if (tempTi.getFullYear() == starTi.getFullYear()&&tempTi.getMonth() == starTi.getMonth()&&tempTi.getDate() == starTi.getDate() 
+					&& parseTimeStr($("#startTime").text()) <= getTimeMinutesWithoutDate())
+		{
+			addOrRemoveErrorMsg(false, "#startTime", errMsgs.startTimeError);
+			enableOrDisableSubmit(false);
 		}
 	}
 	
+
 	addOrRemoveErrorMsg(isStartTimeValid, startEl, msg);
 	enableOrDisableSubmit(isStartTimeValid);
 	
-	if (isStartTimeValid && $(endEl+'Container').hasClass('has-error'))
+	if (!isSingle && isStartTimeValid && $(endEl+'Container').hasClass('has-error'))
 	{
-		endTimeValidate(endEl, startEl, isSingle, isTime);
+		endTimeValidate(endEl, startEl);
 	}
 }
 
@@ -678,124 +680,57 @@ function startTimeValidate(startEl, endEl, isSingle, isTime)
  * The function for check if the end time/date is valid or not.
  * @param endEl the end time/date element of reservation for process.
  * @param startEl the start time/date element of reservation for process.
- * @param isSingle the flag for check if it is single reservation.
- * @param isTime the flag for check if it is time without date.
  */
-function endTimeValidate(endEl, startEl, isSingle, isTime)
+function endTimeValidate(endEl, startEl)
 {
 	var isEndTimeValid = true;
-	var endTimeValue = $(endEl +"Container input[type='text']").val();
-	if (isTime && timePattern.test(endTimeValue))
-	{
-		endTimeValue = "2014/10/10 " + endTimeValue;
-	}
-	var starTi = null;
+	var endDateValue = $(endEl +"Container input[type='text']").val();
 	var msg = "";
 
-	if (!endTimeValue || endTimeValue == "")
+	if (!endDateValue || endDateValue == "")
 	{
-		msg = errMsgs.singleEndTime1;
-		if (isTime)
-		{
-			msg = errMsgs.recurrentEndTime1;
-		}
-		else if (!isSingle&&!isTime)
-		{
-			msg = errMsgs.recurrentEndDate1;
-		}
+		msg = errMsgs.recurrentEndDate1;
 		isEndTimeValid = false;
 	}
-	else if (isNaN(Date.parse(endTimeValue))||isTime && !timePattern.test(endTimeValue)
-			|| isSingle && !dateTimePattern.test(endTimeValue) ||!isTime &&!isSingle && !datePattern.test(endTimeValue))
+	else if (isNaN(Date.parse(endDateValue))|| !datePattern.test(endDateValue))
 	{
-		msg = errMsgs.singleEndTime2;
-		if (isTime)
-		{
-			msg = errMsgs.recurrentEndTime2;
-		}
-		else if (!isSingle&&!isTime)
-		{
-			msg = errMsgs.recurrentEndDate2;
-		}
+		msg = errMsgs.recurrentEndDate2;
 		isEndTimeValid = false;
 	}
 	else
 	{
-		if (!$(startEl+'Container').hasClass('has-error') && endTimeValue == "")
+		var startDateValue = $(startEl +"Container input[type='text']").val();
+		if (!$(startEl+'Container').hasClass('has-error') && startDateValue == "")
 		{
-			startTimeValidate(startEl, endEl, isSingle, isTime);
-		}
-		
-		var endTi = new Date(Date.parse(endTimeValue));
-		var startStr = $(startEl +"Container input[type='text']").val();
-		if (isTime)
-		{
-			startStr = "2014/10/10 " + startStr;
+			startTimeValidate(startEl, endEl, false);
 		}
 		
 		if (!$(startEl+'Container').hasClass('has-error'))
 		{
-			starTi = new Date(startStr);
-			
-			if (isSingle)
+			var starTi = new Date(Date.parse(startDateValue));
+			var endTi = new Date(Date.parse(endDateValue));
+			if (endTi.getTime() <= starTi.getTime())
 			{
-				if (endTi.getTime() <= starTi.getTime())
+				msg = errMsgs.recurrentEndDate3;
+				isEndTimeValid = false;
+			}
+			else
+			{
+				starTi.setMonth(starTi.getMonth() + 3);
+				if (endTi.getTime() > starTi.getTime())
 				{
-					msg = errMsgs.singleEndTime3;
-					isEndTimeValid = false;
-				}
-				else if (endTi.getFullYear() != starTi.getFullYear()||endTi.getMonth() != starTi.getMonth()||endTi.getDate() != starTi.getDate())
-				{
-					msg = errMsgs.singleEndTime4;
+					msg = errMsgs.recurrentEndDate4;
 					isEndTimeValid = false;
 				}
 			}
-			else if (!isTime)
-			{
-				if (endTi.getTime() <= starTi.getTime())
-				{
-					msg = errMsgs.recurrentEndDate3;
-					isEndTimeValid = false;
-				}
-				else if(endTi.getFullYear() == starTi.getFullYear()&&endTi.getMonth() == starTi.getMonth()&&endTi.getDate() == starTi.getDate())
-				{
-					msg = errMsgs.recurrentEndDate5;
-					isEndTimeValid = false;
-				}
-			}
-			else 
-			{
-				if (endTi.getHours() < starTi.getHours() ||endTi.getHours() == starTi.getHours() && endTi.getMinutes() <= starTi.getMinutes())
-				{
-					msg = errMsgs.recurrentEndTime3;
-					isEndTimeValid = false;
-				}
-			}
+						
 		}
 		else
 		{
-			msg = errMsgs.singleEndTime5;
-			if (isTime)
-			{
-				msg = errMsgs.recurrentEndTime4;
-			}
-			else if (!isSingle&&!isTime)
-			{
-				msg = errMsgs.recurrentEndDate6;
-			}
+			msg = errMsgs.recurrentEndDate5;
 			isEndTimeValid = false;
 		}
-		
-	    if (isEndTimeValid && !isSingle && !isTime)
-		{
-			starTi.setMonth(starTi.getMonth() + 3);
-			if (endTi.getTime() > tempTi.getTime())
-			{
-				msg = errMsgs.recurrentEndDate4;
-				isEndTimeValid = false;
-			}
-			
-		}
+
 	}
 	
 	addOrRemoveErrorMsg(isEndTimeValid, endEl, msg);
@@ -810,42 +745,50 @@ function endTimeValidate(endEl, startEl, isSingle, isTime)
 function initMRResElement()
 {
 	$("#mrSubject").change(mrrSubjectChange);
-	//$("#startTimeContainer input[type='text']").change(function(){startTimeValidate("#startTime", "#endTime", true, false);});
-	//$("#endTimeContainer input[type='text']").change(function(){endTimeValidate("#endTime", "#startTime", true, false)});
+	$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#startDate", null, true)});
+	$("#recEndDateContainer input[type='text']").change(function(){endTimeValidate("#recEndDate", "#startDate")});
 	$("#saveEditMRRBtn").click(submitMRR);
 	$("#addMRR").click(addMRR);
 	$("#cancelMRR").click(resetReservation);
 	$("#mrrFloor").change(getMrFloorChange);
-	
 	$("#reservationType").click(getReservationType);
-	 $('.form_datetime').datetimepicker({
-	        weekStart: 1,
-	        todayBtn:  1,
-			autoclose: 1,
-			todayHighlight: 1,
-			startView: 2,
-			forceParse: 0
-	    });
-		$('.form_date').datetimepicker({
-	        weekStart: 1,
-	        todayBtn:  1,
-			autoclose: 1,
-			todayHighlight: 1,
-			startView: 2,
-			minView: 2,
-			forceParse: 0,
-			pickerPosition:"top-right"
-	    });
-		$('.form_time').datetimepicker({
-	        weekStart: 1,
-	        todayBtn:  1,
-			autoclose: 1,
-			todayHighlight: 1,
-			startView: 1,
-			minView: 0,
-			maxView: 1,
-			forceParse: 0
-	    });
+	selectedDate = getDateWithoutTime(null);
+	$("#mrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
+	$('.form_date').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0,
+		pickerPosition:"top-right"
+    });
+	$('.mrrDatePicker').datetimepicker({
+        weekStart: 1,
+        todayBtn:  1,
+		autoclose: 1,
+		todayHighlight: 1,
+		startView: 2,
+		minView: 2,
+		forceParse: 0,
+		pickerPosition:"bottom-left"
+    });
+	$('.mrrDatePicker').click(function(){$(this).datetimepicker("show");});
+	$('.mrrDatePicker').datetimepicker().on("changeDate", function(ev){
+		selectedDate = getDateWithoutTime(ev.date.valueOf());
+		var labelId = $(this).prev().prop("id");
+		if(labelId == "mrrDatePicker")
+		{
+			$("#mrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
+			loadAvaliableMeetingRoomStatus();
+		}
+		else
+		{
+			$("#allMrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
+			loadAllMeetingRoomStatus();
+		}
+	  });
 }
 
 /**
@@ -876,6 +819,10 @@ function getDateStrWithGivenTime(date, minutes)
 	{
 		date = new Date(Date.parse(date));
 		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+	}
+	else if (typeof date == "number")
+	{
+		date = new Date(date);
 	}
 	var dateStr = date.getFullYear();
 	dateStr += "/" + formatTimeStr(date.getMonth() + 1);
@@ -1017,6 +964,7 @@ function getTodayStatus(items, mrId)
 			{
 				timeRangeData[items[i].mrId]={};
 				timeRangeData[items[i].mrId].data=[];
+				timeRangeData[items[i].mrId].date= getDateWithoutTime(items[i].startTime);
 			}
 			var itemInfo = {};
 			itemInfo.startPos = x1;
@@ -1109,7 +1057,13 @@ function editReservation()
 	var e = arguments[0];
 	e.preventDefault();
 	hideReservationInfo();
-	if (!timeRangeData[this.id])
+	if (selectedDate.getTime() < getDateWithoutTime().getTime())
+	{
+		$(this).attr("data-toggle","hide");
+		showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditOldDayWarnMsg, true);
+		return;
+	}
+	else if (!timeRangeData[this.id] || timeRangeData[this.id].date.getTime() < getDateWithoutTime().getTime())
 	{
 		$(this).attr("data-toggle","modal");
 		bookRoom(mrData[this.id].floor, mrData[this.id].id);
@@ -1119,6 +1073,9 @@ function editReservation()
 	var x = e.offsetX;
 	var data = timeRangeData[this.id].data;
 	var currentDateX = getXaxisValue(new Date());
+	var isToday = timeRangeData[this.id].date.getTime() == getDateWithoutTime().getTime();
+	var leftPos = 0,rightPos = 300,leftdist=0,rightdist=0;
+	
 	for (var i = 0; i < data.length; i++)
 	{
 		if (data[i].startPos <= x && x <= data[i].endPos)
@@ -1126,7 +1083,7 @@ function editReservation()
 			var msg = errMsgs.mrNoPrivilegeWarnMsg;
 			if (data[i].isCurrentUserItem)
 			{
-				if (currentDateX < data[i].startPos)
+				if (isToday && currentDateX < data[i].startPos || !isToday)
 				{
 					editMRR(data[i].mrrId);
 					$(this).attr("data-toggle","modal");
@@ -1142,8 +1099,36 @@ function editReservation()
 			showDialog(errMsgs.commonWarnTitle, msg, true);
 			return;
 		}
+		
+		if ((data[i].endPos < leftPos && leftdist > leftPos - data[i].endPos || leftdist == 0) && rightPos > data[i].endPos)
+		{
+			leftdist = leftPos - data[i].endPos;
+			leftPos = data[i].endPos;
+		}
+		
+		if ((rightPos > data[i].startPos && rightdist > rightPos - data[i].startPos || rightdist == 0 )&& leftPos < data[i].startPos)
+		{
+			rightdist = rightPos - data[i].startPos;
+			rightPos = data[i].startPos;
+		}
 	}
-	
+	if (isToday)
+	{
+		if (currentDateX + 3 > rightPos)
+		{
+			$(this).attr("data-toggle","hide");
+			showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditUnvaliableTodayWarnMsg, true);
+			return;
+		}
+		else if (currentDateX > leftPos && currentDateX < rightPos)
+		{
+			leftPos = currentDateX;
+		}
+	}
+		
+	setStartOrEndTime((leftPos+2)*2 + 480, true);
+	setStartOrEndTime((rightPos -2)*2 + 480, false);
+	$("#startDateContainer input").val(getDateStrOrTimeStr(timeRangeData[this.id].date, null));
 	$(this).attr("data-toggle","modal");
 	bookRoom(mrData[this.id].floor, mrData[this.id].id);
 
@@ -1264,6 +1249,7 @@ function processMeetingRooomStatusData(mrTab,result)
 	var row = null;
 	var imgSource = null;
 	myReservations = {};
+	timeRangeData={};
 	for(var i=0;i<result.length;i++)
 	{
 		row=mrTab.insertRow(i);
@@ -1305,29 +1291,43 @@ function processMeetingRooomStatusData(mrTab,result)
  */
 function loadAvaliableMeetingRoomStatus()
 {
-	$.get("ws/meetingroomReservation/reservation?"+Math.random(), function (result) {
+	if (!isAvaliableView)
+	{
+		isAvaliableView = true;
+		selectedDate = getDateWithoutTime(null);
+		$("#mrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
+	}
+	
+	$.get("ws/meetingroomReservation/reservation/"+selectedDate.getTime(), function (result) {
 		var mrTab=document.getElementById("avaliableMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
 		$("#avaliableMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
 		$("#avaliableMeetingRoomStatus canvas").mouseover(getReservationInfo);
 		$("#avaliableMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#avaliableMeetingRoomStatus canvas").click(editReservation);
-	  });
+	});
 
 }
+
 
 /**
  * Load all meeting room status.
  */
 function loadAllMeetingRoomStatus()
 {
-	$.get("ws/meetingroomReservation?"+Math.random(), function (result) {
+	if (isAvaliableView)
+	{
+		isAvaliableView = false;
+		selectedDate = getDateWithoutTime(null);
+		$("#allMrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
+	}
+	$.get("ws/meetingroomReservation/"+selectedDate.getTime(), function (result) {
 		var mrTab=document.getElementById("allMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
 		$("#allMeetingRoomStatus canvas").mouseover(getReservationInfo);
 		$("#allMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#allMeetingRoomStatus canvas").click(editReservation);
-	  });
+	});
 
 }
 
@@ -1336,14 +1336,13 @@ function loadAllMeetingRoomStatus()
  */
 function loadMyReservaion()
 {
-	$.get("ws/meetingroomReservation/user/"+1, function (mrrData) {
+	$.get("ws/meetingroomReservation/user/"+currentUser.id, function (mrrData) {
 		var mrTab=$("#myReservation").get(0);
 		mrTab.innerHTML="";
-		for(var i=0;i<mrrData.length;i++){
-			myReservations[mrrData[i].id] = mrrData[i];
-			var row=mrTab.insertRow(i);
-			fillOrCreateTableCell(row, mrrData[i], true);
-		}
+		processMeetingRooomStatusData(mrTab,mrrData);
+		$("#myReservation canvas").mouseover(getReservationInfo);
+		$("#myReservation canvas").mouseout(hideReservationInfo);
+		$("#myReservation canvas").click(editReservation);
 	  });
 }
 
@@ -1401,19 +1400,29 @@ function parseTimeStr(timeStr)
 	
 	return ti;
 }
+function setStartOrEndTime(minutes, isStartTime)
+{
+	var leftVal = ((minutes-minTime) / total) * 100;
+	if (isStartTime)
+	{
+		arrbtn.get(0).style.left = leftVal + "%";
+		smallbar.css({"left": leftVal + "%"});
+		smallwidth();
+		updateTime(minP, leftVal);
+	}
+	else
+	{
+		arrbtn.get(1).style.left = leftVal + "%";
+		smallwidth();
+		updateTime(maxP, leftVal);
+	}
+}
 function dragTime()
 {
-	var smallbar = $("#small_bar");
-	var arrbtn = $("#long_bar span");
-	var minP = $("#startTime");
-	var maxP = $("#endTime");
-	var minTime = parseInt(parseTimeStr(minP.text()));
-	var maxTime = parseInt(parseTimeStr(maxP.text()));
-	var total = maxTime - minTime, Isclick = false, zindex = 2;
+	var Isclick = false, zindex = 2;
 	smallbar.css({"width":"100%","left":0});
 	arrbtn.get(0).style.left = 0;
 	arrbtn.get(1).style.left = 100 + "%";
-	var maxwidth = $("#dragbar").prop("offsetWidth");
 	var isMinTimeBtn,maxlenght,lenght, startX,btnlenght;
 	arrbtn.mousedown(timeMouseDown);
 	
@@ -1439,16 +1448,8 @@ function dragTime()
 			btnlenght = arrbtn.get(0).offsetLeft + (arrbtn.get(0).offsetWidth / 2 - 1);
 			maxlenght = Math.max(maxwidth, btnlenght);
 		}
-			
-		if (isMinTimeBtn)
-		{
-			arrbtn.get(0).onmousemove = document.onmousemove=timeMouseMove;
-		}
-		else
-		{
-			arrbtn.get(1).onmousemove = document.onmousemove=timeMouseMove;
-		}
 		
+		document.onmousemove=timeMouseMove;
 		this.setCapture && this.setCapture();
 	}
 	
@@ -1484,16 +1485,7 @@ function dragTime()
 				updateTime(maxP, leftVal);
 			}
 			
-			
-			if (isMinTimeBtn)
-			{
-				document.onmouseup = arrbtn.get(0).onmouseup = timeMouseUp;
-			}
-			else
-			{
-				document.onmouseup = arrbtn.get(1).onmouseup = timeMouseUp;
-			}
-
+			document.onmouseup = timeMouseUp;
 		}
 		else
 		{
@@ -1511,31 +1503,39 @@ function dragTime()
 		}
 		else
 		{
-			document.onmouseup = arrbtn.get(1).onmouseup = timeMouseUp;
 			arrbtn.get(1).releaseCapture && arrbtn.get(1).releaseCapture();
 		}
     }
-	
-	function smallwidth()
+}
+
+function smallwidth()
+{
+	var left = parseFloat(arrbtn.get(0).style.left);
+	var right = parseFloat(arrbtn.get(1).style.left);
+	smallbar.get(0).style.width = (right - left > 0 ? Math.floor(right - left) : 0)
+	+ "%";
+}
+function updateTime(obj, leftVal)
+{
+	var p = parseInt((total / 100) * leftVal) + minTime;
+	if (p > minTime && p < maxTime)
 	{
-		var left = parseFloat(arrbtn.get(0).style.left);
-		var right = parseFloat(arrbtn.get(1).style.left);
-		smallbar.get(0).style.width = (right - left > 0 ? Math.floor(right - left) : 0)
-				+ "%";
+		p = p % 5 > 3 ? p + (5 - (p % 5)) : p - (p % 5);
 	}
-	
-	function updateTime(obj, leftVal)
+	obj.text(formatTimeStr(parseInt(p/60)) + ":" +formatTimeStr(p%60));
+	if ($("#startTime").text() == $("#endTime").text())
 	{
-		var p = parseInt((total / 100) * leftVal) + minTime;
-		if (p > minTime && p < maxTime)
-		{
-			p = p % 5 > 3 ? p + (5 - (p % 5)) : p - (p % 5);
-		}
-		obj.text(formatTimeStr(parseInt(p/60)) + ":" +formatTimeStr(p%60));
+		addOrRemoveErrorMsg(false, "#startTime", errMsgs.timeRangeError);
+		enableOrDisableSubmit(false);
+	}
+	else
+	{
+		addOrRemoveErrorMsg(true, "#startTime", "");
+		enableOrDisableSubmit(true);
 	}
 }
 
-loadAvaliableMeetingRoomStatus();
-dragTime();
 initMRResElement();
 loadMeetingRooms();
+loadAvaliableMeetingRoomStatus();
+dragTime();

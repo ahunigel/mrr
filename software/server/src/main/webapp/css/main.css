@@ -189,4 +189,13 @@ text-align: center;
 	border-radius:4px; 
 	border:1px solid #FAFAFA;
 }  
-    
+.error-msg{
+  margin-top:40px;
+} 
+.right-calendar{
+	position:relative; 
+	float:right;
+}   
+.label-calendar{
+  margin-right: 100px;
+}     

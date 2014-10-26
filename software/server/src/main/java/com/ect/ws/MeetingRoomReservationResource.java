@@ -1,5 +1,6 @@
 package com.ect.ws;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -25,11 +26,11 @@ public class MeetingRoomReservationResource {
 	private MeetingRoomReservationService service;
 	
 	@GET
-	@Path("/reservation")
+	@Path("/reservation/{date}")
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomStatusVO> getAllAvaliableMeetingRoomReservations()
+	public List<MeetingRoomStatusVO> getAllAvaliableMeetingRoomReservations(@PathParam("date") long selectedDate)
 	{
-		return service.getCurrentDateMeetingRoom(true);
+		return service.getCurrentDateMeetingRoom(new Date(selectedDate), true);
 	}
 	
 	@GET
@@ -41,10 +42,11 @@ public class MeetingRoomReservationResource {
 	}
 	
 	@GET
+	@Path("/{date}")
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomStatusVO> getAllMeetingRoomReservations()
+	public List<MeetingRoomStatusVO> getAllMeetingRoomReservations(@PathParam("date") long selectedDate)
 	{
-		return service.getCurrentDateMeetingRoom(false);
+		return service.getCurrentDateMeetingRoom(new Date(selectedDate), false);
 	}
 	
 	@GET
