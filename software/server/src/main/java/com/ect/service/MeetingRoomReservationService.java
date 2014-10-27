@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,28 @@ public class MeetingRoomReservationService
 		return result;
 	} 
 
+	public List<MeetingRoomStatusVO> getMeetingRoomStatusByUserAndDateRange(Date startDate, Date endDate,
+			Integer userId)
+	{
+		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> rem = reservationDao
+				.getMeetingRoomReservationByDateRangeAndUser(startDate, endDate, userId);
+		Set<MeetingRoom> mrs = rem.keySet();
+		List<MeetingRoomStatusVO> result = new ArrayList<MeetingRoomStatusVO>();
+		MeetingRoomStatusVO mrStatusVo = null;
+		MeetingRoomVO mrVo = null;
+		for (MeetingRoom m : mrs)
+		{
+			mrStatusVo = new MeetingRoomStatusVO();
+			mrVo = new MeetingRoomVO();
+			BeanUtils.copyProperties(m, mrVo);
+			mrStatusVo.setMeetingRoom(mrVo);
+			mrStatusVo.setTimeIntervalItems(MeetingRoomUtil.convertReservationTimeIntervalItemForUI(rem.get(m)));
+			result.add(mrStatusVo);
+		}
+
+		return result;
+	}
+	
 	public List<MeetingRoomReservationVO> getMeetingRoomReservationByUser(
 			Integer userId)
 	{

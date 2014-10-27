@@ -109,7 +109,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> getMeetingRoomReservationByDateRangeAndUser(
+	public Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> getMeetingRoomReservationByDateRangeAndUser(
 			Date startDate, Date endDate, Integer userId)
 	{
 		String[] params = new String[] { "startTime", "endTime", "userId" };
@@ -118,7 +118,7 @@ public class ReservationMeetingRoomDao extends BaseDao
 				.findByNamedQueryAndNamedParam("getItemsByTimeIntervalAndUser", params,
 						values);
 		
-		Map<MeetingRoomReservation, List<ReservationTimeIntervalItemBean>> mrr = MeetingRoomUtil.classifyRerservationItemsByRerservation(items);
+		Map<MeetingRoom, List<ReservationTimeIntervalItemBean>> mrr = MeetingRoomUtil.classifyRerservationItemsByMeetingRoom(items);
 		
 		return mrr;
 	}

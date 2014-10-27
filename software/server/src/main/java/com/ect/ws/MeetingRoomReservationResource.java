@@ -16,6 +16,7 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ect.service.MeetingRoomReservationService;
+import com.ect.util.DateTimeUtil;
 import com.ect.vo.MeetingRoomReservationVO;
 import com.ect.vo.MeetingRoomStatusVO;
 
@@ -36,9 +37,11 @@ public class MeetingRoomReservationResource {
 	@GET
 	@Path("/user/{id}")
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomReservationVO> getMeetingRoomReservationsByUser(@PathParam("id") Integer id)
+	public List<MeetingRoomStatusVO> getMeetingRoomReservationsByUser(@PathParam("id") Integer id)
 	{
-		return service.getMeetingRoomReservationByUser(id);
+		Date startDate = DateTimeUtil.getDateWithoutTime(new Date());
+		Date endDate = DateTimeUtil.getAddedMonthDate(startDate, 1);
+		return service.getMeetingRoomStatusByUserAndDateRange(startDate,endDate,id);
 	}
 	
 	@GET

@@ -49,7 +49,7 @@ public class DateTimeUtil
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		int dayNum = cal.get(Calendar.DAY_OF_WEEK);
-		if (dayNum == 5 || dayNum == 6)
+		if (dayNum == Calendar.SUNDAY || dayNum == Calendar.SATURDAY)
 		{
 			isWorkingDay = false;
 		}

@@ -33,7 +33,7 @@ var errMsgs = {
 		mrEditOldDayWarnMsg:"Yon cannot add or edit reservation the day before today!",
 		mrEditUnvaliableTodayWarnMsg:"There is no avaliable time range for add reservation today!"
 }
-var datePattern = /2\d{3}\/[0-1]\d\/[0-3]\d/;
+var datePattern = /^2\d{3}\/[0-1]\d\/[0-3]\d$/;
 var timeRangeData = {};
 var colorArr = {blue:"#00FF00", green:"#2E2EFE",red:"#DF0101",grey:"#BDBDBD",black:"#000000",white:"#FFFFFF",yellow:"#FFFF00",lightGreen:"#2EFEF7"};
 var calMrId = null;
@@ -164,7 +164,7 @@ function getReservationType()
 		$(".recurrent-group").children().find(".help-block").html("");
 		$(".recurrent-group").addClass("hide");
 		$("#dateLabel").text("Date");
-		$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#startDate", null, true)});
+		$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#startDate", null, true);});
 	}
 	else
 	{
@@ -174,7 +174,7 @@ function getReservationType()
 		$("#ReservationPt").change(function(){
 			 var recValue = $("#ReservationPt input:checked").val();
 			getRecurrentType(recValue)});
-		$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#recEndDate", "#startDate", false)});
+		$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#startDate", "#recEndDate", false);});
 
 	}
 	
@@ -275,8 +275,8 @@ function getDateStrOrTimeStr(date, minutes)
 		var tempDate = date;
 		if (typeof date=="string")
 		{
+			date = date.replace(/-/g,"/").replace(/T/g," ");
 			tempDate = new Date(Date.parse(date));
-			tempDate.setMinutes(tempDate.getMinutes()+tempDate.getTimezoneOffset());
 		}
 		else if (typeof date == "number")
 		{
@@ -372,6 +372,7 @@ function submitMRR(e)
 		
 	  	showDialog(errMsgs.warnMsgTitle, msg, false);
 	  	$("#errorDialog #confirmBtn").click(function(){
+	  		 $(this).unbind("click");
 	  		 processDataAfterVerified();
 	  	});
 	}
@@ -386,12 +387,14 @@ function showDialog(title, msg, isHiddenCancelBtn)
 {
 	$("#errorDialog .modal-header h4").html(title);
 	$("#errorDialog .container h5").html(msg).css({"height":"30px","width":"550px"});
+	 $("#errorDialog #confirmBtn").bind("click");
 	if (isHiddenCancelBtn)
 	{
 		$("#errorDialog .btn-default").hide();
-		$("#errorDialog #confirmBtn").click(function(){
-			$("#errorDialog .btn-default").show();
-	  	});
+	}
+	else
+	{
+		$("#errorDialog .btn-default").show();
 	}
 	$("#errorDialog").modal('show');
 }
@@ -451,7 +454,7 @@ function processDataAfterVerified()
 	{
 		if (!data.id)
 		{
-		  	showDialog(errMsgs.addMRRWarnMsgTitle, errMsgs.addMRRWarnMsg, true);
+		  	setTimeout(function(){showDialog(errMsgs.addMRRWarnMsgTitle, errMsgs.addMRRWarnMsg, true)},500);
 		}
 		else
 		{
@@ -494,13 +497,14 @@ function getDateWithoutTime(dateStr)
 	{
 		if (typeof dateStr=="string")
 		{
+			dateStr = dateStr.replace(/-/g,"/").replace(/T/g," ");
 			date = new Date(Date.parse(dateStr));
 		}
 		else if (typeof dateStr == "number")
 		{
 			date = new Date(dateStr);
+			date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 		}
-		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 	}
 	else
 	{
@@ -525,8 +529,8 @@ function getTimeMinutesWithoutDate(dateStr)
 	
 	if (dateStr)
 	{
+		dateStr = dateStr.replace(/-/g,"/").replace(/T/g," ");
 		date = new Date(Date.parse(dateStr));
-		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
 	}
 	else
 	{
@@ -645,7 +649,8 @@ function startTimeValidate(startEl, endEl, isSingle)
 	{	
 		var tempTi = new Date();
 		starTi = new Date(Date.parse(startDateTimeStr));
-		if (!(tempTi.getFullYear() <= starTi.getFullYear()&&tempTi.getMonth() <= starTi.getMonth()&&tempTi.getDate() <= starTi.getDate()))
+		if (tempTi.getFullYear() > starTi.getFullYear()||tempTi.getFullYear() == starTi.getFullYear()&&tempTi.getMonth() > starTi.getMonth()
+				||tempTi.getFullYear() == starTi.getFullYear()&&tempTi.getMonth() == starTi.getMonth()&&tempTi.getDate() > starTi.getDate())
 		{
 			if (isSingle)
 			{
@@ -812,17 +817,17 @@ function formatTimeStr(value)
  * @param minutes the minutes to process.
  * @returns the formated date time string.
  */
-function getDateStrWithGivenTime(date, minutes)
+function getDateStrWithGivenTime(datee, minutes)
 {
-	
-	if (typeof date=="string")
+	var date = null;
+	if (typeof datee=="string")
 	{
-		date = new Date(Date.parse(date));
-		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+		datee = datee.replace(/-/g,"/").replace(/T/g," ");
+		date = new Date(Date.parse(datee));
 	}
-	else if (typeof date == "number")
+	else if (typeof datee == "number")
 	{
-		date = new Date(date);
+		date = new Date(datee);
 	}
 	var dateStr = date.getFullYear();
 	dateStr += "/" + formatTimeStr(date.getMonth() + 1);
@@ -1000,13 +1005,14 @@ function getTodayStatus(items, mrId)
 	return el.get(0);
 }
 
-function getXaxisValue(date)
+function getXaxisValue(dateStr)
 {
 	var minutes = 0;
-	if (typeof date=="string")
+	var date = dateStr;
+	if (typeof dateStr=="string")
 	{
-		date = new Date(Date.parse(date));
-		date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+		dateStr = dateStr.replace(/-/g,"/").replace(/T/g," ");
+		date = new Date(Date.parse(dateStr));
 	}
 	minutes += date.getHours()*60 + date.getMinutes();
 	
@@ -1019,8 +1025,8 @@ function getReservationInfo()
 	{
 		return;
 	}
-	var e = arguments[0];
-	var x = e.offsetX;
+	var e = (arguments[0] == undefined)?window.event : arguments[0];
+	var x = (e.offsetX == undefined) ? getOffset(e).X : e.offsetX;
 	var data = timeRangeData[this.id].data;
 	var p = $(this).position();
 	for (var i = 0; i < data.length; i++)
@@ -1054,9 +1060,10 @@ function hideReservationInfo()
 
 function editReservation()
 {
-	var e = arguments[0];
+	var e = (arguments[0] == undefined)?window.event : arguments[0];
 	e.preventDefault();
 	hideReservationInfo();
+	var currentDateX = getXaxisValue(new Date());
 	if (selectedDate.getTime() < getDateWithoutTime().getTime())
 	{
 		$(this).attr("data-toggle","hide");
@@ -1065,14 +1072,18 @@ function editReservation()
 	}
 	else if (!timeRangeData[this.id] || timeRangeData[this.id].date.getTime() < getDateWithoutTime().getTime())
 	{
+		if (selectedDate.getTime() == getDateWithoutTime().getTime())
+		{
+			setStartOrEndTime((currentDateX+2)*2 + 480, true);
+		}
+		$("#startDateContainer input").val(getDateStrOrTimeStr(selectedDate, null));
 		$(this).attr("data-toggle","modal");
 		bookRoom(mrData[this.id].floor, mrData[this.id].id);
 		return;
 	}
 	
-	var x = e.offsetX;
+	var x = (e.offsetX == undefined) ? getOffset(e).X : e.offsetX;
 	var data = timeRangeData[this.id].data;
-	var currentDateX = getXaxisValue(new Date());
 	var isToday = timeRangeData[this.id].date.getTime() == getDateWithoutTime().getTime();
 	var leftPos = 0,rightPos = 300,leftdist=0,rightdist=0;
 	
@@ -1173,13 +1184,15 @@ function processDataForCalender(items)
 		var currentDate = new Date();
 		var startDate = null;
 		var endDate = null;
+		var startStr = null;
+		var endStr = null;
 		for (var i = 0; i < items.length; i++)
 		{
 			data = {id:items[i].mrrId,title:items[i].resSubject,start:items[i].startTime,end:items[i].endTime};
-			startDate = new Date(Date.parse(items[i].startTime));
-			startDate.setMinutes(startDate.getMinutes()+startDate.getTimezoneOffset());
-			endDate = new Date(Date.parse(items[i].endTime));
-			endDate.setMinutes(endDate.getMinutes()+endDate.getTimezoneOffset());
+			startStr = items[i].startTime.replace(/-/g,"/").replace(/T/g," ");
+			startDate = new Date(Date.parse(startStr));
+			endStr = items[i].endTime.replace(/-/g,"/").replace(/T/g," ");
+			endDate = new Date(Date.parse(endStr));
 			if (startDate.getTime() > currentDate.getTime())
 			{
 				data.color= colorArr.lightGreen;
@@ -1286,6 +1299,58 @@ function processMeetingRooomStatusData(mrTab,result)
 	}
 }
 
+function processMyReservationData(mrTab,result)
+{
+	mrTab.innerHTML="";
+	var index = null;
+	var row = null;
+	var imgSource = null;
+	myReservations = {};
+	timeRangeData={};
+	var m = 0;
+	for(var i=0;i<result.length;i++)
+	{
+		row=mrTab.insertRow(m++);
+		index = 0;
+		var cel = row.insertCell(index++);
+		if(result[i].meetingRoom.image && result[i].meetingRoom.image.length > 0)
+		{
+			imgSource = "mrimages?image="+result[i].meetingRoom.image;
+		}
+		else
+		{
+			imgSource = "img/noImage.png";
+		}
+		cel.appendChild($("<img id='"+result[i].meetingRoom.id+"' class = 'pull-left mrr-image' src='"+imgSource+"' width='45' height='45' />").get(0));
+		cel.appendChild($("<div>  "+result[i].meetingRoom.name+"</div>").get(0));
+		cel.appendChild($('<div> <a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+result[i].meetingRoom.id+')">'+result[i].meetingRoom.floor+'F '+result[i].meetingRoom.location+'</a></div>').get(0));
+		cel = row.insertCell(index++);
+		if (result[i].meetingRoom.phoneExist)
+		{
+			cel.appendChild($("<img class = 'pull-left' src='img/phone.png' width='39' height='32' />").get(0));
+		}
+		if (result[i].meetingRoom.projectorExist)
+		{
+			cel.appendChild($("<img class = 'pull-left' src='img/recorder.png' width='39' height='32' />").get(0));
+		}
+		cel = row.insertCell(index++);
+	    $(cel).addClass("align-bottom");
+	    cel.appendChild($("<div> Seats#: "+result[i].meetingRoom.seats+"</div>").get(0));
+	    myReservations[result[i].meetingRoom.id] = classifyMRRItemsByDate(result[i].timeIntervalItems);
+	    var dateItems = myReservations[result[i].meetingRoom.id];
+	    var dates = dateItems.dateArr.sort();
+	    for (var j in dates)
+	    {
+	    	index = 0;
+	    	row=mrTab.insertRow(m++);
+	    	row.insertCell(index++).appendChild($("<div>"+ dates[j] +"</div>").get(0));
+	    	row.insertCell(index++).appendChild(getTodayStatus(dateItems.data[dates[j]], result[i].meetingRoom.id));
+	    	row.insertCell(index++).innerHTML= getMrOperation(result[i].meetingRoom.floor, result[i].meetingRoom.id);
+	    }
+		cacheReservationItems(result[i].reservationItems);
+	}
+}
+
 /**
  * Load avaliable meeting room status.
  */
@@ -1324,11 +1389,38 @@ function loadAllMeetingRoomStatus()
 	$.get("ws/meetingroomReservation/"+selectedDate.getTime(), function (result) {
 		var mrTab=document.getElementById("allMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
+		$("#allMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
 		$("#allMeetingRoomStatus canvas").mouseover(getReservationInfo);
 		$("#allMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#allMeetingRoomStatus canvas").click(editReservation);
 	});
 
+}
+var myReservations = {
+};
+function classifyMRRItemsByDate(items)
+{
+	var mrrDate = {};
+	var dateArr = [];
+	var dateItems = null;
+	var dateStr = null;
+	for (var i = 0; i < items.length; i++)
+	{
+		dateStr = getDateStrOrTimeStr(items[i].startTime);
+		dateItems = mrrDate[dateStr];
+		if (dateItems)
+		{
+			dateItems.push(items[i]);
+		}
+		else
+		{
+			dateArr.push(dateStr); 
+			dateItems = mrrDate[dateStr]= [];
+			dateItems.push(items[i]);
+		}
+	}
+	
+	return {data:mrrDate,dateArr:dateArr};
 }
 
 /**
@@ -1339,10 +1431,11 @@ function loadMyReservaion()
 	$.get("ws/meetingroomReservation/user/"+currentUser.id, function (mrrData) {
 		var mrTab=$("#myReservation").get(0);
 		mrTab.innerHTML="";
-		processMeetingRooomStatusData(mrTab,mrrData);
-		$("#myReservation canvas").mouseover(getReservationInfo);
-		$("#myReservation canvas").mouseout(hideReservationInfo);
-		$("#myReservation canvas").click(editReservation);
+		processMyReservationData(mrTab,mrrData);
+		//$("#myReservation tr td img.mrr-image").click(getMRCalender);
+		//$("#myReservation canvas").mouseover(getReservationInfo);
+		//$("#myReservation canvas").mouseout(hideReservationInfo);
+		//$("#myReservation canvas").click(editReservation);
 	  });
 }
 
@@ -1394,8 +1487,8 @@ function parseTimeStr(timeStr)
 	if (timeStr && timeStr.length > 0)
 	{
 		var t = timeStr.split(":");
-		ti += parseInt(t[0])*60;
-		ti += parseInt(t[1]);
+		ti += t[0]*60;
+		ti += t[1]*1;
 	}
 	
 	return ti;
@@ -1433,7 +1526,7 @@ function dragTime()
 		{
 			maxwidth = $("#dragbar").prop("offsetWidth");
 		}
-		var e = arguments[0];
+		var e = (arguments[0] == undefined)?window.event : arguments[0];
 		Isclick = true;
 		this.style.zIndex = ++zindex;
 		startX = e.clientX;
@@ -1455,7 +1548,7 @@ function dragTime()
 	
 	function timeMouseMove()
 	{
-		var e = arguments[0];
+		var e = (arguments[0] == undefined)?window.event : arguments[0];
 		if (Isclick)
 		{
 			var thisX = e.clientX;
@@ -1533,6 +1626,42 @@ function updateTime(obj, leftVal)
 		addOrRemoveErrorMsg(true, "#startTime", "");
 		enableOrDisableSubmit(true);
 	}
+}
+
+function getOffset(e)
+{
+  var target = e.target, 
+      eventCoord,
+      pageCoord,
+      offsetCoord;
+
+  // Get the distance between current element and the left of document.
+  pageCoord = getPageDistance(target);
+
+  // calculate the distance between mouse and document.
+  eventCoord = {
+    X : window.pageXOffset + e.clientX,
+    Y : window.pageYOffset + e.clientY
+  };
+
+  // Get the distance of the first parent element which one has position.
+  offsetCoord = {
+    X : eventCoord.X - pageCoord.X,
+    Y : eventCoord.Y - pageCoord.Y
+  };
+  return offsetCoord;
+}
+
+function getPageDistance(element){
+  var coord = { X : 0, Y : 0 };
+  // Get all the distance of element util the root element.
+  // every level offsetParent of element, offsetLeft or offsetTop added.
+  while (element){
+    coord.X += element.offsetLeft;
+    coord.Y += element.offsetTop;
+    element = element.offsetParent;
+  }
+  return coord;
 }
 
 initMRResElement();
