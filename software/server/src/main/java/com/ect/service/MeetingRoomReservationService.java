@@ -90,6 +90,7 @@ public class MeetingRoomReservationService
 			BeanUtils.copyProperties(m, mrVo);
 			mrStatusVo.setMeetingRoom(mrVo);
 			mrStatusVo.setTimeIntervalItems(MeetingRoomUtil.convertReservationTimeIntervalItemForUI(rem.get(m)));
+			mrStatusVo.setReservationItems(MeetingRoomUtil.getMeetingRoomReservationVo(rem.get(m), false));
 			result.add(mrStatusVo);
 		}
 

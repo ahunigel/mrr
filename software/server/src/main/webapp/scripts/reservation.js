@@ -47,6 +47,7 @@ var maxTime = parseInt(parseTimeStr(maxP.text()));
 var total = maxTime - minTime;
 var maxwidth = 400;
 var isAvaliableView = true;
+var isMyResView = false;
 /**
  * The function for load meeting rooms and 
  * initial floor and meeting room options for add or edit reservation.
@@ -459,7 +460,18 @@ function processDataAfterVerified()
 		else
 		{
 			$("#cancelMRR").click();
-			loadAvaliableMeetingRoomStatus();
+			if (isMyResView)
+			{
+				loadMyReservaion();
+			}
+			else if (isAvaliableView)
+			{
+				loadAvaliableMeetingRoomStatus();
+			}
+			else
+			{
+				loadAllMeetingRoomStatus();
+			}
 		}
 	
 	}
@@ -504,6 +516,10 @@ function getDateWithoutTime(dateStr)
 		{
 			date = new Date(dateStr);
 			date.setMinutes(date.getMinutes()+date.getTimezoneOffset());
+		}
+		else
+		{
+			date = dateStr;
 		}
 	}
 	else
@@ -900,6 +916,17 @@ function getMrOperation(floor, mrId)
 		+ 'data-keyboard="false" data-target="#meetingRoomReservationEdit" id="bookRoom('+ floor +','+ mrId +')">Book It</button>';
 }
 
+function getMyMrOperation()
+{
+	return '<button  class="btn btn-primary"  onclick="releaseMyReservation();">Release It!</button>';
+
+}
+
+function releaseMyReservation()
+{
+	showDialog(errMsgs.commonWarnTitle, "Not implemented, please wait a moment!", true);
+}
+
 /**
  * Get the meeting room reservation operation.
  * @param mrrId the meeting room reservation id to set.
@@ -960,24 +987,47 @@ function getTodayStatus(items, mrId)
 	drawTimeStamp(x1, 301, false, false);
 	if (items && items.length > 0)
 	{
+		var cavDate = getDateStrOrTimeStr(items[0].startTime);
+		el.attr("day", cavDate);
+		if (!timeRangeData[items[0].mrId])
+		{
+			timeRangeData[items[0].mrId]={};
+			if (isMyResView)
+			{
+				timeRangeData[items[0].mrId][cavDate]=[];
+			}
+			else
+			{
+				timeRangeData[items[0].mrId].data=[];
+			}
+		}
+		
+		if (isMyResView && !timeRangeData[items[0].mrId][cavDate])
+		{
+			timeRangeData[items[0].mrId][cavDate] = [];
+		}
+		
+		
 		for (var i= 0; i < items.length; i++)
 		{
 			x1 = getXaxisValue(items[i].startTime);
 			x2 = getXaxisValue(items[i].endTime);
 			
-			if (!timeRangeData[items[i].mrId])
-			{
-				timeRangeData[items[i].mrId]={};
-				timeRangeData[items[i].mrId].data=[];
-				timeRangeData[items[i].mrId].date= getDateWithoutTime(items[i].startTime);
-			}
 			var itemInfo = {};
 			itemInfo.startPos = x1;
 			itemInfo.endPos = x2;
 			itemInfo.reservationInfo = formatReservationInfo(items[i]);
 			itemInfo.mrrId= items[i].mrrId;
+			itemInfo.id= items[i].id;
 			itemInfo.isCurrentUserItem= currentUser.id == items[i].user.id;
-			timeRangeData[items[i].mrId].data.push(itemInfo);
+			if (isMyResView)
+			{
+				timeRangeData[items[i].mrId][cavDate].push(itemInfo);
+			}
+			else
+			{
+				timeRangeData[items[i].mrId].data.push(itemInfo);
+			}
 			drawTimeStamp(x1, x2, true, currentUser.id == items[i].user.id);
 		}
 		
@@ -1025,37 +1075,61 @@ function getReservationInfo()
 	{
 		return;
 	}
+	
 	var e = (arguments[0] == undefined)?window.event : arguments[0];
 	var x = (e.offsetX == undefined) ? getOffset(e).X : e.offsetX;
-	var data = timeRangeData[this.id].data;
+	var data = null;
+	if (isMyResView)
+	{
+		data = timeRangeData[this.id][$(this).attr("day")];
+	}
+	else
+	{
+		data = timeRangeData[this.id].data;
+	}
+	
 	var p = $(this).position();
 	for (var i = 0; i < data.length; i++)
 	{
 		if (data[i].startPos <= x && x <= data[i].endPos)
 		{
-			$("#expandcomment span").html(data[i].reservationInfo);
-			$("#expandcomment").css({
-				"position" : "absolute",
-				"top" : p.top- 30,
-				"left" : p.left+x,
-				"background-color":"#fcfcfc",
-				"border":"1px solid red",
-				"font-size" : "10px",
-				"width" : "160px",
-				"height" : "45px",
-				"z-index" : "9999"
-			});
-			$("#expandcomment").show();
-			break;
+			if ($('.tooltip-event').length > 0)
+			{
+				if ($('.tooltip-event').prop('id') != data[i].id)
+				{
+					$('.tooltip-event').html(data[i].reservationInfo);
+				}
+				$('.tooltip-event').css('top', e.pageY + 10);
+				$('.tooltip-event').css('left', e.pageX + 20);
+			}
+			else
+			{
+				var tooltip = '<div id = "'+ data[i].id +'"class="tooltip-event">' + data[i].reservationInfo + '</div>';
+				$("body").append(tooltip);
+				$('.tooltip-event').css({
+					"position" : "absolute",
+					"top" : e.pageY + 10,
+					"left" : e.pageX + 20,
+					"background-color":"#fcfcfc",
+					"border":"1px solid red",
+					"font-size" : "10px",
+					"width" : "160px",
+					"height" : "45px",
+					"z-index" : "9999"
+				});
+				$('.tooltip-event').fadeIn('500');
+				$('.tooltip-event').fadeTo('10', 1.9);
+			}
+			return;
 		}
 	}
 	
+	hideReservationInfo();
 }
 
 function hideReservationInfo()
 {
-	$("#expandcomment span").html("");
-    $("#expandcomment").hide();
+	$('.tooltip-event').remove();
 }
 
 function editReservation()
@@ -1064,17 +1138,28 @@ function editReservation()
 	e.preventDefault();
 	hideReservationInfo();
 	var currentDateX = getXaxisValue(new Date());
-	if (selectedDate.getTime() < getDateWithoutTime().getTime())
+	var cavDay = getDateWithoutTime($(this).attr("day"));
+	if (cavDay.getTime() < getDateWithoutTime().getTime())
 	{
 		$(this).attr("data-toggle","hide");
 		showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditOldDayWarnMsg, true);
 		return;
 	}
-	else if (!timeRangeData[this.id] || timeRangeData[this.id].date.getTime() < getDateWithoutTime().getTime())
+	else if (!timeRangeData[this.id] || cavDay.getTime() > getDateWithoutTime().getTime())
 	{
-		if (selectedDate.getTime() == getDateWithoutTime().getTime())
+		if (cavDay.getTime() == getDateWithoutTime().getTime())
 		{
-			setStartOrEndTime((currentDateX+2)*2 + 480, true);
+			var startPos = (currentDateX+2)*2;
+			if (startPos < 600)
+			{
+				setStartOrEndTime((currentDateX+2)*2 + 480, true);
+			}
+			else
+			{
+				$(this).attr("data-toggle","hide");
+				showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditUnvaliableTodayWarnMsg, true);
+				return;
+			}
 		}
 		$("#startDateContainer input").val(getDateStrOrTimeStr(selectedDate, null));
 		$(this).attr("data-toggle","modal");
@@ -1084,9 +1169,37 @@ function editReservation()
 	
 	var x = (e.offsetX == undefined) ? getOffset(e).X : e.offsetX;
 	var data = timeRangeData[this.id].data;
-	var isToday = timeRangeData[this.id].date.getTime() == getDateWithoutTime().getTime();
-	var leftPos = 0,rightPos = 300,leftdist=0,rightdist=0;
 	
+	processEditReservationPos(this, data, x, currentDateX);
+}
+
+function editMyReservation()
+{
+	var e = (arguments[0] == undefined)?window.event : arguments[0];
+	e.preventDefault();
+	hideReservationInfo();
+	var currentDateX = getXaxisValue(new Date());
+	var cavDay = $(this).attr("day");
+	var cavDate = getDateWithoutTime(cavDay);
+	if (cavDate.getTime() < getDateWithoutTime().getTime())
+	{
+		$(this).attr("data-toggle","hide");
+		showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditOldDayWarnMsg, true);
+		return;
+	}
+	
+	var x = (e.offsetX == undefined) ? getOffset(e).X : e.offsetX;
+	var data = timeRangeData[this.id][cavDay];
+	
+	processEditReservationPos(this, data, x, currentDateX);
+}
+
+function processEditReservationPos(canvas, data,x, currentDateX)
+{
+	var leftPos = 0,rightPos = 300,leftdist=0,rightdist=0;
+	var msg = null;
+	var cavDay = getDateWithoutTime($(canvas).attr("day"));
+	var isToday = cavDay.getTime() == getDateWithoutTime().getTime();
 	for (var i = 0; i < data.length; i++)
 	{
 		if (data[i].startPos <= x && x <= data[i].endPos)
@@ -1097,7 +1210,7 @@ function editReservation()
 				if (isToday && currentDateX < data[i].startPos || !isToday)
 				{
 					editMRR(data[i].mrrId);
-					$(this).attr("data-toggle","modal");
+					$(canvas).attr("data-toggle","modal");
 					return;
 				}
 				else
@@ -1106,7 +1219,7 @@ function editReservation()
 				}
 			}
 			
-			$(this).attr("data-toggle","hide");
+			$(canvas).attr("data-toggle","hide");
 			showDialog(errMsgs.commonWarnTitle, msg, true);
 			return;
 		}
@@ -1123,6 +1236,7 @@ function editReservation()
 			rightPos = data[i].startPos;
 		}
 	}
+	
 	if (isToday)
 	{
 		if (currentDateX + 3 > rightPos)
@@ -1139,10 +1253,9 @@ function editReservation()
 		
 	setStartOrEndTime((leftPos+2)*2 + 480, true);
 	setStartOrEndTime((rightPos -2)*2 + 480, false);
-	$("#startDateContainer input").val(getDateStrOrTimeStr(timeRangeData[this.id].date, null));
-	$(this).attr("data-toggle","modal");
-	bookRoom(mrData[this.id].floor, mrData[this.id].id);
-
+	$("#startDateContainer input").val(getDateStrOrTimeStr(cavDay, null));
+	$(canvas).attr("data-toggle","modal");
+	bookRoom(mrData[canvas.id].floor, mrData[canvas.id].id);
 }
 
 function cacheReservationItems(items)
@@ -1188,7 +1301,7 @@ function processDataForCalender(items)
 		var endStr = null;
 		for (var i = 0; i < items.length; i++)
 		{
-			data = {id:items[i].mrrId,title:items[i].resSubject,start:items[i].startTime,end:items[i].endTime};
+			data = {id:items[i].mrrId,title:items[i].resSubject.substring(0,6) +" "+ items[i].user.name,start:items[i].startTime,end:items[i].endTime};
 			startStr = items[i].startTime.replace(/-/g,"/").replace(/T/g," ");
 			startDate = new Date(Date.parse(startStr));
 			endStr = items[i].endTime.replace(/-/g,"/").replace(/T/g," ");
@@ -1230,6 +1343,7 @@ function getMRCalender()
 			eventTextColor: 'black',
 			minTime:"08:00:00",
 			maxTime:"18:00:00",
+			contentHeight: 502,
 			hiddenDays: [ 0, 6 ],
 			eventLimit: true, // allow "more" link when too many events
 			loading: function(bool) {
@@ -1239,7 +1353,7 @@ function getMRCalender()
 				getReservationByDateRangeAndMrId(start, end, calMrId,callback);
 			}
 		});
-	$( "#calendar" ).dialog({ width: 600,height:500,show: {
+	$( "#calendar" ).dialog({ width: 700,height:620,show: {
         effect: "blind",
         duration: 1000
       },
@@ -1345,7 +1459,7 @@ function processMyReservationData(mrTab,result)
 	    	row=mrTab.insertRow(m++);
 	    	row.insertCell(index++).appendChild($("<div>"+ dates[j] +"</div>").get(0));
 	    	row.insertCell(index++).appendChild(getTodayStatus(dateItems.data[dates[j]], result[i].meetingRoom.id));
-	    	row.insertCell(index++).innerHTML= getMrOperation(result[i].meetingRoom.floor, result[i].meetingRoom.id);
+	    	row.insertCell(index++).innerHTML= getMyMrOperation();
 	    }
 		cacheReservationItems(result[i].reservationItems);
 	}
@@ -1356,8 +1470,9 @@ function processMyReservationData(mrTab,result)
  */
 function loadAvaliableMeetingRoomStatus()
 {
-	if (!isAvaliableView)
+	if (!isAvaliableView || isMyResView)
 	{
+		isMyResView = false;
 		isAvaliableView = true;
 		selectedDate = getDateWithoutTime(null);
 		$("#mrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
@@ -1367,7 +1482,7 @@ function loadAvaliableMeetingRoomStatus()
 		var mrTab=document.getElementById("avaliableMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
 		$("#avaliableMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
-		$("#avaliableMeetingRoomStatus canvas").mouseover(getReservationInfo);
+		$("#avaliableMeetingRoomStatus canvas").mousemove(getReservationInfo);
 		$("#avaliableMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#avaliableMeetingRoomStatus canvas").click(editReservation);
 	});
@@ -1380,8 +1495,9 @@ function loadAvaliableMeetingRoomStatus()
  */
 function loadAllMeetingRoomStatus()
 {
-	if (isAvaliableView)
+	if (isAvaliableView || isMyResView)
 	{
+		isMyResView = false;
 		isAvaliableView = false;
 		selectedDate = getDateWithoutTime(null);
 		$("#allMrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
@@ -1390,14 +1506,13 @@ function loadAllMeetingRoomStatus()
 		var mrTab=document.getElementById("allMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
 		$("#allMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
-		$("#allMeetingRoomStatus canvas").mouseover(getReservationInfo);
+		$("#allMeetingRoomStatus canvas").mousemove(getReservationInfo);
 		$("#allMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#allMeetingRoomStatus canvas").click(editReservation);
 	});
 
 }
-var myReservations = {
-};
+
 function classifyMRRItemsByDate(items)
 {
 	var mrrDate = {};
@@ -1428,14 +1543,15 @@ function classifyMRRItemsByDate(items)
  */
 function loadMyReservaion()
 {
+	isMyResView = true;
 	$.get("ws/meetingroomReservation/user/"+currentUser.id, function (mrrData) {
 		var mrTab=$("#myReservation").get(0);
 		mrTab.innerHTML="";
 		processMyReservationData(mrTab,mrrData);
-		//$("#myReservation tr td img.mrr-image").click(getMRCalender);
-		//$("#myReservation canvas").mouseover(getReservationInfo);
-		//$("#myReservation canvas").mouseout(hideReservationInfo);
-		//$("#myReservation canvas").click(editReservation);
+		$("#myReservation tr td img.mrr-image").click(getMRCalender);
+		$("#myReservation canvas").mousemove(getReservationInfo);
+		$("#myReservation canvas").mouseout(hideReservationInfo);
+		$("#myReservation canvas").click(editMyReservation);
 	  });
 }
 
