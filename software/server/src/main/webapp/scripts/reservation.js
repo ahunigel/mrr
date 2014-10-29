@@ -1432,6 +1432,7 @@ function processDataForCalender(items)
 			startDate = new Date(Date.parse(startStr));
 			endStr = items[i].endTime.replace(/-/g,"/").replace(/T/g," ");
 			endDate = new Date(Date.parse(endStr));
+			data.user = items[i].user.name;
 			if (startDate.getTime() > currentDate.getTime())
 			{
 				data.color= colorArr.lightGreen;
@@ -1475,9 +1476,25 @@ function getMRCalender()
 			timeFormat:"HH:mm",
 			contentHeight: 502,
 			hiddenDays: [ 0, 6 ],
-			eventLimit: true, // allow "more" link when too many events
-			loading: function(bool) {
-
+			eventLimit: true, 
+			eventMouseover: function(calEvent, jsEvent) {
+				var tooltipText = "Start date:" + calEvent.start.format("YYYY/MM/DD hh:mm a");
+				tooltipText += "<br> End date: " + calEvent.end.format("YYYY/MM/DD hh:mm a");
+				tooltipText += "<br> Ordered by: " + calEvent.user;
+				var tooltip = '<div class="tooltip-event">' + tooltipText + '</div>';
+				$("body").append(tooltip);
+				$(this).mouseover(function(e) {
+					$('.tooltip-event').fadeIn('500');
+					$('.tooltip-event').fadeTo('10', 1.9);
+				}).mousemove(function(e) {
+					$('.tooltip-event').css('top', e.pageY + 10);
+					$('.tooltip-event').css('left', e.pageX + 20);
+				});
+			},
+			// Hide tooltip
+			eventMouseout: function(calEvent, jsEvent) {
+				$(this).css('z-index', 8);
+				$('.tooltip-event').remove();
 			},
 			events: function(start, end, timezone, callback) {
 				getReservationByDateRangeAndMrId(start, end, calMrId,callback);
