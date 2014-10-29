@@ -43,13 +43,17 @@ function initMain(){
 		$("#adminDiv").hide();
 	}
 	
-	$("#closeEditMRBtn").click(resetMRRForm);
+	$("#closeEditMRBtn").click();
 }
 
 function resetMRRForm()
 {
 	$(".form-control-feedback").remove();
-	$("#editMRForm").children().removeClass("has-feedback").removeClass("has-success").removeClass("has-error");  
+	$("#editMRForm").find(".has-error").removeClass("has-error");
+    $("#editMRForm").find(".has-success").removeClass("has-success");
+    $("#editMRForm").find(".help-block").hide();
+	$("#editMRForm").find(":submit").removeAttr("disabled");
+	
 	var editForm=document.getElementById("editMRForm");
 	for (var i = 0, ii = editForm.length; i < ii; ++i) {
 	    var input = editForm[i];
@@ -134,7 +138,9 @@ function uploadImage(e){
 var mrData;
 function addMR()
 {
+	resetMRRForm();
 	$("#mrEditDialogHeader").html("Add Meeting Room");
+	$("#addOrEditMRR").unbind("click");
 	$("#addOrEditMRR").click(function (e) {
 		// stop the regular form submission
 		e.preventDefault();
@@ -163,6 +169,7 @@ var deleteMR=function(id){
 var editMR=function(id){
 	$("#mrEditDialogHeader").html("Eidt Meeting Room");
 	var editForm=document.getElementById("editMRForm");
+	resetMRRForm();
 	  var mr=mrData[id];
 	  for (var i = 0, ii = editForm.length; i < ii; ++i) {
 	    var input = editForm[i];
@@ -180,6 +187,7 @@ var editMR=function(id){
 	  }else{
 		$("#imageDisplay").attr("src","img/noImage.png");
 	  }
+	  $("#addOrEditMRR").unbind("click");
 	  $("#addOrEditMRR").click(function (e) {
 			// stop the regular form submission
 		  	e.preventDefault();
@@ -221,7 +229,6 @@ function sendData(method,ignoreId){
 	  if (xhr.readyState==4 && xhr.status==200)
 		{
 			loadMRList();
-			resetMRRForm();
 			$("#closeEditMRBtn").click();
 		}
 	 }
