@@ -230,6 +230,7 @@ function resetReservation()
 	$("#editMRRForm").children().removeClass("has-error");
 	$("#editMRRForm").children().find(".help-block").html("");
 	$("#saveEditMRRBtn").prop("disabled",false);
+	$("#mrrEditDialogHeader").html("Add Meeting Room Reservation");
 }
 
 /**
@@ -264,7 +265,7 @@ function editMRR(mrrId)
 		
 	}
 	
-	addMRR();
+	$("#mrrEditDialogHeader").html("Edit Meeting Room Reservation");
 }
 
 /**
@@ -575,7 +576,6 @@ function addMRR()
 		return;
 	}
 	
-	$("#mrrEditDialogHeader").html("Add Meeting Room Reservation");
 }
 
 function deleteMRR(mrrId, isitemId)
@@ -1124,6 +1124,11 @@ function getTodayStatus(items, mrId)
 		}
 		
 	}
+	else
+	{
+		var cavDate = getDateStrOrTimeStr(selectedDate);
+		el.attr("day", cavDate);
+	}
 	
 	/**
 	 * Draw the ticks of time.
@@ -1307,7 +1312,7 @@ function editMyReservation()
  */
 function processEditReservationPos(canvas, data,x, currentDateX)
 {
-	var leftPos = 0,rightPos = 300,leftdist=0,rightdist=0;
+	var leftPos = rightPos = x,leftdist=0,rightdist=0;
 	var msg = null;
 	var cavDay = getDateWithoutTime($(canvas).attr("day"));
 	var isToday = cavDay.getTime() == getDateWithoutTime().getTime();
@@ -1352,7 +1357,7 @@ function processEditReservationPos(canvas, data,x, currentDateX)
 	{
 		if (currentDateX + 3 > rightPos)
 		{
-			$(this).attr("data-toggle","hide");
+			$(canvas).attr("data-toggle","hide");
 			showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditUnvaliableTodayWarnMsg, true);
 			return;
 		}
@@ -1361,9 +1366,20 @@ function processEditReservationPos(canvas, data,x, currentDateX)
 			leftPos = currentDateX;
 		}
 	}
+	else
+	{
+		if(data.length == 1 && data[0].startPos > x)
+		{
+			leftPos = -2;
+		}
+		if(data.length == 1 && data[0].endPos < x)
+		{
+			rightPos = 302;
+		}
+	}
 		
-	setStartOrEndTime((leftPos+2)*2 + 480, true);
-	setStartOrEndTime((rightPos -2)*2 + 480, false);
+	setStartOrEndTime((leftPos+3)*2 + 480, true);
+	setStartOrEndTime((rightPos -3)*2 + 480, false);
 	$("#startDateContainer input").val(getDateStrOrTimeStr(cavDay, null));
 	$(canvas).attr("data-toggle","modal");
 	bookRoom(mrData[canvas.id].floor, mrData[canvas.id].id);
