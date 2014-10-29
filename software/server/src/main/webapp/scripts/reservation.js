@@ -1239,15 +1239,16 @@ function editReservation()
 	hideReservationInfo();
 	var currentDateX = getXaxisValue(new Date());
 	var cavDay = getDateWithoutTime($(this).attr("day"));
+	var isToday = cavDay.getTime() == getDateWithoutTime().getTime();
 	if (cavDay.getTime() < getDateWithoutTime().getTime())
 	{
 		$(this).attr("data-toggle","hide");
 		showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditOldDayWarnMsg, true);
 		return;
 	}
-	else if (!timeRangeData[this.id] || cavDay.getTime() > getDateWithoutTime().getTime())
+	else if (!timeRangeData[this.id])
 	{
-		if (cavDay.getTime() == getDateWithoutTime().getTime())
+		if (isToday)
 		{
 			var startPos = (currentDateX+2)*2;
 			if (startPos < 600)
