@@ -174,7 +174,12 @@ public class MeetingRoomReservationService
 	{
 		return reservationDao.deleteMeetingRoomReservation(id);
 	}
-		
+	
+	public boolean deleteReservationTimeIntervalItem(long itemId)
+	{
+		return reservationDao.deleteReservationTimeIntervalItems(itemId);
+	}
+	
 	public MeetingRoomReservationVO updateMeetingRoomReservation(
 			MeetingRoomReservationVO mrr)
 	{
@@ -188,7 +193,7 @@ public class MeetingRoomReservationService
 		if (isValidReservation(mr, reservationItems))
 		{
 			reservationDao.saveMeetingRoomReservation(mr);
-			if(reservationDao.deleteReservationTimeIntervalItems(mr.getId()))
+			if(reservationDao.deleteReservationTimeIntervalItemsByRes(mr.getId()))
 			{
 				reservationDao.saveReservationTimeIntervalItems(reservationItems,
 						false);

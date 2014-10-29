@@ -1,4 +1,3 @@
-
 var mrObj = [];
 var floorOptions = [];
 var numPattern = /^\d+$/;
@@ -31,7 +30,9 @@ var errMsgs = {
 		mrNoPrivilegeWarnMsg:"You don't have the privilege to do this operation!",
 		mrEditWarnMsg:"The reservation is going/expired, you cannot edit it!",
 		mrEditOldDayWarnMsg:"Yon cannot add or edit reservation the day before today!",
-		mrEditUnvaliableTodayWarnMsg:"There is no avaliable time range for add reservation today!"
+		mrEditUnvaliableTodayWarnMsg:"There is no avaliable time range for add reservation today!",
+		mrrDeleteWarnMsg:"Please select the reservation to delete!",
+		mrrRecChoiceWarnMsg:"Please select the type of recurrent reservation to delete!"
 }
 var datePattern = /^2\d{3}\/[0-1]\d\/[0-3]\d$/;
 var timeRangeData = {};
@@ -48,6 +49,7 @@ var total = maxTime - minTime;
 var maxwidth = 400;
 var isAvaliableView = true;
 var isMyResView = false;
+
 /**
  * The function for load meeting rooms and 
  * initial floor and meeting room options for add or edit reservation.
@@ -72,6 +74,9 @@ function loadMeetingRooms()
 	}
 }
 
+/**
+ * Process the data of meeting room.
+ */
 function processMeetingRoomData()
 {
 	var option = null;
@@ -423,7 +428,6 @@ function processDataAfterVerified()
 	}
 	else
 	{
-
 		resData.startTime = getDateWithoutTime($("#startDateContainer input[type='text']").val());
 		resData.endTime = getDateWithoutTime($("#recEndDateContainer input[type='text']").val());
 		resData.recurrentType=$("#ReservationPt input:checked").val();
@@ -574,24 +578,27 @@ function addMRR()
 	$("#mrrEditDialogHeader").html("Add Meeting Room Reservation");
 }
 
-function deleteMRR(mrrId)
+function deleteMRR(mrrId, isitemId)
 {
-	$("#delMRBtn").click(function()
+	var url = "ws/meetingroomReservation/meetingRoom/" + mrrId;
+	if (isitemId)
 	{
-		$.ajax({ 
-			type: "DELETE", 
-			url: "ws/meetingroomReservation/meetingRoom/" + mrrId, 
-			contentType: "application/json; charset=utf-8", 
-			async:false,
-			dataType: "json", 
-			success: function (data) {
-				$("#myReservation").find("#"+mrrId).remove();
-			}, 
-			error: function (msg) { 
-			alert(msg.responseText);
-			} 
-			});
-	});
+		url = "ws/meetingroomReservation/timeIntervalItem/" + mrrId;
+	}
+	$.ajax({ 
+		type: "DELETE", 
+		url: url, 
+		contentType: "application/json; charset=utf-8", 
+		async:false,
+		dataType: "json", 
+		success: function (data) {
+			$("#calcelDelMRRBtn").click();
+			loadMyReservaion();
+		}, 
+		error: function (msg) { 
+		alert(msg.responseText);
+		} 
+		});
 }
 
 /**
@@ -636,7 +643,7 @@ function startTimeValidate(startEl, endEl, isSingle)
 	var startDateTimeStr = startDateValue + " " +$("#startTime").text();
 	var starTi = null;
 	var msg = "";
-	
+	var tempTi = getDateWithoutTime();
 	if (!startDateValue || startDateValue == "")
 	{
 		if (isSingle)
@@ -663,10 +670,8 @@ function startTimeValidate(startEl, endEl, isSingle)
 	}
 	else
 	{	
-		var tempTi = new Date();
-		starTi = new Date(Date.parse(startDateTimeStr));
-		if (tempTi.getFullYear() > starTi.getFullYear()||tempTi.getFullYear() == starTi.getFullYear()&&tempTi.getMonth() > starTi.getMonth()
-				||tempTi.getFullYear() == starTi.getFullYear()&&tempTi.getMonth() == starTi.getMonth()&&tempTi.getDate() > starTi.getDate())
+		starTi = getDateWithoutTime(Date.parse(startDateTimeStr));
+		if (tempTi.getTime() > starTi.getTime())
 		{
 			if (isSingle)
 			{
@@ -678,11 +683,21 @@ function startTimeValidate(startEl, endEl, isSingle)
 			}
 			isStartTimeValid = false;
 		}
-		else if (tempTi.getFullYear() == starTi.getFullYear()&&tempTi.getMonth() == starTi.getMonth()&&tempTi.getDate() == starTi.getDate() 
-					&& parseTimeStr($("#startTime").text()) <= getTimeMinutesWithoutDate())
+		else if (tempTi.getTime() == starTi.getTime() )
 		{
-			addOrRemoveErrorMsg(false, "#startTime", errMsgs.startTimeError);
-			enableOrDisableSubmit(false);
+			if (parseTimeStr($("#startTime").text()) <= getTimeMinutesWithoutDate())
+			{
+				addOrRemoveErrorMsg(false, "#startTime", errMsgs.startTimeError);
+				enableOrDisableSubmit(false);
+			}
+		}
+		else
+		{
+			if ($('#startTimeContainer').hasClass('has-error'))
+			{
+				addOrRemoveErrorMsg(true, "#startTime", "");
+				enableOrDisableSubmit(true);
+			}
 		}
 	}
 	
@@ -774,6 +789,7 @@ function initMRResElement()
 	$("#mrrFloor").change(getMrFloorChange);
 	$("#reservationType").click(getReservationType);
 	selectedDate = getDateWithoutTime(null);
+	$("#delMRRBtn").click(deleteMyReservation);
 	$("#mrrDatePicker").text("Current Date: " + getDateStrOrTimeStr(selectedDate, null));
 	$('.form_date').datetimepicker({
         weekStart: 1,
@@ -901,7 +917,7 @@ function bookRoom(floor, mrId)
 	$("#mrrFloor").val(floor);
 	$("#mrrFloorMeetingRoom").html(mrObj[floor].data);
 	$("#mrrFloorMeetingRoom").val(mrId);
-	addMRR();
+	//addMRR();
 }
 
 /**
@@ -913,18 +929,94 @@ function bookRoom(floor, mrId)
 function getMrOperation(floor, mrId)
 {
 	return '<button  class="btn btn-primary" data-toggle="modal" data-backdrop="static" '
-		+ 'data-keyboard="false" data-target="#meetingRoomReservationEdit" id="bookRoom('+ floor +','+ mrId +')">Book It</button>';
+		+ 'data-keyboard="false" data-target="#meetingRoomReservationEdit" onclick="bookRoom('+ floor +','+ mrId +')">Book It</button>';
 }
 
+/**
+ * Get the operation of my reservation.
+ * @returns {String}
+ */
 function getMyMrOperation()
 {
-	return '<button  class="btn btn-primary"  onclick="releaseMyReservation();">Release It!</button>';
+	return "<button  class='btn btn-primary resDeleteBtn'  data-toggle='modal' data-backdrop='static' data-keyboard='false' " 
+		+"data-target='#myReservationDelete'>Release It!</button>";
 
 }
 
-function releaseMyReservation()
+/**
+ * Get the dialog of my reservation.
+ */
+function getMyReservationDialog()
 {
-	showDialog(errMsgs.commonWarnTitle, "Not implemented, please wait a moment!", true);
+	var cv = $(this).parent().prev().children();
+	$("#deleteResDiv").html("");
+	var items = timeRangeData[cv.prop("id")][cv.attr("day")];
+	var resDiv = '<div class="col-sm-offset-1 col-sm-11 btn-group delMyRes">'
+					+'<input name="deleteMrrItem" type="radio"/></div>';
+	var recurrentChoiceDiv = '<div class="col-sm-offset-3 col-sm-9 btn-group delRecurrentChoice hide"><input name="delRecurrentChoice" value="single" type="radio"/>Only This One'
+		+'<input name="delRecurrentChoice" value="all" type="radio"/>Delete All</div>';
+	var msg = "";
+	for (var i = 0; i < items.length; i++)
+	{
+		var res = myReservations[items[i].mrrId];
+		if (res.reservationType == "SINGLE")
+		{
+			msg = "Start date:" + getDateStrWithGivenTime(res.startTime) + "  End date: " + getDateStrWithGivenTime(res.endTime);
+			$(resDiv).find("input").prop("value", items[i].mrrId).attr("resType",res.reservationType).parent().append(msg).appendTo("#deleteResDiv");
+		}
+		else
+		{
+			msg = "Start date:" + getDateStrWithGivenTime(res.startTime, res.recurrentStartTime) + "  End date: " + getDateStrWithGivenTime(res.endTime, res.recurrentEndTime);
+			$(resDiv).find("input").prop("value", items[i].mrrId).attr("resType",res.reservationType).parent().append(msg).appendTo("#deleteResDiv");
+			$(recurrentChoiceDiv).attr("itemId", items[i].id).appendTo("#deleteResDiv");	
+		}
+	}
+	
+	$("#deleteResDiv .delMyRes").click(function(){
+		var resType = $("input[name='deleteMrrItem']:checked").attr("resType");
+		$(".delRecurrentChoice").addClass("hide");
+		if (resType != "SINGLE")
+		{
+			$(this).next().removeClass("hide");
+		}
+	});
+}
+
+/**
+ * Delete my reservation.
+ */
+function deleteMyReservation()
+{
+    var e = (arguments[0] == undefined)?window.event : arguments[0];
+	e.preventDefault();
+	var mrr = $("input[name='deleteMrrItem']:checked");
+	var rec = $("input[name='delRecurrentChoice']:checked");
+	var isSingleRes = mrr.attr("resType") == "SINGLE";
+	var msg = ""
+	if (mrr.length == 0)
+	{
+		msg = errMsgs.mrrDeleteWarnMsg;
+	}
+	else if (!isSingleRes && rec.length == 0)
+	{
+		msg = errMsgs.mrrRecChoiceWarnMsg;
+	}
+	
+	if (msg != "")
+	{
+		showDialog(errMsgs.commonWarnTitle, msg, true);
+		return;
+	}
+	
+	if (isSingleRes || !isSingleRes && rec.prop("value")=="all")
+	{
+		deleteMRR(mrr.prop("value"),false);
+	}
+	else
+	{
+		deleteMRR(rec.parent().attr("itemId"),true);
+	}
+
 }
 
 /**
@@ -1033,6 +1125,9 @@ function getTodayStatus(items, mrId)
 		
 	}
 	
+	/**
+	 * Draw the ticks of time.
+	 */
 	function drawTimeTicks()
 	{
 		var start = 0;
@@ -1055,6 +1150,11 @@ function getTodayStatus(items, mrId)
 	return el.get(0);
 }
 
+/**
+ * Get the value of Xaxis by date string.
+ * @param dateStr the date string to process.
+ * @returns the value of Xaxis.
+ */
 function getXaxisValue(dateStr)
 {
 	var minutes = 0;
@@ -1069,7 +1169,10 @@ function getXaxisValue(dateStr)
 	return parseInt((minutes-480)/2);
 }
 
-function getReservationInfo()
+/**
+ * Show the information of reservation.
+ */
+function showReservationInfo()
 {
 	if (!timeRangeData[this.id])
 	{
@@ -1106,17 +1209,8 @@ function getReservationInfo()
 			{
 				var tooltip = '<div id = "'+ data[i].id +'"class="tooltip-event">' + data[i].reservationInfo + '</div>';
 				$("body").append(tooltip);
-				$('.tooltip-event').css({
-					"position" : "absolute",
-					"top" : e.pageY + 10,
-					"left" : e.pageX + 20,
-					"background-color":"#fcfcfc",
-					"border":"1px solid red",
-					"font-size" : "10px",
-					"width" : "160px",
-					"height" : "45px",
-					"z-index" : "9999"
-				});
+				$('.tooltip-event').css('top', e.pageY + 10);
+				$('.tooltip-event').css('left', e.pageX + 20);
 				$('.tooltip-event').fadeIn('500');
 				$('.tooltip-event').fadeTo('10', 1.9);
 			}
@@ -1127,11 +1221,17 @@ function getReservationInfo()
 	hideReservationInfo();
 }
 
+/**
+ * Hide the tooltips.
+ */
 function hideReservationInfo()
 {
 	$('.tooltip-event').remove();
 }
 
+/**
+ * Edit avaliable/all meeting room reservation.
+ */
 function editReservation()
 {
 	var e = (arguments[0] == undefined)?window.event : arguments[0];
@@ -1173,6 +1273,9 @@ function editReservation()
 	processEditReservationPos(this, data, x, currentDateX);
 }
 
+/**
+ * Edit my reservation.
+ */
 function editMyReservation()
 {
 	var e = (arguments[0] == undefined)?window.event : arguments[0];
@@ -1194,6 +1297,13 @@ function editMyReservation()
 	processEditReservationPos(this, data, x, currentDateX);
 }
 
+/**
+ * process the edit reservation event.
+ * @param canvas the canvas to process.
+ * @param data the data to process.
+ * @param x the x position of mouse.
+ * @param currentDateX  the x position of current date.
+ */
 function processEditReservationPos(canvas, data,x, currentDateX)
 {
 	var leftPos = 0,rightPos = 300,leftdist=0,rightdist=0;
@@ -1258,6 +1368,10 @@ function processEditReservationPos(canvas, data,x, currentDateX)
 	bookRoom(mrData[canvas.id].floor, mrData[canvas.id].id);
 }
 
+/**
+ * Cache the reservation.
+ * @param items the items to process.
+ */
 function cacheReservationItems(items)
 {
 	if (items && items.length > 0)
@@ -1269,6 +1383,13 @@ function cacheReservationItems(items)
 	}
 }
 
+/**
+ * Get the reservation by date range and id of meeting room.
+ * @param start the start time to get.
+ * @param end the end time to get.
+ * @param mrId the id of meeting room.
+ * @param callback the function of call back.
+ */
 function getReservationByDateRangeAndMrId(start, end, mrId, callback)
 {
 	var startDate = new Date(start.valueOf());
@@ -1288,6 +1409,11 @@ function getReservationByDateRangeAndMrId(start, end, mrId, callback)
 		});
 }
 
+/**
+ * Process the data for full calendar.
+ * @param items the items to process.
+ * @returns {Array}
+ */
 function processDataForCalender(items)
 {
 	var result = [];
@@ -1327,6 +1453,9 @@ function processDataForCalender(items)
 	return result;
 }
 
+/**
+ * Get the full calendar of meeting rooom.
+ */
 function getMRCalender()
 {
 	calMrId = this.id;
@@ -1343,6 +1472,7 @@ function getMRCalender()
 			eventTextColor: 'black',
 			minTime:"08:00:00",
 			maxTime:"18:00:00",
+			timeFormat:"HH:mm",
 			contentHeight: 502,
 			hiddenDays: [ 0, 6 ],
 			eventLimit: true, // allow "more" link when too many events
@@ -1369,6 +1499,11 @@ function getMRCalender()
 	});	
 }
 
+/**
+ * Process the data of meeting room status.
+ * @param mrTab meeting room reservation table to fill.
+ * @param result the result of processed data.
+ */
 function processMeetingRooomStatusData(mrTab,result)
 {
 	mrTab.innerHTML="";
@@ -1413,6 +1548,11 @@ function processMeetingRooomStatusData(mrTab,result)
 	}
 }
 
+/**
+ * Process the data of my reservation.
+ * @param mrTab my reservation table to fill.
+ * @param result the result of processed data.
+ */
 function processMyReservationData(mrTab,result)
 {
 	mrTab.innerHTML="";
@@ -1461,6 +1601,7 @@ function processMyReservationData(mrTab,result)
 	    	row.insertCell(index++).appendChild(getTodayStatus(dateItems.data[dates[j]], result[i].meetingRoom.id));
 	    	row.insertCell(index++).innerHTML= getMyMrOperation();
 	    }
+	   
 		cacheReservationItems(result[i].reservationItems);
 	}
 }
@@ -1482,7 +1623,7 @@ function loadAvaliableMeetingRoomStatus()
 		var mrTab=document.getElementById("avaliableMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
 		$("#avaliableMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
-		$("#avaliableMeetingRoomStatus canvas").mousemove(getReservationInfo);
+		$("#avaliableMeetingRoomStatus canvas").mousemove(showReservationInfo);
 		$("#avaliableMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#avaliableMeetingRoomStatus canvas").click(editReservation);
 	});
@@ -1506,13 +1647,18 @@ function loadAllMeetingRoomStatus()
 		var mrTab=document.getElementById("allMeetingRoomStatus");
 		processMeetingRooomStatusData(mrTab,result);
 		$("#allMeetingRoomStatus tr td img.mrr-image").click(getMRCalender);
-		$("#allMeetingRoomStatus canvas").mousemove(getReservationInfo);
+		$("#allMeetingRoomStatus canvas").mousemove(showReservationInfo);
 		$("#allMeetingRoomStatus canvas").mouseout(hideReservationInfo);
 		$("#allMeetingRoomStatus canvas").click(editReservation);
 	});
 
 }
 
+/**
+ * Classify the items of my reservation by date.
+ * @param items the items to process.
+ * @returns {___anonymous43845_43874}
+ */
 function classifyMRRItemsByDate(items)
 {
 	var mrrDate = {};
@@ -1548,55 +1694,19 @@ function loadMyReservaion()
 		var mrTab=$("#myReservation").get(0);
 		mrTab.innerHTML="";
 		processMyReservationData(mrTab,mrrData);
+		 $(".resDeleteBtn").click(getMyReservationDialog);
 		$("#myReservation tr td img.mrr-image").click(getMRCalender);
-		$("#myReservation canvas").mousemove(getReservationInfo);
+		$("#myReservation canvas").mousemove(showReservationInfo);
 		$("#myReservation canvas").mouseout(hideReservationInfo);
 		$("#myReservation canvas").click(editMyReservation);
 	  });
 }
 
 /**
- * Fill the table cell with  the given data.
- * @param row the row to be filled.
- * @param mrr the meeting room reservation to filled.
- * @param isNewData if it is new data or updated data.
+ * Parse the time string to get the minutes.
+ * @param timeStr the time string to process.
+ * @returns {Number} the minutes of time string.
  */
-function fillOrCreateTableCell(row, mrr, isNewData)
-{
-	var index = 0;
-	if (isNewData)
-	{
-		row.id=mrr.id;
-		row.insertCell(index++).innerHTML= mrr.meetingSubject.substring(0,20);
-		row.insertCell(index++).innerHTML= getDateStrWithGivenTime(mrr.startTime, mrr.recurrentStartTime);
-		row.insertCell(index++).innerHTML= getDateStrWithGivenTime(mrr.endTime, mrr.recurrentEndTime);
-		row.insertCell(index++).innerHTML= mrr.reservationType;
-		row.insertCell(index++).innerHTML= getRecurrentTypeMsg(mrr.recurrentType, mrr.recurrentInterval);
-		row.insertCell(index++).innerHTML= mrr.meetingRoom.name;
-		row.insertCell(index++).innerHTML= mrr.meetingRoom.floor;
-		row.insertCell(index++).innerHTML= mrr.meetingRoom.location;
-		row.insertCell(index++).innerHTML= mrr.meetingRoom.seats;
-		row.insertCell(index++).innerHTML= mrr.meetingRoom.phoneExist;
-		row.insertCell(index++).innerHTML= mrr.meetingRoom.projectorExist;
-		row.insertCell(index++).innerHTML= getReservationOperation(mrr.id);
-	}
-	else
-	{
-		row.getCell(index++).innerHTML= mrr.meetingSubject.substring(0,20);
-		row.getCell(index++).innerHTML= getDateStrWithGivenTime(mrr.startTime, mrr.recurrentStartTime);
-		row.getCell(index++).innerHTML= getDateStrWithGivenTime(mrr.endTime, mrr.recurrentEndTime);
-		row.getCell(index++).innerHTML= mrr.reservationType;
-		row.getCell(index++).innerHTML= getRecurrentTypeMsg(mrr.recurrentType, mrr.recurrentInterval);
-		row.getCell(index++).innerHTML= mrr.meetingRoom.name;
-		row.getCell(index++).innerHTML= mrr.meetingRoom.floor;
-		row.getCell(index++).innerHTML= mrr.meetingRoom.location;
-		row.getCell(index++).innerHTML= mrr.meetingRoom.seats;
-		row.getCell(index++).innerHTML= mrr.meetingRoom.phoneExist;
-		row.getCell(index++).innerHTML= mrr.meetingRoom.projectorExist;
-		row.getCell(index++).innerHTML= getReservationOperation(mrr.id);
-	}
-}
-
 function parseTimeStr(timeStr)
 {
 	var ti = 0;
@@ -1609,6 +1719,12 @@ function parseTimeStr(timeStr)
 	
 	return ti;
 }
+
+/**
+ * Set the value of start or end time label.
+ * @param minutes the minutes to set.
+ * @param isStartTime the flag to distinguish the minutes value is start or end time.
+ */
 function setStartOrEndTime(minutes, isStartTime)
 {
 	var leftVal = ((minutes-minTime) / total) * 100;
@@ -1626,6 +1742,10 @@ function setStartOrEndTime(minutes, isStartTime)
 		updateTime(maxP, leftVal);
 	}
 }
+
+/**
+ * The function for handle grag event of mouse for time interval of reservation.
+ */
 function dragTime()
 {
 	var Isclick = false, zindex = 2;
@@ -1635,6 +1755,9 @@ function dragTime()
 	var isMinTimeBtn,maxlenght,lenght, startX,btnlenght;
 	arrbtn.mousedown(timeMouseDown);
 	
+	/**
+	 * Handle the mouse down event.
+	 */
 	function timeMouseDown()
 	{
 		isMinTimeBtn = this.id == "minTimeBtn";
@@ -1662,6 +1785,9 @@ function dragTime()
 		this.setCapture && this.setCapture();
 	}
 	
+	/**
+	 * Handle the mouse move event.
+	 */
 	function timeMouseMove()
 	{
 		var e = (arguments[0] == undefined)?window.event : arguments[0];
@@ -1703,6 +1829,9 @@ function dragTime()
 
 	}
 	
+	/**
+	 * Handle the mouse up event.
+	 */
 	function timeMouseUp()
     {
 		Isclick = false;
@@ -1717,6 +1846,9 @@ function dragTime()
     }
 }
 
+/**
+ * The small width of start and end time.
+ */
 function smallwidth()
 {
 	var left = parseFloat(arrbtn.get(0).style.left);
@@ -1724,6 +1856,12 @@ function smallwidth()
 	smallbar.get(0).style.width = (right - left > 0 ? Math.floor(right - left) : 0)
 	+ "%";
 }
+
+/**
+ * Update the time after the grag event of mouse for time interval
+ * @param obj the element to update.
+ * @param leftVal the left percent of css to set.
+ */
 function updateTime(obj, leftVal)
 {
 	var p = parseInt((total / 100) * leftVal) + minTime;
@@ -1744,6 +1882,13 @@ function updateTime(obj, leftVal)
 	}
 }
 
+/**
+ * The function for solve the problem of firefox.
+ * The offsetX and offsetY are not supported for firefox, so use other way to 
+ * calculate the offset of x and y for current element click event.
+ * @param e the event to process.
+ * @returns {___anonymous48471_48546}
+ */
 function getOffset(e)
 {
   var target = e.target, 

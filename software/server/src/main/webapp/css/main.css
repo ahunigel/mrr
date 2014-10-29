@@ -197,5 +197,14 @@ text-align: center;
 	float:right;
 }   
 .label-calendar{
-  margin-right: 100px;
+	margin-right: 100px;
 }     
+.tooltip-event{
+  	position : absolute;
+	background-color:#fcfcfc;
+	border:1px solid red;
+	font-size : 10px;
+	width : 160px;
+	height : 45px;
+	z-index : 9999
+} 

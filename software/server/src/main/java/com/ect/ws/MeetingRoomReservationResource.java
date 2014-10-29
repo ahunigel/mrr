@@ -85,10 +85,14 @@ public class MeetingRoomReservationResource {
 	}
 	
 	@DELETE
-	@Produces({ "application/json;charset=UTF-8" })
 	@Path("/meetingRoom/{id}")
-	public boolean deleteReservationByMeetingRoom(@PathParam("id") Integer id){
+	public boolean deleteReservationById(@PathParam("id") Integer id){
 		return service.deleteOrCancelMeetingRoomReservation(id);
 	}
-
+	
+	@DELETE
+	@Path("/timeIntervalItem/{id}")
+	public boolean deleteReservationTimeIntervalItem(@PathParam("id") long id){
+		return service.deleteReservationTimeIntervalItem(id);
+	}
 }
