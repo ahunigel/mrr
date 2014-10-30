@@ -249,13 +249,13 @@ function  loadMRList (){
 			mrData[data[i].id]=data[i];
 			var row=mrTab.insertRow(i);
 			row.insertCell(0).innerHTML=data[i].name;
-			row.insertCell(1).innerHTML='<a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+i+')">'+data[i].floor+'F '+data[i].location+'</a>';
+			row.insertCell(1).innerHTML='<a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+data[i].id+')">'+data[i].floor+'F '+data[i].location+'</a>';
 			row.insertCell(2).innerHTML=data[i].seats;
 			
 			row.insertCell(3).innerHTML='<input type="checkbox" '+(data[i].phoneExist==true?'checked':'')+' disabled/>';
 			row.insertCell(4).innerHTML='<input type="checkbox" '+(data[i].projectorExist?'checked':'')+' disabled/>';
 			
-			row.insertCell(5).innerHTML='<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" value="edit" onclick="editMR('+i+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#MyModal1" value="delete" onclick="deleteMR('+data[i].id+')"/>';
+			row.insertCell(5).innerHTML='<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" value="edit" onclick="editMR('+data[i].id+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#MyModal1" value="delete" onclick="deleteMR('+data[i].id+')"/>';
 		}
 	  });
 }

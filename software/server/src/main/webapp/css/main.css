@@ -211,3 +211,8 @@ text-align: center;
 .nav-tabs{
 border-bottom:none !important;
 }
+.modal-content{
+  width : 600px;
+  margin-left: auto; 
+  margin-right: auto; 
+}

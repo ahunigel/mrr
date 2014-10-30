@@ -1641,8 +1641,7 @@ function processMyReservationData(mrTab,result)
 		cel = row.insertCell(index++);
 	    $(cel).addClass("align-bottom");
 	    cel.appendChild($("<div> Seats#: "+result[i].meetingRoom.seats+"</div>").get(0));
-	    myReservations[result[i].meetingRoom.id] = classifyMRRItemsByDate(result[i].timeIntervalItems);
-	    var dateItems = myReservations[result[i].meetingRoom.id];
+	    var dateItems = classifyMRRItemsByDate(result[i].timeIntervalItems);
 	    var dates = dateItems.dateArr.sort();
 	    for (var j in dates)
 	    {
