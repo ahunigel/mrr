@@ -30,7 +30,7 @@ var errMsgs = {
 		mrNoPrivilegeWarnMsg:"You don't have the privilege to do this operation!",
 		mrEditWarnMsg:"The reservation is going/expired, you cannot edit it!",
 		mrEditOldDayWarnMsg:"Yon cannot add or edit reservation the day before today!",
-		mrEditUnvaliableTodayWarnMsg:"There is no avaliable time range for add reservation today!",
+		mrEditUnvaliableTodayWarnMsg:"There is no avaliable time range for add reservation!",
 		mrrDeleteWarnMsg:"Please select the reservation to delete!",
 		mrrRecChoiceWarnMsg:"Please select the type of recurrent reservation to delete!"
 }
@@ -80,7 +80,10 @@ function loadMeetingRooms()
 function processMeetingRoomData()
 {
 	var option = null;
-	
+	if (mrData.length == 0 && floorOptions.length == 0)
+	{
+		return false;
+	}
 	for(var i in mrData)
 	{
 		var fl = null;
@@ -95,6 +98,7 @@ function processMeetingRoomData()
 		{
 			floorOptions.push(fl);
 		}
+		
 		mrObj[mrData[i].floor].data.push(option);
 	}
 	if (floorOptions.length > 0)
@@ -121,6 +125,8 @@ function processMeetingRoomData()
 			break;
 		}
 	}
+	
+	return true;
 }
 
 /**
@@ -216,7 +222,7 @@ function resetReservation()
 		}
 		else if (input.type == 'select-one')
 		{
-			input.value = input[0].value;
+			input.value = input.value;
 		}
 		else
 		{
@@ -566,16 +572,17 @@ function getTimeMinutesWithoutDate(dateStr)
 /**
  * The function for add meeting room reservation.
  */
-function addMRR()
+function checkMeetingRoomAvaliable()
 {
-	if (floorOptions.length < 1)
+	if (!processMeetingRoomData())
 	{
 		showDialog(errMsgs.commonWarnTitle, errMsgs.mrUnvaliableWarnMsg, true);
-		$("#addMRR").attr("data-toggle","hide");
-		$("#addMRR").prop("disabled",true);
-		return;
+		$(".addMRR").attr("data-toggle","hide");
+		return false;
 	}
 	
+	$(".addMRR").attr("data-toggle","modal");
+	return true;
 }
 
 function deleteMRR(mrrId, isitemId)
@@ -784,7 +791,7 @@ function initMRResElement()
 	$("#startDateContainer input[type='text']").change(function(){startTimeValidate("#startDate", null, true)});
 	$("#recEndDateContainer input[type='text']").change(function(){endTimeValidate("#recEndDate", "#startDate")});
 	$("#saveEditMRRBtn").click(submitMRR);
-	$("#addMRR").click(addMRR);
+	$(".addMRR").click(checkMeetingRoomAvaliable);
 	$("#cancelMRR").click(resetReservation);
 	$("#mrrFloor").change(getMrFloorChange);
 	$("#reservationType").click(getReservationType);
@@ -914,10 +921,13 @@ function getRecurrentTypeMsg(recValue, intervalValue)
  */
 function bookRoom(floor, mrId)
 {
+	if (floorOptions.length < 1)
+	{
+		processMeetingRoomData();
+	}
 	$("#mrrFloor").val(floor);
 	$("#mrrFloorMeetingRoom").html(mrObj[floor].data);
 	$("#mrrFloorMeetingRoom").val(mrId);
-	//addMRR();
 }
 
 /**
@@ -1312,7 +1322,7 @@ function editMyReservation()
  */
 function processEditReservationPos(canvas, data,x, currentDateX)
 {
-	var leftPos = rightPos = x,leftdist=0,rightdist=0;
+	var leftPos = 0, rightPos = 300,leftdist=[],rightdist=[];
 	var msg = null;
 	var cavDay = getDateWithoutTime($(canvas).attr("day"));
 	var isToday = cavDay.getTime() == getDateWithoutTime().getTime();
@@ -1339,23 +1349,35 @@ function processEditReservationPos(canvas, data,x, currentDateX)
 			showDialog(errMsgs.commonWarnTitle, msg, true);
 			return;
 		}
-		
-		if ((data[i].endPos < leftPos && leftdist > leftPos - data[i].endPos || leftdist == 0) && rightPos > data[i].endPos)
+		else
 		{
-			leftdist = leftPos - data[i].endPos;
-			leftPos = data[i].endPos;
+			if (data[i].endPos < x)
+			{
+				leftdist.push(data[i].endPos);
+			}
+			
+			if (data[i].startPos > x)
+			{
+				rightdist.push(data[i].startPos);
+			}
 		}
-		
-		if ((rightPos > data[i].startPos && rightdist > rightPos - data[i].startPos || rightdist == 0 )&& leftPos < data[i].startPos)
-		{
-			rightdist = rightPos - data[i].startPos;
-			rightPos = data[i].startPos;
-		}
+	}
+	
+	if (leftdist.length > 0)
+	{
+		leftdist.sort();
+		leftPos = leftdist[leftdist.length - 1];
+	}
+	
+	if (rightdist.length > 0)
+	{
+		rightdist.sort();
+		rightPos = rightdist[0];
 	}
 	
 	if (isToday)
 	{
-		if (currentDateX + 3 > rightPos)
+		if (currentDateX + 10 > rightPos)
 		{
 			$(canvas).attr("data-toggle","hide");
 			showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditUnvaliableTodayWarnMsg, true);
@@ -1366,20 +1388,15 @@ function processEditReservationPos(canvas, data,x, currentDateX)
 			leftPos = currentDateX;
 		}
 	}
-	else
+	else if (leftPos + 10 >= rightPos)
 	{
-		if(data.length == 1 && data[0].startPos > x)
-		{
-			leftPos = -2;
-		}
-		if(data.length == 1 && data[0].endPos < x)
-		{
-			rightPos = 302;
-		}
+		$(canvas).attr("data-toggle","hide");
+		showDialog(errMsgs.commonWarnTitle, errMsgs.mrEditUnvaliableTodayWarnMsg, true);
+		return;
 	}
 		
-	setStartOrEndTime((leftPos+3)*2 + 480, true);
-	setStartOrEndTime((rightPos -3)*2 + 480, false);
+	setStartOrEndTime((leftPos+2)*2 + 480, true);
+	setStartOrEndTime((rightPos -2)*2 + 480, false);
 	$("#startDateContainer input").val(getDateStrOrTimeStr(cavDay, null));
 	$(canvas).attr("data-toggle","modal");
 	bookRoom(mrData[canvas.id].floor, mrData[canvas.id].id);
