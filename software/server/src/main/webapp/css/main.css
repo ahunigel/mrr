@@ -216,3 +216,7 @@ border-bottom:none !important;
   margin-left: auto; 
   margin-right: auto; 
 }
+#report{
+ height:400px;
+   width: 850px;
+}
