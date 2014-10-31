@@ -19,7 +19,7 @@ function initMain(){
 					loadMyReservaion();
 					break;
 				case 3: // report
-					// not implemented.
+					loadreport();
 					break;
 				case 4: // administrator tool
 					loadMRList();
