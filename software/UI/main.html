@@ -16,12 +16,33 @@
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-<script type="text/JavaScript">
-function alt(){
+<script type="text/javascript">
+//this funtion will be the highlight and pic hover function
 
-  alert("Asdsad");
-}
+$(document).ready(function(){
+
+   $("#lists li").hover(function(){
+   
+    //alert("test li"); test the ul li hover function
+    
+    $(this).addClass("highlight");
+    $(this).siblings().removeClass("highlight");
+    $(this).find("div").addClass("highlight2");
+    $(this).siblings().find("div").removeClass("highlight2");
+     
+    //here will change the image from orginal to white
+
+
+
+
+
+   });
+
+});
+
+
 </script>
+
 
 <script type="text/javascript">
   $(document).ready(function(){
@@ -35,6 +56,7 @@ function alt(){
 
 </script>
 
+
     <script type="text/JavaScript">
     //alert("you use the jquery"); //for test the page load
      /*
@@ -42,19 +64,48 @@ function alt(){
      function:use the ul li index to hover the different page on the right;
      suggestion:when need to enhance the performance, please use this as ajax
      */
-     $(document).ready(function(){
+     /*$(document).ready(function(){
          $(".lists li").click(function(){
          //alert("you click the ul li");  //for test the list li click
             var index = $(this).index();
+
             //alert(index); //i can get the 
          });
 
           
      });
+*/
+
 
     </script>
 
     <style type="text/css">
+
+#lists li{
+  margin-left:-30px !important;
+
+  display:block;
+  width:120px !important;
+  height:120px !important;
+  margin:0px !important;
+  padding:0px !important;
+
+
+}
+
+    .highlight2{
+color:#333;
+ 
+    }
+
+
+
+    .highlight{
+color:#99cccc;
+ background:#fff;
+    }
+
+
     *{
      margin:0px;
      padding:0px;
@@ -125,7 +176,7 @@ color:#fff;
 
 #lists li{
 display:block;
-margin-top:15px;
+
 color:#fff;
 
 height:80px;
@@ -176,7 +227,7 @@ border:1px solid #333;
 }
 
 #lists li a:hover{
-color:red;
+
 
 }
 .container1{
@@ -206,6 +257,10 @@ text-align:center;
 border-bottom:none !important;
 }
 
+#lists li{
+  width:126px !important;
+  margin-left:-14px !important;
+}
     </style>
 
   </head>
@@ -232,11 +287,16 @@ border-bottom:none !important;
 
   <div class="col-sm-1" id="left">
   <ul class="nav nav-tabs" role="tablist" id="lists">
-  <li class="active"><a href="#available"  onclick="alt()" data-toggle="tab"><img src="img/avai.png" height="60px" width="60px"/>Available</a></li>
-  <li><a href="#all" data-toggle="tab"><img src="img/all.png" height="60px" width="60px"/>All</a></li>
-  <li><a href="#manage" data-toggle="tab"><img src="img/report.png" height="60px" width="60px"/>Report</a></li>
-  <li><a href="#maps" data-toggle="tab"><img src="img/manage.png" height="60px" width="60px"/>Manage</a></li>
-  <li><a href="#manage" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/>My</a></li>
+  <li><a href="#available" data-toggle="tab"><br/><img src="img/avai.png" height="60px" width="60px"/>
+    <div class="navl">Available</a></div></li>
+  <li><a href="#all" data-toggle="tab"><br/><img src="img/all.png" height="60px" width="60px"/>
+    <div class="navl">All</div></a></li>
+  <li><a href="#manage" data-toggle="tab"><br/><img src="img/report.png" height="60px" width="60px"/>
+    <div class="navl">Report</div></a></li>
+  <li><a href="#maps" data-toggle="tab"><img src="img/manage.png" height="60px" width="60px"/>
+    <div class="navl">Manage</div></a></li>
+  <li><a href="#manage" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/>
+    <div class="navl">My</div></a></li>
    
 
   </ul>
