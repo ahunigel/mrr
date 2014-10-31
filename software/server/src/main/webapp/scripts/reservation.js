@@ -26,7 +26,7 @@ var errMsgs = {
 				" meeting room, press ok to continue, press cancel to select other meeting room.",
 		addMRRWarnMsgTitle:"Failed Message",
 		addMRRWarnMsg:"The date time range of the meeting room reservation in conflict with others ,please rebook!",
-		mrUnvaliableWarnMsg:"The reservation cannot be shown due to there is no meeting room to choice, please contact administrator !",
+		mrUnvaliableWarnMsg:"The reservation cannot be shown due to there is no meeting room to select, please contact administrator !",
 		mrNoPrivilegeWarnMsg:"You don't have the privilege to do this operation!",
 		mrEditWarnMsg:"The reservation is going/expired, you cannot edit it!",
 		mrEditOldDayWarnMsg:"Yon cannot add or edit reservation the day before today!",
@@ -80,10 +80,7 @@ function loadMeetingRooms()
 function processMeetingRoomData()
 {
 	var option = null;
-	if (mrData.length == 0 && floorOptions.length == 0)
-	{
-		return false;
-	}
+
 	for(var i in mrData)
 	{
 		var fl = null;
@@ -124,6 +121,11 @@ function processMeetingRoomData()
 			$("#mrrFloorMeetingRoom").append(mrObj[fValue].data);
 			break;
 		}
+	}
+	
+	if (floorOptions.length == 0)
+	{
+		return false;
 	}
 	
 	return true;
