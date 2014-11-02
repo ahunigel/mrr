@@ -5,7 +5,36 @@ $("#logout").click(function(){
 
 function initMain(){
 	$(".welcome").html("Welcome "+currentUser.name); 
+	
+	$("#lists li").hover(function(){
+		   
+		   hightlight($(this));
+	});
+	
+	function hightlight( ele){
+		ele.addClass("highlight");
+		ele.siblings().removeClass("highlight");
+		ele.find("div").addClass("highlight2");
+		ele.siblings().find("div").removeClass("highlight2");
+	}
+	function changeImage(ele){
+		var img=ele.find("img").attr("src");
+		if(img.indexOf("-white")<0){
+			ele.find("img").attr("src",img.split(".")[0]+"-white.png");
+		}
+		img=ele.siblings(".active").find("img").attr("src");
+		ele.siblings().each(function()
+		{
+			var imgPath=$(this).find("img").attr("src");
+			$(this).find("img").attr("src",imgPath.replace("-white",""))
+		}
+		);
+	}
+	
+	
 	 $("#lists li").click(function(){
+		 	hightlight($(this));
+			changeImage($(this));
             var index = $(this).index();
             switch (index)
 			{
@@ -43,7 +72,6 @@ function initMain(){
 		$("#adminDiv").hide();
 	}
 	
-	$("#closeEditMRBtn").click();
 }
 
 function resetMRRForm()
@@ -249,7 +277,7 @@ function  loadMRList (){
 			mrData[data[i].id]=data[i];
 			var row=mrTab.insertRow(i);
 			row.insertCell(0).innerHTML=data[i].name;
-			row.insertCell(1).innerHTML='<a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+data[i].id+')">'+data[i].floor+'F '+data[i].location+'</a>';
+			row.insertCell(1).innerHTML='<a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+data[i].id+',false)">'+data[i].floor+'F '+data[i].location+'</a>';
 			row.insertCell(2).innerHTML=data[i].seats;
 			
 			row.insertCell(3).innerHTML='<input type="checkbox" '+(data[i].phoneExist==true?'checked':'')+' disabled/>';

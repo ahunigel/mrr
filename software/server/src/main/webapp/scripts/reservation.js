@@ -1580,7 +1580,7 @@ function processMeetingRooomStatusData(mrTab,result)
 		}
 		cel.appendChild($("<img id='"+result[i].meetingRoom.id+"' class = 'pull-left mrr-image' src='"+imgSource+"' width='45' height='45' />").get(0));
 		cel.appendChild($("<div>  "+result[i].meetingRoom.name+"</div>").get(0));
-		cel.appendChild($('<div> <a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+result[i].meetingRoom.id+')">'+result[i].meetingRoom.floor+'F '+result[i].meetingRoom.location+'</a></div>').get(0));
+		cel.appendChild($('<div> <a data-toggle="modal" data-target="#editLocation" onclick="initLocationEdit('+result[i].meetingRoom.id+',true)">'+result[i].meetingRoom.floor+'F '+result[i].meetingRoom.location+'</a></div>').get(0));
 		cel = row.insertCell(index++);
 		//cel.appendChild($("<img class = 'pull-left' src='img/phone.png' width='39' height='32' />").get(0));
 		//cel.appendChild($("<img class = 'pull-left' src='img/recorder.png' width='39' height='32' />").get(0));

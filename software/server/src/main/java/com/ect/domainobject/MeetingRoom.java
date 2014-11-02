@@ -21,6 +21,8 @@ public class MeetingRoom {
 	
 	private String location;
 	
+	private String position;
+	
 	private int floor;
 	private int seats;
 	
@@ -121,6 +123,22 @@ public class MeetingRoom {
 
 	public void setSpecailRoom(boolean specailRoom) {
 		this.specailRoom = specailRoom;
+	}
+
+	
+	
+	/**
+	 * @return the position
+	 */
+	public String getPosition() {
+		return position;
+	}
+
+	/**
+	 * @param position the position to set
+	 */
+	public void setPosition(String position) {
+		this.position = position;
 	}
 
 	/* (non-Javadoc)

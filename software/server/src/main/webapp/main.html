@@ -45,11 +45,11 @@
 
   <div class="col-sm-1" id="left">
 	  <ul class="nav nav-tabs" role="tablist" id="lists">
-		  <li class="active"><a href="#available"  data-toggle="tab"><img src="img/avai.png" height="60px" width="60px"/>Available</a></li>
-		  <li><a href="#all" data-toggle="tab"><img src="img/all.png" height="60px" width="60px"/>All</a></li>
-		  <li><a href="#maps" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/>Mine</a></li>
-		  <li><a href="#report" data-toggle="tab"><img src="img/report.png" height="60px" width="60px"/>Report</a></li>
-		  <li id="adminDiv"><a href="#manage" data-toggle="tab"><img src="img/manage.png" height="60px" width="60px"/>Manage</a></li>
+		  <li class="active"><a href="#available"  data-toggle="tab"><img src="img/avai-white.png" height="60px" width="60px"/><br>Available</a></li>
+		  <li><a href="#all" data-toggle="tab"><img src="img/all.png" height="60px" width="60px"/><br>All</a></li>
+		  <li><a href="#maps" data-toggle="tab"><img src="img/my.png" height="60px" width="60px"/><br>Mine</a></li>
+		  <li><a href="#report" data-toggle="tab"><img src="img/report.png" height="60px" width="60px"/><br>Report</a></li>
+		  <li id="adminDiv"><a href="#manage" data-toggle="tab"><img src="img/manage.png" height="60px" width="60px"/><br>Manage</a></li>
 	  </ul>
   </div>
   
@@ -412,17 +412,17 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" id="closeUploadDialog" aria-hidden="true">×</button>
+          <button type="button" class="close" data-dismiss="modal" id="closeLocationEditDialog" aria-hidden="true">×</button>
           <h4 class="modal-title">Edit Location</h4>
         </div>
         <div class="modal-body">
-			<div id="grid" style="background-color:white; width:540px; height: 300px;">
+			<div id="grid" style="background-color:white; width:1200px; height: 400px;">
 				<div class="ghost-select" style="display: none;"><span></span></div>
 			</div>
 			<form id="locationEditForm">
 				<input name="id" id="mrIdLocationEdit" type="hidden"/>
 				<input readonly id="position" name="position"/>
-				<input type="submit"/>
+				<input id="locationEditSubmit" type="submit" value="submit"/>
 			</form>
         </div>
       </div><!-- /.modal-content -->
@@ -480,9 +480,7 @@
     <!-- Include all compiled plugins (below), or include individual files as needed -->     
     <script src="scripts/main.js"></script>
     <script type="text/javascript" src="scripts/bootstrap-datetimepicker.min.js"></script>
-	<script src='js/moment.min.js'></script>
-	<script src='js/jquery-ui.custom.min.js'></script>
-	<script src='js/fullcalendar.min.js'></script>
+
     <script type="text/javascript" src="scripts/reservation.js"></script> 
      <script src='scripts/report.js'></script>
     <!-- <script src="js/bootstrap.min.js"></script>-->

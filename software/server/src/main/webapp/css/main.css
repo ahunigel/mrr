@@ -216,7 +216,36 @@ border-bottom:none !important;
   margin-left: auto; 
   margin-right: auto; 
 }
+
+#editLocation .modal-content {
+	width:1220px;
+  margin-left: auto; 
+  margin-right: auto; 
+}
+#editLocation .modal-content {
+	width:1220px;
+  margin-left: auto; 
+  margin-right: auto; 
+}
+
+.highlight2{
+	color:#333;
+}
+.highlight{
+color:#99cccc;
+ background:#fff;
+ }
 #report{
  height:400px;
    width: 850px;
+}
+#lists li{
+  margin-left:-30px !important;
+
+  display:block;
+  width:120px !important;
+  height:120px !important;
+  margin:0px !important;
+  padding:0px !important;
+
 }

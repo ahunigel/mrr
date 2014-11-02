@@ -58,6 +58,18 @@ public class MeetingRoomResource {
 	}
 	
 	
+	@POST
+	@Path("/position")
+	@Produces({ "application/json;charset=UTF-8" })
+	@Consumes({ "application/json;charset=UTF-8"})
+	public MeetingRoomVO updateMeetingRoomLocation(MeetingRoomVO meetingRoom){
+		MeetingRoomVO persitiedMrVo=service.getMeetingRoom(meetingRoom.getId());
+		persitiedMrVo.setPosition(meetingRoom.getPosition());
+		return service.saveOrUpdateMeetingRoom(persitiedMrVo);
+	}
+	
+	
+	
 	@DELETE
 	@Path("/{id}")
 	public void deleteMeetingRoom(@PathParam("id") Integer id){

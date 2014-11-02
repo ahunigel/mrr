@@ -29,6 +29,8 @@ public class MeetingRoomVO implements Serializable{
 	private String image;
 	
 	private boolean specailRoom;
+	
+	private String position;
 
 	public Integer getId() {
 		return id;
@@ -122,6 +124,20 @@ public class MeetingRoomVO implements Serializable{
 	 */
 	public void setSpecailRoom(boolean specailRoom) {
 		this.specailRoom = specailRoom;
+	}
+
+	/**
+	 * @return the position
+	 */
+	public String getPosition() {
+		return position;
+	}
+
+	/**
+	 * @param position the position to set
+	 */
+	public void setPosition(String position) {
+		this.position = position;
 	}
 	
 	

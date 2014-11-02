@@ -19,18 +19,88 @@ function mousedownHandler(e){
 }
 var baseTop,baseLeft;
 var mouseDownBinded=false;
-function initLocationEdit(mrId){
+
+
+var editCssChange=false;
+function initLocationEdit(mrId, hideSubmit){
 	var mr=mrData[mrId];
 	//$("#floorImage").attr("src","floorImage/"+mr.floor+".png");
 	$("#mrIdLocationEdit").val(mr.id);
-	$("#position").val("");
+	$("#position").val(mr.position);
 	var imageUrl="floorImage/"+mr.floor+".png";
 	$("#grid").css('background-image', 'url(' + imageUrl + ')');
-	if(!mouseDownBinded){
+	$("#grid").css('background-size', 'cover');
+	if(!editCssChange){
+		$("#editLocation").css(
+			'margin-left', function () { //Horizontal centering
+			return -($(this).width() / 2);
+		});
+		editCssChange=true;
+	}
+	if(hideSubmit){
+		$("#locationEditSubmit").hide();
+	}else{
+		$("#locationEditSubmit").show();
+	}
+	$("#locationEditSubmit").unbind("click");
+	$("#locationEditSubmit").click(function (e) {
+		// stop the regular form submission
+		e.preventDefault();
+		// submit data();
+		
+		//close dialogArguments
+		
+		sendLocationData();
+	});
+	if(!mouseDownBinded&&!hideSubmit){
 		$("#grid").bind("mousedown",mousedownHandler);
 		mouseDownBinded=true;
 	}
+	if(hideSubmit){
+		$("#grid").unbind("mousedown");
+		mouseDownBinded=false;
+	}
 }
+
+function sendLocationData(){
+	 var data = {};
+	 var editForm=document.getElementById("locationEditForm");
+	  for (var i = 0, ii = editForm.length; i < ii; ++i) {
+	    var input = editForm[i];
+			if(input.type=='checkbox'){
+				data[input.name] = input.checked;
+			}
+			else{
+				if ((input.name == "position") && (input.value == null || input.value.length < 1))
+				{
+					alert("The value of "+input.name+" cannot be null");
+					return;
+				}
+				else
+				{
+					data[input.name] = input.value;
+				}
+			}
+		
+	  }
+	  
+	  var xhr = new XMLHttpRequest();
+	  xhr.open("POST","ws/meetingrooms/position" , true);
+	  xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+	  // send the collected data as JSON
+	 
+	 xhr.onreadystatechange=function()
+	{
+	  if (xhr.readyState==4 && xhr.status==200)
+		{			
+			$("#closeLocationEditDialog").click();
+		}
+	 }
+	  xhr.send(JSON.stringify(data));
+	 
+}
+
 
 function mouseupHandler(e) {
 	$("#grid").unbind("mousemove", openSelector);
