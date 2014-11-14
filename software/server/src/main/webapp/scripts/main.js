@@ -60,6 +60,9 @@ function initMain(){
 	if(currentUser.role=="ADMIN"){		
 		$("#adminDiv").show();
 		$("#addMR").click(addMR);
+		$("#closeEditMRBtn").click(function(){
+			$('#editMRForm').bootstrapValidator('resetForm', true);
+		});
 		$("#image").fileinput({previewSettings:{ image: {width: "240px", height: "240px"},}});
 		var imageUploadForm=document.getElementById("imageUploadForm");
 		imageUploadForm.onsubmit=uploadImage;
@@ -76,11 +79,11 @@ function initMain(){
 
 function resetMRRForm()
 {
-	$(".form-control-feedback").remove();
-	$("#editMRForm").find(".has-error").removeClass("has-error");
-    $("#editMRForm").find(".has-success").removeClass("has-success");
-    $("#editMRForm").find(".help-block").hide();
-	$("#editMRForm").find(":submit").removeAttr("disabled");
+	//$(".form-control-feedback").remove();
+	//$("#editMRForm").find(".has-error").removeClass("has-error");
+    //$("#editMRForm").find(".has-success").removeClass("has-success");
+    //$("#editMRForm").find(".help-block").hide();
+	//$("#editMRForm").find(":submit").removeAttr("disabled");
 	
 	var editForm=document.getElementById("editMRForm");
 	for (var i = 0, ii = editForm.length; i < ii; ++i) {
@@ -114,6 +117,14 @@ function initValidate(){
 	                    }
 	                }
 	            },
+	            location: {
+	            	message: 'The location is not valid',
+	                validators: {
+	                    notEmpty: {
+	                        message: 'The location is required and cannot be empty'
+	                    }
+	                }
+	            },
 	            floor: {
 	            	 message: 'The floor is not valid',
 	            	 validators: {
@@ -135,6 +146,11 @@ function initValidate(){
 	                    },
 	                    digits:{
 	                    	message: 'The seats can be digital only'
+	            		},
+	            		between: {
+	            			min:1,
+	            			max:100,
+	            			message: 'The seats must be between 2 and 100'
 	            		}
 	                }
 	            }
@@ -172,7 +188,16 @@ function addMR()
 	$("#addOrEditMRR").click(function (e) {
 		// stop the regular form submission
 		e.preventDefault();
-		sendData("PUT",true);
+		var validator = $('#editMRForm').data('bootstrapValidator');
+		validator.validate();
+		if(!validator.isValid())
+		{
+			return;
+		}
+		else
+		{
+			sendData("PUT",true);
+		}
 	});
 }
 
@@ -219,7 +244,16 @@ var editMR=function(id){
 	  $("#addOrEditMRR").click(function (e) {
 			// stop the regular form submission
 		  	e.preventDefault();
-			sendData("POST",false);
+		  	var validator = $('#editMRForm').data('bootstrapValidator');
+			validator.validate();
+			if(!validator.isValid())
+			{
+				return;
+			}
+			else
+			{
+				sendData("POST",false);
+			}
 		});
 }
 
