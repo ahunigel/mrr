@@ -114,6 +114,20 @@ function initValidate(){
 	                validators: {
 	                    notEmpty: {
 	                        message: 'The meeting room name is required and cannot be empty'
+	                    },
+	                    remote: {
+	                    	url: 'ws/meetingrooms/checkName',
+	                    	data: function(validator){
+	                    		var roomId = validator.getFieldElements('id').val();
+								if(roomId == null || roomId == '')
+								{
+									roomId = -1;
+								}
+	                    		return{
+	                    			id: roomId
+	                    		}
+	                    	},
+	                    	message: 'The meeting room name is exist already'
 	                    }
 	                }
 	            },

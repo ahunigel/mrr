@@ -59,4 +59,9 @@ public class MeetingRoomService
 		meetingRoom.setId(mr.getId());
 		return meetingRoom;
 	}
+	
+	public boolean checkName(Integer mrId, String name)
+	{
+		return dao.checkMeetingRoomName(mrId, name);
+	}
 }

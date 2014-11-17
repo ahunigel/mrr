@@ -11,7 +11,8 @@ import javax.persistence.Table;
 
 @Entity
 @NamedQueries({
-	@NamedQuery(name = "getMeetingRoomById", query = "select m from MeetingRoom m where m.id = :mrId")
+	@NamedQuery(name = "getMeetingRoomById", query = "select m from MeetingRoom m where m.id = :mrId"),
+	@NamedQuery(name = "checkName", query = "select m from MeetingRoom m where m.name = :mrName and m.id != :mrId")
 })
 @Table(name = "meeting_room")
 public class MeetingRoom {
