@@ -1,5 +1,6 @@
 package com.ect.domainobject;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -7,12 +8,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 @Entity
 @NamedQueries({
 	@NamedQuery(name = "getMeetingRoomById", query = "select m from MeetingRoom m where m.id = :mrId"),
-	@NamedQuery(name = "checkName", query = "select m from MeetingRoom m where m.name = :mrName and m.id != :mrId")
+	@NamedQuery(name = "checkName", query = "select m from MeetingRoom m where m.name = :mrName and m.id != :mrId"),
+	@NamedQuery(name = "getMeetingRoomByImgName", query = "select m from MeetingRoom m where m.image = :imgName")
 })
 @Table(name = "meeting_room")
 public class MeetingRoom {
@@ -140,6 +143,17 @@ public class MeetingRoom {
 	 */
 	public void setPosition(String position) {
 		this.position = position;
+	}
+	
+	private MeetingRoomImage meetingRoomImg;
+	
+	@OneToOne(mappedBy="meetRoom", cascade = CascadeType.ALL)
+	public MeetingRoomImage getMeetingRoomImg() {
+		return meetingRoomImg;
+	}
+
+	public void setMeetingRoomImg(MeetingRoomImage meetingRoomImg) {
+		this.meetingRoomImg = meetingRoomImg;
 	}
 
 	/* (non-Javadoc)

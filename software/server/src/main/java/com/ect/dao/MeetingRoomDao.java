@@ -19,6 +19,13 @@ public class MeetingRoomDao extends BaseDao<MeetingRoom>{
 						"mrId", mrId).get(0);
 	}
 	
+	public MeetingRoom getMeetingRoomByImgName(String imgName)
+	{
+		return (MeetingRoom) this.getHibernateTemplate()
+				.findByNamedQueryAndNamedParam("getMeetingRoomByImgName",
+						"imgName", imgName).get(0);
+	}
+	
 	public boolean checkMeetingRoomName(Integer mrId, String mrName)
 	{
 		String[] argsName = {"mrId", "mrName"};

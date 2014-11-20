@@ -1,5 +1,9 @@
 package com.ect.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ect.dao.MeetingRoomDao;
 import com.ect.domainobject.MeetingRoom;
+import com.ect.domainobject.MeetingRoomImage;
+import com.ect.util.AppUtils;
 import com.ect.vo.MeetingRoomVO;
 
 @Transactional
@@ -54,7 +60,61 @@ public class MeetingRoomService
 	public MeetingRoomVO saveOrUpdateMeetingRoom(MeetingRoomVO meetingRoom)
 	{
 		MeetingRoom mr = new MeetingRoom();
+		String originalImg = "";
+		if(meetingRoom.getId() != null)
+		{
+			dao.get(mr, meetingRoom.getId());
+			originalImg = mr.getImage();
+		}
+		
 		BeanUtils.copyProperties(meetingRoom, mr);
+		
+		if((meetingRoom.getId()==null 
+					&& meetingRoom.getImage()!=null 
+					&& !"".equals(meetingRoom.getImage().trim()))
+			||(meetingRoom.getId()!=null 
+				&& !meetingRoom.getImage().equals(originalImg))
+			)
+		{
+			String fileName = meetingRoom.getImage();
+			File imgFolder=AppUtils.getImageFolder();
+			File img=new File(imgFolder,fileName);
+			byte[] imgContent = new byte[(int) img.length()];
+			FileInputStream finput = null;
+			try {
+				finput = new FileInputStream(img);
+				finput.read(imgContent); 
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			finally
+			{
+				try {
+					finput.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+			
+			MeetingRoomImage roomImg = null;
+			
+			if(mr.getId()!=null && mr.getMeetingRoomImg()!=null)
+			{
+				roomImg = mr.getMeetingRoomImg();
+			}
+			else
+			{
+				roomImg = new MeetingRoomImage();
+			}
+
+			roomImg.setContent(imgContent);
+			mr.setMeetingRoomImg(roomImg);
+			roomImg.setMeetRoom(mr);
+		}
+		
 		dao.saveOrUpdate(mr);
 		meetingRoom.setId(mr.getId());
 		return meetingRoom;

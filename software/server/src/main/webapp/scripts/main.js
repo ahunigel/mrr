@@ -258,16 +258,16 @@ var editMR=function(id){
 	  $("#addOrEditMRR").click(function (e) {
 			// stop the regular form submission
 		  	e.preventDefault();
-		  	var validator = $('#editMRForm').data('bootstrapValidator');
-			validator.validate();
-			if(!validator.isValid())
-			{
-				return;
-			}
-			else
-			{
+		  	//var validator = $('#editMRForm').data('bootstrapValidator');
+			//validator.validate();
+//			if(!validator.isValid())
+//			{
+//				return;
+//			}
+//			else
+//			{
 				sendData("POST",false);
-			}
+//			}
 		});
 }
 

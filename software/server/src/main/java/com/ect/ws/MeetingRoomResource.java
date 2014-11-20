@@ -95,11 +95,11 @@ public class MeetingRoomResource {
 		File folder=AppUtils.getImageFolder();
 		System.out.println("mrId"+mrId);
 		String savedName;
-		if(mrId==null||mrId.trim().isEmpty()||"undefined".equalsIgnoreCase(mrId.trim())){
+//		if(mrId==null||mrId.trim().isEmpty()||"undefined".equalsIgnoreCase(mrId.trim())){
 			savedName=System.currentTimeMillis()+contentDispositionHeader.getFileName().substring(contentDispositionHeader.getFileName().lastIndexOf("."));
-		}else{
-			savedName= mrId.trim();
-		}
+//		}else{
+//			savedName= mrId.trim();
+//		}
 		File filePath = new File(folder,savedName);
 		AppUtils.saveFile(fileInputStream, filePath);
 		return Response.status(200).entity(savedName).build();
