@@ -1159,7 +1159,7 @@ function getTodayStatus(items, mrId)
 		ctx.fillRect(0, 20, 301, 1);
 		ctx.font = "15px bold";
 		ctx.fillText("8", 0, 33);
-		ctx.fillText("12", 140, 33);
+		ctx.fillText("12", 115, 33);
 		ctx.fillText("18", 285, 33);
 	}
 	drawTimeTicks();
@@ -1586,11 +1586,11 @@ function processMeetingRooomStatusData(mrTab,result)
 		//cel.appendChild($("<img class = 'pull-left' src='img/recorder.png' width='39' height='32' />").get(0));
 		if (result[i].meetingRoom.phoneExist)
 		{
-			cel.appendChild($("<img class = 'pull-left' src='img/phone.png' width='39' height='32' />").get(0));
+			cel.appendChild($("<img class = 'pull-left' src='img/recorder.png' width='39' height='32' />").get(0));
 		}
 		if (result[i].meetingRoom.projectorExist)
 		{
-			cel.appendChild($("<img class = 'pull-left' src='img/recorder.png' width='39' height='32' />").get(0));
+			cel.appendChild($("<img class = 'pull-left' src='img/phone.png' width='39' height='32' />").get(0));
 		}
 		cel = row.insertCell(index++);
 	    $(cel).addClass("align-bottom");
