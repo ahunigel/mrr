@@ -1977,7 +1977,20 @@ function getPageDistance(element){
   return coord;
 }
 
+/**
+ * The date time picker don't work well for Bootstrap V 3.0,
+ * the "previous" and "next" icon don't display, here we just
+ * manually add the style for it
+ */
+function fixDatetimePickerArrowImgIssue(){
+	$(".icon-arrow-left").addClass("glyphicon");
+	$(".icon-arrow-left").addClass("glyphicon-arrow-left");
+	$(".icon-arrow-right").addClass("glyphicon");
+	$(".icon-arrow-right").addClass("glyphicon-arrow-right");
+}
+
 initMRResElement();
 loadMeetingRooms();
 loadAvaliableMeetingRoomStatus();
 dragTime();
+fixDatetimePickerArrowImgIssue();
