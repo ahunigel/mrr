@@ -949,12 +949,13 @@ function getRecurrentTypeMsg(recValue, intervalValue)
  */
 function bookRoom(floor, mrId)
 {
-	if (floorOptions.length < 1)
-	{
-		processMeetingRoomData();
-	}
+	$("#mrrFloor").empty();
+	var currentFloor = new Option(floor, floor);
+	$("#mrrFloor").append(currentFloor);
 	$("#mrrFloor").val(floor);
-	$("#mrrFloorMeetingRoom").html(mrObj[floor].data);
+	$("#mrrFloorMeetingRoom").empty();
+	var currentMeetingRoom = new Option(mrData[mrId].name, mrId);
+	$("#mrrFloorMeetingRoom").append(currentMeetingRoom);
 	$("#mrrFloorMeetingRoom").val(mrId);
 }
 
