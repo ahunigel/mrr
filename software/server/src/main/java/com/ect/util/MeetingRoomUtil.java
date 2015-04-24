@@ -114,16 +114,26 @@ public class MeetingRoomUtil
 		return mrr;
 	}
 	
-	public static boolean isMeetingRoomAvaliable(List<ReservationTimeIntervalItemBean> items)
+	public static boolean isMeetingRoomAvaliable(List<ReservationTimeIntervalItemBean> items,Date selectedDate)
 	{
 		boolean isAvaliable = false;
 		if (items == null || items.size() == 0)
 		{
 			return true;
 		}
+		long totalInterval = 0;
+		for (ReservationTimeIntervalItemBean item : items)
+		{
+			long interval = item.getEndTime().getTime() - item.getStartTime().getTime();
+			totalInterval += interval;
+		}
+		if(totalInterval >= 10 * 3600 * 1000)
+		{
+			return false;
+		}
 		List<TimeInterval> result = new ArrayList<TimeInterval>();
 		TimeInterval ti = new TimeInterval();
-		Date st = DateTimeUtil.getDateWithoutTime(new Date());
+		Date st = DateTimeUtil.getDateWithoutTime(selectedDate);
 
 		ti.setStartDate(DateTimeUtil.getAddedTimeDate(st, 8, 0));
 		ti.setEndDate(DateTimeUtil.getAddedTimeDate(st, 18, 0));

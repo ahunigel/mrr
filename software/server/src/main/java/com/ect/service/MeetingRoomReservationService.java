@@ -16,6 +16,7 @@ import com.ect.dao.ReservationMeetingRoomDao;
 import com.ect.domainobject.ITimeIntervalRecord;
 import com.ect.domainobject.MeetingRoom;
 import com.ect.domainobject.MeetingRoomReservation;
+import com.ect.domainobject.MeetingRoomStatus;
 import com.ect.domainobject.ReservationTempRecordItemBean;
 import com.ect.domainobject.ReservationTimeIntervalItemBean;
 import com.ect.domainobject.ReservationType;
@@ -31,6 +32,8 @@ public class MeetingRoomReservationService
 {
 
 	private static final int NOT_CACHE_COUNT = 3;
+	private static final int MEETING_ROOM_STATUS_AVALIABLE = 1;
+	private static final int MEETING_ROOM_STATUS_OCCUPIED = 0;
 
 	@Autowired
 	private ReservationMeetingRoomDao reservationDao;
@@ -58,9 +61,17 @@ public class MeetingRoomReservationService
 		MeetingRoomStatusVO  mrStatusVo = null;
 		for (MeetingRoom mr : meetingRooms)
 		{
-			if (isOnlyAvaliable && !MeetingRoomUtil.isMeetingRoomAvaliable(mrr.get(mr)))
+			if (isOnlyAvaliable && !MeetingRoomUtil.isMeetingRoomAvaliable(mrr.get(mr), selectedDate))
 			{
 				continue;
+			}
+			if(!MeetingRoomUtil.isMeetingRoomAvaliable(mrr.get(mr), selectedDate))
+			{
+				mr.setStatus(MeetingRoomStatus.OCCUPIED);
+			}
+			else
+			{
+				mr.setStatus(MeetingRoomStatus.AVAILABLE);
 			}
 			mrStatusVo = new MeetingRoomStatusVO();
 			mrVo = new MeetingRoomVO();
