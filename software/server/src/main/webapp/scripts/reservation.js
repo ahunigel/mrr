@@ -96,7 +96,20 @@ function processMeetingRoomData()
 			floorOptions.push(fl);
 		}
 		
-		mrObj[mrData[i].floor].data.push(option);
+		var alreadyExist = false;
+		for(var j in mrObj[mrData[i].floor].data)
+		{
+			var mt = mrObj[mrData[i].floor].data[j];
+			if(mt.value === option.value)
+			{
+				alreadyExist = true;
+				break;
+			}
+		}
+		if(!alreadyExist)
+		{
+			mrObj[mrData[i].floor].data.push(option);
+		}
 	}
 	if (floorOptions.length > 0)
 	{
