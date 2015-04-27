@@ -63,7 +63,7 @@ function initMain(){
 		$("#closeEditMRBtn").click(function(){
 			$('#editMRForm').bootstrapValidator('resetForm', true);
 		});
-		$("#image").fileinput({previewSettings:{ image: {width: "240px", height: "240px"},}});
+		$("#image").fileinput({previewSettings:{ image: {width: "240px", height: "240px"}},maxFileSize:10240});
 		var imageUploadForm=document.getElementById("imageUploadForm");
 		imageUploadForm.onsubmit=uploadImage;
 		initValidate();
