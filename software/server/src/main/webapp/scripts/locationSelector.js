@@ -30,17 +30,35 @@ function initLocationEdit(mrId, hideSubmit){
 	var imageUrl="floorImage/"+mr.floor+".png";
 	$("#grid").css('background-image', 'url(' + imageUrl + ')');
 	$("#grid").css('background-size', 'cover');
+	
+	
 	 $("#grid").css({position: 'relative'});
 	var positionStr = mr.position;
-	var positionArray = positionStr.split(",");
-    $(".ghost-select").css({
-        'width': new Number(positionArray[2]),
-        'height': new Number(positionArray[3]),
-        'left': Math.round(new Number(positionArray[1])),
-        'top': Math.round(new Number(positionArray[0])),
-        'display': '',
-        'position': 'absolute'
-    });
+	if(positionStr != null)
+	{
+		var positionArray = positionStr.split(",");
+	    $(".ghost-select").css({
+	        'width': new Number(positionArray[2]),
+	        'height': new Number(positionArray[3]),
+	        'left': Math.round(new Number(positionArray[1])),
+	        'top': Math.round(new Number(positionArray[0])),
+	        'display': '',
+	        'position': 'absolute'
+	    });
+	}
+	else
+	{
+		$(".ghost-select").css({
+	        'width': 0,
+	        'height': 0,
+	        'left': 0,
+	        'top': 0,
+	        'display': '',
+	        'position': 'absolute'
+	    });
+	}
+    
+    
 	if(!editCssChange){
 		$("#editLocation").css(
 			'margin-left', function () { //Horizontal centering
