@@ -30,6 +30,17 @@ function initLocationEdit(mrId, hideSubmit){
 	var imageUrl="floorImage/"+mr.floor+".png";
 	$("#grid").css('background-image', 'url(' + imageUrl + ')');
 	$("#grid").css('background-size', 'cover');
+	 $("#grid").css({position: 'relative'});
+	var positionStr = mr.position;
+	var positionArray = positionStr.split(",");
+    $(".ghost-select").css({
+        'width': new Number(positionArray[2]),
+        'height': new Number(positionArray[3]),
+        'left': Math.round(new Number(positionArray[1])),
+        'top': Math.round(new Number(positionArray[0])),
+        'display': '',
+        'position': 'absolute'
+    });
 	if(!editCssChange){
 		$("#editLocation").css(
 			'margin-left', function () { //Horizontal centering
@@ -95,6 +106,7 @@ function sendLocationData(){
 	  if (xhr.readyState==4 && xhr.status==200)
 		{			
 			$("#closeLocationEditDialog").click();
+			loadMRList();
 		}
 	 }
 	  xhr.send(JSON.stringify(data));
@@ -105,11 +117,12 @@ function sendLocationData(){
 function mouseupHandler(e) {
 	$("#grid").unbind("mousemove", openSelector);
     $("#grid").unbind("mouseup", mouseupHandler);
-    var a = $(".ghost-select");
-    var aTop = a.offset().top;
-    var aLeft = a.offset().left;
-    var aW = a.width();
-    var aH = a.height();
+    var a = document.getElementById('ghost');
+    var aJqur = $(".ghost-select");
+    var aTop = a.offsetTop;
+    var aLeft = a.offsetLeft;
+    var aW = aJqur.width();
+    var aH = aJqur.height();
 //     $("body").append("<div id='big-ghost' class='big-ghost'></div>");
 //     $("#big-ghost").css({
 //         'width': aW,
