@@ -1,6 +1,8 @@
 package com.ect.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -104,7 +106,19 @@ public class MeetingRoomReservationService
 			mrStatusVo.setReservationItems(MeetingRoomUtil.getMeetingRoomReservationVo(rem.get(m), false));
 			result.add(mrStatusVo);
 		}
-
+		Collections.sort(result, new Comparator<MeetingRoomStatusVO>(){
+			@Override
+			public int compare(MeetingRoomStatusVO o1, MeetingRoomStatusVO o2) {
+				if(o1.getMeetingRoom().getFloor() != o2.getMeetingRoom().getFloor())
+				{
+					return (o1.getMeetingRoom().getFloor()>o2.getMeetingRoom().getFloor())? 1 : -1;
+				}
+				else
+				{
+					return o1.getMeetingRoom().getName().compareTo(o2.getMeetingRoom().getName());
+				}
+			}
+		});
 		return result;
 	}
 	
