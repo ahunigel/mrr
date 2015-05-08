@@ -106,6 +106,7 @@ public class MeetingRoomReservationService
 			mrStatusVo.setReservationItems(MeetingRoomUtil.getMeetingRoomReservationVo(rem.get(m), false));
 			result.add(mrStatusVo);
 		}
+
 		Collections.sort(result, new Comparator<MeetingRoomStatusVO>(){
 			@Override
 			public int compare(MeetingRoomStatusVO o1, MeetingRoomStatusVO o2) {
@@ -217,7 +218,7 @@ public class MeetingRoomReservationService
 				.getReservationTimeIntervalRecords(mr);
 		if (isValidReservation(mr, reservationItems))
 		{
-			reservationDao.saveMeetingRoomReservation(mr);
+			reservationDao.updateMeetingRoomReservation(mr);
 			if(reservationDao.deleteReservationTimeIntervalItemsByRes(mr.getId()))
 			{
 				reservationDao.saveReservationTimeIntervalItems(reservationItems,
@@ -263,14 +264,14 @@ public class MeetingRoomReservationService
 		}
 		else if (mrRes.getReservationType().equals(ReservationType.RECURRENT))
 		{
-			isValid = checkRecurrentReservation(reservationItems);
+			isValid = checkRecurrentReservation(reservationItems, mrRes);
 		}
 
 		return isValid;
 	}
 
 	private boolean checkRecurrentReservation(
-			List<ITimeIntervalRecord> reservationItems)
+			List<ITimeIntervalRecord> reservationItems, MeetingRoomReservation mrRes)
 	{
 		boolean isValid = true;
 		List<ITimeIntervalRecord> result = null;
@@ -279,7 +280,7 @@ public class MeetingRoomReservationService
 		{
 			for (int i = 0; i < reservationItems.size(); i++)
 			{
-				rt = (ReservationTimeIntervalItemBean) reservationItems.get(0);
+				rt = (ReservationTimeIntervalItemBean) reservationItems.get(i);
 				result = reservationDao.checkReservationDateRange(rt);
 				if (result != null && result.size() > 0)
 				{

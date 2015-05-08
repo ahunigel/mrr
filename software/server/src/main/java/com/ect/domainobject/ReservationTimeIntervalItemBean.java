@@ -31,7 +31,7 @@ import javax.persistence.TemporalType;
 		@NamedQuery(name = "getItemsByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where r.startTime >=:startTime and r.endTime <=:endTime and r.meetingRoom.id=:mrId"),
 		@NamedQuery(name = "getItemsByTimeIntervalAndReservation", query = "select r from ReservationTimeIntervalItemBean r where r.startTime >=:startTime and r.endTime <=:endTime and r.reservation.id=:mrrId"),
 		@NamedQuery(name = "checkItemByTimeIntervalAndMeetingRoom", query = "select r from ReservationTimeIntervalItemBean r where ( (r.startTime >=:startTime and r.startTime <:endTime) or"
-				+ "  (r.endTime >:startTime and r.endTime <=:endTime) or (r.startTime <=:startTime and r.endTime >=:endTime)) and r.meetingRoom.id=:mrId")
+				+ "  (r.endTime >:startTime and r.endTime <=:endTime) or (r.startTime <=:startTime and r.endTime >=:endTime)) and r.meetingRoom.id=:mrId and r.reservation.id !=:mrrId")
 
 })
 @Table(name = "reservation_item")

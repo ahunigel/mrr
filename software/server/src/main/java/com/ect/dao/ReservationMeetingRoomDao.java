@@ -70,6 +70,13 @@ public class ReservationMeetingRoomDao extends BaseDao
 		this.getHibernateTemplate().saveOrUpdate(mrr);
 		return mrr;
 	}
+	
+	public MeetingRoomReservation updateMeetingRoomReservation(
+			MeetingRoomReservation mrr)
+	{
+		this.getHibernateTemplate().merge(mrr);
+		return mrr;
+	}
 
 	public boolean deleteMeetingRoomReservation(Integer mrrId)
 	{
@@ -159,8 +166,8 @@ public class ReservationMeetingRoomDao extends BaseDao
 			ReservationTimeIntervalItemBean rsItem)
 	{
 		Object[] values = new Object[] { rsItem.getStartTime(),
-				rsItem.getEndTime(), rsItem.getMeetingRoom().getId() };
-		String[] paramNames = new String[] { "startTime", "endTime", "mrId" };
+				rsItem.getEndTime(), rsItem.getMeetingRoom().getId(), rsItem.getReservation().getId() };
+		String[] paramNames = new String[] { "startTime", "endTime", "mrId", "mrrId" };
 		return (List<ITimeIntervalRecord>) this
 				.getHibernateTemplate().findByNamedQueryAndNamedParam(
 						"checkItemByTimeIntervalAndMeetingRoom", paramNames,

@@ -57,8 +57,8 @@
   <div class="col-sm-11 left-container-scrollable" id="right">
     <div class="tab-content" id="contents">
       <div class="tab-pane fade in active" id="available">
-		<button  class="btn btn-primary addMRR" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" >Add Meeting Room Reservation</button>
-		<button  class="btn btn-primary refresh" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" >Refresh</button>
+		<button  class="btn btn-primary addMRR allAvaBtn" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" >Add Meeting Room Reservation</button>
+		<button  class="btn btn-primary refresh-avaliable" data-loading-text="Loading...">Refresh</button>
 		<div class = "right-calendar">
 	    <label  class="label-calendar" id="mrrDatePicker"></label>
 	    <button  class="btn btn-primary mrrDatePicker">Date Picker</button>
@@ -67,15 +67,16 @@
 			<tbody id="avaliableMeetingRoomStatus">
 			</tbody>
 		</table>
-		<span class="glyphicon glyphicon-asterisk" style="color:#2E2EFE;"></span>
-		<span style="color:#2E2EFE;" class="lead"> Booked time - Blue color</span>
-		<br>
-		<span class="glyphicon glyphicon-asterisk" style="color:#00FF00;"></span>
-		<span style="color:#00FF00;" class="lead"> Available time - Green color</span>
+		<div id="availableNote">
+		<span class="btn btn-primary" style="background:#35BC9E;border-color:#35BC9E;" >My booked time</span>
+		<span class="btn btn-primary" style="background:#A95263;border-color:#A95263;"> Other booked time</span>
+		<span class="btn btn-primary" style="background:#EBF3F3;border-color:#EBF3F3;color:#B8B2B2;"> Available time</span>
+		</div>
 		<div id='calendar' style="display: none" ></div>
 	</div>
 <div class="tab-pane fade" id="all">
-<button  class="btn btn-primary addMRR" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" >Add Meeting Room Reservation</button>
+<button  class="btn btn-primary addMRR allAvaBtn" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit" >Add Meeting Room Reservation</button>
+		<button  class="btn btn-primary refresh-all" data-loading-text="Loading...">Refresh</button>
 		<div class = "right-calendar">
 	    <label  class="label-calendar" id="allMrrDatePicker"></label>
 	    <button  class="btn btn-primary mrrDatePicker">Date Picker</button>
@@ -84,23 +85,24 @@
 			<tbody id="allMeetingRoomStatus">
 			</tbody>
 		</table>
-		<span class="glyphicon glyphicon-asterisk" style="color:#2E2EFE;"></span>
-		<span style="color:#2E2EFE;" class="lead"> Booked time - Blue color</span>
-		<br>
-		<span class="glyphicon glyphicon-asterisk" style="color:#00FF00;"></span>
-		<span style="color:#00FF00;" class="lead"> Available time - Green color</span>
+		<div id="allNote">
+		<span class="btn btn-primary" style="background:#35BC9E;border-color:#35BC9E;" >My booked time</span>
+		<span class="btn btn-primary" style="background:#A95263;border-color:#A95263;"> Other booked time</span>
+		<span class="btn btn-primary" style="background:#EBF3F3;border-color:#EBF3F3;color:#B8B2B2;"> Available time</span>
+		</div>
 </div>
 <div class="tab-pane fade" id="maps">
 <button  class="btn btn-primary addMRR" data-toggle="modal" data-backdrop="static" data-keyboard="false" data-target="#meetingRoomReservationEdit">Add Meeting Room Reservation</button>
+		<button  class="btn btn-primary refresh-my" data-loading-text="Loading...">Refresh</button>
 		<table class="table table-hover">
 			<tbody id="myReservation">
 			</tbody>
 		</table>
-		<span class="glyphicon glyphicon-asterisk" style="color:#2E2EFE;"></span>
-		<span style="color:#2E2EFE;" class="lead"> Booked time - Blue color</span>
-		<br>
-		<span class="glyphicon glyphicon-asterisk" style="color:#00FF00;"></span>
-		<span style="color:#00FF00;" class="lead"> Available time - Green color</span>
+		<div id="myNote">
+		<span class="btn btn-primary" style="background:#35BC9E;border-color:#35BC9E;" >My booked time</span>
+		<span class="btn btn-primary" style="background:#A95263;border-color:#A95263;"> Other booked time</span>
+		<span class="btn btn-primary" style="background:#EBF3F3;border-color:#EBF3F3;color:#B8B2B2;"> Available time</span>
+		</div>
 </div>
 <div class="tab-pane fade" id="report">
 
@@ -130,7 +132,7 @@
 </div>
 
 
-<div class="footer">Copy Right by HickSon Team of Meetingroom reservation system<br/>Version V0.01<br/>emerson eresouce company</div>
+<div class="footer">Copyright &copy; by Smart Connect of Meeting Room Reservation System<br/>Version V0.01<br/>Emerson eResource (Xi'an) Co., Ltd</div>
 </div>
 
 <div class="modal fade" id="meetingRoomReservationEdit" role="dialog"
@@ -179,7 +181,7 @@
 						</div>
 					</div>				
 							<div class="form-group">
-								<label class="col-md-4 control-label">Appointment Time</label>
+								<label class="col-md-12 control-label" id="recurrentNote" style="text-align:left;">Appointment Time</label>
 							</div>
 							<div class="form-group" id = "startTimeContainer">
 								<label class="col-sm-3 control-label">Time Range</label>
@@ -211,8 +213,8 @@
 										id="DAILY_WORKDAY" name="ReservationPt" type="radio"
 										value="DAILY_WORKDAY"/>DailyWorkDay <input
 										id="WEEKLY" name="ReservationPt" type="radio"
-										value="WEEKLY"/>Weekly <input id="MONTHLY"
-										name="ReservationPt" type="radio" value="MONTHLY"/>Monthly
+										value="WEEKLY"/>Weekly <!-- <input id="MONTHLY"
+										name="ReservationPt" type="radio" value="MONTHLY"/>Monthly -->
 								</div>
 							</div>
 							 <div class="form-group" id="resIntervalContainer">
@@ -499,6 +501,37 @@
 
     <script type="text/javascript" src="scripts/reservation.js"></script> 
      <script src='scripts/report.js'></script>
-    <!-- <script src="js/bootstrap.min.js"></script>-->
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+	   $(function() { 
+	      $(".refresh-avaliable").click(
+			  function(){
+				 var btn = $(this).button('loading');
+				 setTimeout(function () {
+					loadAvaliableMeetingRoomStatus();
+					btn.button('reset');
+				}, 500);
+			  }
+		  );
+		  $(".refresh-all").click(
+			  function(){
+				 var btn = $(this).button('loading');
+				 setTimeout(function () {
+					loadAllMeetingRoomStatus();
+					btn.button('reset');
+				}, 500);
+			  }
+		  );
+		  $(".refresh-my").click(
+			  function(){
+				 var btn = $(this).button('loading');
+				 setTimeout(function () {
+					loadMyReservaion();
+					btn.button('reset');
+				}, 500);
+			  }
+		  );
+	   });  
+	</script>
   </body>
 </html>

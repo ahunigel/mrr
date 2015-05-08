@@ -21,6 +21,7 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ect.service.MeetingRoomReservationService;
 import com.ect.service.MeetingRoomService;
 import com.ect.util.AppUtils;
 import com.ect.vo.MeetingRoomVO;
@@ -29,19 +30,29 @@ import com.ect.vo.MeetingRoomVO;
 @Path("/meetingrooms")
 public class MeetingRoomResource {
 	@Autowired
-	private MeetingRoomService service;
+	private MeetingRoomService meetingRoomservice;
+	@Autowired
+	private MeetingRoomReservationService meetingRoomReservationService;
 	
 	@GET
 	@Produces({ "application/json;charset=UTF-8" })
-	public List<MeetingRoomVO> getAllMeetingRooms(){
-		return service.getAllMeetingRoom();
+	public List<MeetingRoomVO> getAllMeetingRooms() {
+		List<MeetingRoomVO> retValue = meetingRoomservice.getAllMeetingRoom();
+		for (MeetingRoomVO mr : retValue) {
+			boolean canBeDeleted = !(meetingRoomReservationService
+					.getReservationByMeetingRoom(mr.getId()).size() > 0);
+			if (canBeDeleted) {
+				mr.setCanBeDeleted(true);
+			}
+		}
+		return retValue;
 	}
 	
 	@GET
 	@Path("/checkName")
 	public Response checkName(@QueryParam("id") Integer mrId,
 			@QueryParam("name") String name){
-		String rtn = "{\"valid\":" + service.checkName(mrId, name) + "}";
+		String rtn = "{\"valid\":" + meetingRoomservice.checkName(mrId, name) + "}";
 		return Response.status(200).entity(rtn).build();
 	}
 	
@@ -49,21 +60,21 @@ public class MeetingRoomResource {
 	@Path("/{id}")
 	@Produces({ "application/json;charset=UTF-8" })
 	public MeetingRoomVO getMeetingRoom(@PathParam("id") Integer id){
-		return service.getMeetingRoom(id);
+		return meetingRoomservice.getMeetingRoom(id);
 	}
 	
 	@PUT
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8"})
 	public MeetingRoomVO createMeetingRoom(MeetingRoomVO meetingRoom){
-		return service.saveOrUpdateMeetingRoom(meetingRoom);
+		return meetingRoomservice.saveOrUpdateMeetingRoom(meetingRoom);
 	}
 	
 	@POST
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8"})
 	public MeetingRoomVO updateMeetingRoom(MeetingRoomVO meetingRoom){
-		return service.saveOrUpdateMeetingRoom(meetingRoom);
+		return meetingRoomservice.saveOrUpdateMeetingRoom(meetingRoom);
 	}
 	
 	
@@ -72,9 +83,9 @@ public class MeetingRoomResource {
 	@Produces({ "application/json;charset=UTF-8" })
 	@Consumes({ "application/json;charset=UTF-8"})
 	public MeetingRoomVO updateMeetingRoomLocation(MeetingRoomVO meetingRoom){
-		MeetingRoomVO persitiedMrVo=service.getMeetingRoom(meetingRoom.getId());
+		MeetingRoomVO persitiedMrVo=meetingRoomservice.getMeetingRoom(meetingRoom.getId());
 		persitiedMrVo.setPosition(meetingRoom.getPosition());
-		return service.saveOrUpdateMeetingRoom(persitiedMrVo);
+		return meetingRoomservice.saveOrUpdateMeetingRoom(persitiedMrVo);
 	}
 	
 	
@@ -82,7 +93,7 @@ public class MeetingRoomResource {
 	@DELETE
 	@Path("/{id}")
 	public void deleteMeetingRoom(@PathParam("id") Integer id){
-		service.deleteMeetingRoom(id);
+		meetingRoomservice.deleteMeetingRoom(id);
 	}
 	
 	@POST

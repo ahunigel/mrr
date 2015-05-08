@@ -38,6 +38,19 @@ public class DateTimeUtil
 		return day2 - day1;
 	}
 	
+	public static int getIntervalMonthsBetweenDates(Date startDate, Date endDate)
+	{
+		Calendar calStart = Calendar.getInstance();
+		calStart.setTime(startDate);
+		
+		Calendar calEnd = Calendar.getInstance();
+		calEnd.setTime(endDate);
+		
+		int diffYear = calEnd.get(Calendar.YEAR) - calStart.get(Calendar.YEAR);
+		int diffMonth = diffYear * 12 + calEnd.get(Calendar.MONTH) - calStart.get(Calendar.MONTH);
+		return diffMonth;
+	}
+	
 	/**
 	 * Check if the given date is working day or not.
 	 * @param date the date to check if it is working day.
@@ -297,6 +310,10 @@ public class DateTimeUtil
 		if (repeatCount > 0)
 		{
 			int addDays = res.getRecurrentInterval();
+			if(res.getRecurrentType().equals(RecurrentType.WEEKLY))
+			{
+				addDays = res.getRecurrentInterval() * 7;
+			}
 			for (int i = 0; i < repeatCount; i++)
 			{
 				resItem = getCopiedReservationItem(resItem, addDays, -1);

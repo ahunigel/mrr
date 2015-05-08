@@ -31,6 +31,8 @@ public class MeetingRoomVO implements Serializable{
 	private boolean specailRoom;
 	
 	private String position;
+	
+	private boolean canBeDeleted = false; 
 
 	public Integer getId() {
 		return id;
@@ -138,6 +140,14 @@ public class MeetingRoomVO implements Serializable{
 	 */
 	public void setPosition(String position) {
 		this.position = position;
+	}
+
+	public boolean isCanBeDeleted() {
+		return canBeDeleted;
+	}
+
+	public void setCanBeDeleted(boolean canBeDeleted) {
+		this.canBeDeleted = canBeDeleted;
 	}
 	
 	

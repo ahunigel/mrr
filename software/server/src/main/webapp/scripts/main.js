@@ -226,7 +226,11 @@ var deleteMR=function(id){
 		{
 			if (xhr.readyState==4)
 			{
+				mrData = null;
+				mrObj = [];
+				floorOptions = [];
 				loadMRList();
+				loadMeetingRooms();
 			}
 		}
 		 xhr.send();
@@ -304,7 +308,11 @@ function sendData(method,ignoreId){
 	{
 	  if (xhr.readyState==4 && xhr.status==200)
 		{
+			mrData = null;
+			mrObj = [];
+			floorOptions = [];
 			loadMRList();
+			loadMeetingRooms();
 			$("#closeEditMRBtn").click();
 		}
 	 }
@@ -330,8 +338,7 @@ function  loadMRList (){
 			
 			row.insertCell(3).innerHTML='<input type="checkbox" '+(data[i].phoneExist==true?'checked':'')+' disabled/>';
 			row.insertCell(4).innerHTML='<input type="checkbox" '+(data[i].projectorExist?'checked':'')+' disabled/>';
-			
-			row.insertCell(5).innerHTML='<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" value="edit" onclick="editMR('+data[i].id+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#MyModal1" value="delete" onclick="deleteMR('+data[i].id+')"/>';
+			row.insertCell(5).innerHTML='<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" value="edit" onclick="editMR('+data[i].id+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#MyModal1" value="delete" onclick="deleteMR('+data[i].id+')" '+(data[i].canBeDeleted?'':'disabled = "disabled"') + '/>';
 		}
 	  });
 }
