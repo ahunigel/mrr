@@ -146,7 +146,7 @@ function processMeetingRoomData()
 	{
 		return false;
 	}
-	
+	$("#mrrFloor").val(floorOptions[0].value);
 	return true;
 }
 
@@ -1647,7 +1647,7 @@ function getMRCalender()
 				getReservationByDateRangeAndMrId(start, end, calMrId,callback);
 			}
 		});
-	var dialog = $( "#calendar" ).dialog({ width: 700,height:620,
+	var dialog = $( "#calendar" ).dialog({ width: 1100,height:620,
 	  title:'Color Description: Gray -Expired; Yellow - Ongoing; Blue - Future',
 	  show: {
         effect: "blind",
@@ -1664,6 +1664,13 @@ function getMRCalender()
 	   $('#calendar').fullCalendar('refetchEvents');}  
 	});
 	dialog.prev(".ui-dialog-titlebar").css({"color":"#428bca", "text-decoration":"underline"});
+	$(".ui-dialog-titlebar-close").addClass("ui-button");
+	$(".ui-dialog-titlebar-close").addClass("ui-widget");
+	$(".ui-dialog-titlebar-close").addClass("ui-state-default");
+	$(".ui-dialog-titlebar-close").addClass("ui-corner-all");
+	$(".ui-dialog-titlebar-close").addClass("ui-button-icon-only");
+	$(".ui-dialog-titlebar-close").addClass("ui-dialog-titlebar-close");
+	$(".ui-dialog-titlebar-close").append('<span class="ui-button-icon-primary ui-icon ui-icon-closethick"></span><span class="ui-button-text">close</span>');
 	//dialog.prev(".ui-dialog-titlebar").css("text-decoration","underline");	
 }
 
@@ -1696,7 +1703,7 @@ function processMeetingRooomStatusData(mrTab,result)
 
 	}
 	var invalidateDate = getDateWithoutTime(null).getTime() + 1000 * 60 *60 * 24 * 30;
-	var shouldDisable = new Date(invalidateDate)<selectedDate;
+	var shouldDisable = (new Date(invalidateDate)<selectedDate) || (getDateWithoutTime(null).getTime() > selectedDate);
 	var disablePro = shouldDisable?' disabled = "disabled"':'';
 	if(shouldDisable)
 	{

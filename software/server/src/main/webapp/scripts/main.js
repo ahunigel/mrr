@@ -338,7 +338,7 @@ function  loadMRList (){
 			
 			row.insertCell(3).innerHTML='<input type="checkbox" '+(data[i].phoneExist==true?'checked':'')+' disabled/>';
 			row.insertCell(4).innerHTML='<input type="checkbox" '+(data[i].projectorExist?'checked':'')+' disabled/>';
-			row.insertCell(5).innerHTML='<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" value="edit" onclick="editMR('+data[i].id+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#MyModal1" value="delete" onclick="deleteMR('+data[i].id+')" '+(data[i].canBeDeleted?'':'disabled = "disabled"') + '/>';
+			row.insertCell(5).innerHTML='<input type="button" class="btn btn-primary" data-toggle="modal" data-target="#meetingRoomEdit" value="Edit" onclick="editMR('+data[i].id+')"/> <input type="button" class="btn btn-danger" data-toggle="modal" data-target="#MyModal1" value="Delete" onclick="deleteMR('+data[i].id+')" '+(data[i].canBeDeleted?'':'disabled = "disabled"') + '/>';
 		}
 	  });
 }
