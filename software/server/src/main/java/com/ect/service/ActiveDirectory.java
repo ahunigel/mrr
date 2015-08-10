@@ -92,6 +92,7 @@ public class ActiveDirectory {
       String ldapURL = "ldap://" + ((serverName==null)? domainName : serverName + "." + domainName) + '/';
       props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       props.put(Context.PROVIDER_URL, ldapURL);
+      props.put(Context.REFERRAL, "follow");
       try{
           return new InitialLdapContext(props, null);
       }
@@ -139,11 +140,20 @@ public class ActiveDirectory {
                   Attributes attr = answer.next().getAttributes();
                   Attribute user = attr.get("userPrincipalName");
                   if (user!=null) return new User(attr);
+              }else{
+            	  answer = context.search( toDC(domainName), "(& (cn="+username+")(objectClass=user))", controls);
+            	  if (answer.hasMore()) {
+                      Attributes attr = answer.next().getAttributes();
+                      Attribute user = attr.get("userPrincipalName");
+                      if (user!=null) return new User(attr);
+                  }else{
+                	  System.out.println("no user found");
+            	  }
               }
           }
       }
-      catch(NamingException e){
-          //e.printStackTrace();
+      catch(Throwable e){
+          e.printStackTrace();
       }
       return null;
   }
@@ -173,7 +183,9 @@ public class ActiveDirectory {
                   }
               }
           }
-          catch(Exception e){}
+          catch(Exception e){
+        	  e.printStackTrace();
+          }
       }
       return users.toArray(new User[users.size()]);
   }
@@ -270,7 +282,7 @@ public class ActiveDirectory {
   }
   
   public static void main(String args[]) throws NamingException{
-  	LdapContext context=ActiveDirectory.getConnection("matthew.zhu", "mickey#32","emrsn.org");
+  	LdapContext context=ActiveDirectory.getConnection("matthew.zhu", "mickey@098","emrsn.org");
   	User user=ActiveDirectory.getUser("matthew.zhu", context);
   	System.out.println(user);
   	System.out.println(user.getCommonName());
